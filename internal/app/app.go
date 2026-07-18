@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/X0JIO/nebula-api/internal/modules/auth"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
 	"github.com/X0JIO/nebula-api/internal/platform/cache/redis"
 	"github.com/X0JIO/nebula-api/internal/platform/config"
@@ -22,6 +23,7 @@ type App struct {
 	Postgres    *postgres.DB
 	Redis       *redis.Client
 	Users       *users.Service
+	Auth        *auth.Service
 	UserHandler *users.Handler
 	Server      *web.Server
 }
@@ -61,14 +63,23 @@ func New() (*App, error) {
 		userRepository,
 	)
 
+	authService := auth.NewService(
+		userRepository,
+	)
+
 	userHandler := users.NewHandler(
 		userService,
+	)
+
+	authHandler := auth.NewHandler(
+		authService,
 	)
 
 	server := web.New(
 		cfg.App.Host,
 		cfg.App.Port,
 		userHandler,
+		authHandler,
 	)
 
 	if err != nil {
@@ -81,6 +92,7 @@ func New() (*App, error) {
 		Postgres:    database,
 		Redis:       cache,
 		Users:       userService,
+		Auth:        authService,
 		UserHandler: userHandler,
 		Server:      server,
 	}, nil

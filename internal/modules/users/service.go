@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"golang.org/x/crypto/bcrypt"
+	"github.com/X0JIO/nebula-api/internal/modules/auth"
 
 	db "github.com/X0JIO/nebula-api/internal/platform/database/sqlc"
 )
@@ -36,10 +36,7 @@ func (s *Service) Create(
 		return db.User{}, errors.New("password required")
 	}
 
-	hash, err := bcrypt.GenerateFromPassword(
-		[]byte(password),
-		bcrypt.DefaultCost,
-	)
+	hash, err := auth.HashPassword(password)
 
 	if err != nil {
 		return db.User{}, err
