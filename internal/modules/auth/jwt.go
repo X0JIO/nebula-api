@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -54,4 +55,45 @@ func (j *JWT) GenerateRefreshToken(
 	)
 
 	return token.SignedString(j.secret)
+}
+
+func (j *JWT) ParseToken(
+	tokenString string,
+) (string, error) {
+
+	token, err := jwt.Parse(
+		tokenString,
+		func(token *jwt.Token) (interface{}, error) {
+
+			return j.secret, nil
+		},
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	if !token.Valid {
+		return "", errors.New("invalid token")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+
+	if !ok {
+		return "", errors.New("invalid claims")
+	}
+
+	tokenType, ok := claims["type"].(string)
+
+	if !ok || tokenType != "refresh" {
+		return "", errors.New("not refresh token")
+	}
+
+	userID, ok := claims["sub"].(string)
+
+	if !ok {
+		return "", errors.New("invalid subject")
+	}
+
+	return userID, nil
 }

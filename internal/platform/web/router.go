@@ -29,6 +29,8 @@ func NewRouter(
 
 		r.Post("/auth/login", authHandler.Login)
 
+		r.Post("/auth/refresh", authHandler.Refresh)
+
 		r.Group(func(r chi.Router) {
 
 			r.Use(jwtMiddleware.Handler)

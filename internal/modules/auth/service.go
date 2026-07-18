@@ -151,3 +151,39 @@ func (s *Service) LoginTokens(
 		RefreshToken: refresh,
 	}, nil
 }
+
+func (s *Service) Refresh(
+	refreshToken string,
+) (Tokens, error) {
+
+	userID, err := s.jwt.ParseToken(
+		refreshToken,
+	)
+
+	if err != nil {
+		return Tokens{}, err
+	}
+
+	access, err := s.jwt.GenerateAccessToken(
+		userID,
+		15*time.Minute,
+	)
+
+	if err != nil {
+		return Tokens{}, err
+	}
+
+	refresh, err := s.jwt.GenerateRefreshToken(
+		userID,
+		720*time.Hour,
+	)
+
+	if err != nil {
+		return Tokens{}, err
+	}
+
+	return Tokens{
+		AccessToken:  access,
+		RefreshToken: refresh,
+	}, nil
+}

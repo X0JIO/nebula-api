@@ -27,6 +27,10 @@ type registerRequest struct {
 	Password string `json:"password"`
 }
 
+type refreshRequest struct {
+	RefreshToken string `json:"refresh_token"`
+}
+
 func (h *Handler) Register(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -102,4 +106,41 @@ func (h *Handler) Login(
 	)
 
 	_ = json.NewEncoder(w).Encode(tokens)
+}
+
+func (h *Handler) Refresh(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	var req refreshRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(
+			w,
+			"invalid request",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	tokens, err := h.service.Refresh(
+		req.RefreshToken,
+	)
+
+	if err != nil {
+		http.Error(
+			w,
+			"invalid refresh token",
+			http.StatusUnauthorized,
+		)
+		return
+	}
+
+	w.Header().Set(
+		"Content-Type",
+		"application/json",
+	)
+
+	json.NewEncoder(w).Encode(tokens)
 }
