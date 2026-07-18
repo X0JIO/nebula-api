@@ -25,3 +25,17 @@ down:
 
 logs:
 	docker compose logs -f
+
+DB_URL=postgres://nebula:nebula@localhost:5432/nebula?sslmode=disable
+
+
+migrate-up:
+	goose -dir migrations postgres "$(DB_URL)" up
+
+
+migrate-down:
+	goose -dir migrations postgres "$(DB_URL)" down
+
+
+migrate-status:
+	goose -dir migrations postgres "$(DB_URL)" status
