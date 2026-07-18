@@ -1,26 +1,39 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"os"
 
-	"github.com/X0JIO/nebula-api/internal/platform/config"
+	"github.com/X0JIO/nebula-api/internal/app"
 	"github.com/joho/godotenv"
 )
 
 func main() {
 
-	// Загружаем .env если файл существует.
 	_ = godotenv.Load()
 
-	cfg, err := config.Load()
+	application, err := app.New()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
-	fmt.Printf(
-		"%s started (%s)\n",
-		cfg.App.Name,
-		cfg.App.Env,
+	defer application.Logger.Sync()
+
+	application.Logger.Info("application starting")
+
+	application.Logger.Info(
+		"configuration loaded",
 	)
+
+	application.Logger.Info(
+		"environment",
+	)
+
+	application.Logger.Info(
+		application.Config.App.Env,
+	)
+
+	application.Logger.Info("application initialized")
+
+	os.Exit(0)
+
 }
