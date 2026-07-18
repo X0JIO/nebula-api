@@ -8,6 +8,7 @@ import (
 
 	"github.com/X0JIO/nebula-api/internal/modules/auth"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
+	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
 )
 
 type Server struct {
@@ -19,6 +20,7 @@ func New(
 	port int,
 	userHandler *users.Handler,
 	authHandler *auth.Handler,
+	jwtMiddleware *middleware.JWTMiddleware,
 ) *Server {
 
 	addr := fmt.Sprintf("%s:%d", host, port)
@@ -29,6 +31,7 @@ func New(
 			Handler: NewRouter(
 				userHandler,
 				authHandler,
+				jwtMiddleware,
 			),
 			ReadHeaderTimeout: 5 * time.Second,
 		},

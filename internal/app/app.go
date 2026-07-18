@@ -11,6 +11,7 @@ import (
 	"github.com/X0JIO/nebula-api/internal/platform/database/postgres"
 	"github.com/X0JIO/nebula-api/internal/platform/logger"
 	"github.com/X0JIO/nebula-api/internal/platform/web"
+	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
 
 	db "github.com/X0JIO/nebula-api/internal/platform/database/sqlc"
 
@@ -80,11 +81,16 @@ func New() (*App, error) {
 		authService,
 	)
 
+	jwtMiddleware := middleware.NewJWTMiddleware(
+		cfg.App.JWT.Secret,
+	)
+
 	server := web.New(
 		cfg.App.Host,
 		cfg.App.Port,
 		userHandler,
 		authHandler,
+		jwtMiddleware,
 	)
 
 	if err != nil {

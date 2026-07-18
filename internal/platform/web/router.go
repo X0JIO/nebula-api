@@ -8,11 +8,13 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/auth"
 	"github.com/X0JIO/nebula-api/internal/modules/health"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
+	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
 )
 
 func NewRouter(
 	userHandler *users.Handler,
 	authHandler *auth.Handler,
+	jwtMiddleware *middleware.JWTMiddleware,
 ) http.Handler {
 
 	r := chi.NewRouter()
@@ -27,7 +29,17 @@ func NewRouter(
 
 		r.Post("/auth/login", authHandler.Login)
 
-	})
+		r.Group(func(r chi.Router) {
 
+			r.Use(jwtMiddleware.Handler)
+
+			r.Get(
+				"/users/me",
+				userHandler.Me,
+			)
+
+		})
+
+	})
 	return r
 }

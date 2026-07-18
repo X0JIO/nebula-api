@@ -72,3 +72,42 @@ func (h *Handler) Create(
 
 	json.NewEncoder(w).Encode(response)
 }
+
+
+func (h *Handler) Me(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	userID, ok := r.Context().Value("user_id").(string)
+
+	if !ok {
+		http.Error(
+			w,
+			"unauthorized",
+			http.StatusUnauthorized,
+		)
+		return
+	}
+
+	user, err := h.service.GetByID(
+		r.Context(),
+		userID,
+	)
+
+	if err != nil {
+		http.Error(
+			w,
+			"user not found",
+			http.StatusNotFound,
+		)
+		return
+	}
+
+	w.Header().Set(
+		"Content-Type",
+		"application/json",
+	)
+
+	_ = json.NewEncoder(w).Encode(user)
+}

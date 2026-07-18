@@ -22,6 +22,17 @@ func NewService(
 	}
 }
 
+func (s *Service) GetByID(
+	ctx context.Context,
+	id string,
+) (db.User, error) {
+
+	return s.repository.GetByID(
+		ctx,
+		id,
+	)
+}
+
 func (s *Service) Create(
 	ctx context.Context,
 	email string,
