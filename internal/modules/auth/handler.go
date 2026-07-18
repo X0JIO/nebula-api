@@ -17,6 +17,11 @@ func NewHandler(
 	}
 }
 
+type loginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type registerRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -58,4 +63,43 @@ func (h *Handler) Register(
 	)
 
 	_ = json.NewEncoder(w).Encode(user)
+}
+
+func (h *Handler) Login(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	var req loginRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(
+			w,
+			"invalid request",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	tokens, err := h.service.LoginTokens(
+		r.Context(),
+		req.Email,
+		req.Password,
+	)
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusUnauthorized,
+		)
+		return
+	}
+
+	w.Header().Set(
+		"Content-Type",
+		"application/json",
+	)
+
+	_ = json.NewEncoder(w).Encode(tokens)
 }

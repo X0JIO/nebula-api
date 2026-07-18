@@ -63,8 +63,13 @@ func New() (*App, error) {
 		userRepository,
 	)
 
+	jwt := auth.NewJWT(
+		cfg.App.JWT.Secret,
+	)
+
 	authService := auth.NewService(
 		userRepository,
+		jwt,
 	)
 
 	userHandler := users.NewHandler(

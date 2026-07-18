@@ -25,6 +25,8 @@ func NewRouter(
 
 		r.Post("/auth/register", authHandler.Register)
 
+		r.Post("/auth/login", authHandler.Login)
+
 	})
 
 	return r

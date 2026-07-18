@@ -19,6 +19,7 @@ type AppConfig struct {
 
 	Postgres PostgresConfig
 	Redis    RedisConfig
+	JWT      JWTConfig
 }
 
 type PostgresConfig struct {
@@ -38,6 +39,13 @@ type RedisConfig struct {
 	Port     string `env:"REDIS_PORT" envDefault:"6379"`
 	Password string `env:"REDIS_PASSWORD"`
 	DB       int    `env:"REDIS_DB" envDefault:"0"`
+}
+
+type JWTConfig struct {
+	Secret string `env:"JWT_SECRET,required"`
+
+	AccessTTL  string `env:"JWT_ACCESS_TTL" envDefault:"15m"`
+	RefreshTTL string `env:"JWT_REFRESH_TTL" envDefault:"720h"`
 }
 
 func Load() (*Config, error) {
