@@ -4,11 +4,14 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/X0JIO/nebula-api/internal/modules/users"
 	"github.com/X0JIO/nebula-api/internal/platform/cache/redis"
 	"github.com/X0JIO/nebula-api/internal/platform/config"
 	"github.com/X0JIO/nebula-api/internal/platform/database/postgres"
 	"github.com/X0JIO/nebula-api/internal/platform/logger"
 	"github.com/X0JIO/nebula-api/internal/platform/web"
+
+	db "github.com/X0JIO/nebula-api/internal/platform/database/sqlc"
 
 	"go.uber.org/zap"
 )
@@ -18,6 +21,7 @@ type App struct {
 	Logger   *zap.Logger
 	Postgres *postgres.DB
 	Redis    *redis.Client
+	Users    *users.Service
 	Server   *web.Server
 }
 
@@ -41,14 +45,24 @@ func New() (*App, error) {
 		return nil, err
 	}
 
-	server := web.New(
-		cfg.App.Host,
-		cfg.App.Port,
-	)
-
 	cache, err := redis.New(
 		context.Background(),
 		cfg.App.Redis,
+	)
+
+	queries := db.New(database.Pool)
+
+	userRepository := users.NewRepository(
+		queries,
+	)
+
+	userService := users.NewService(
+		userRepository,
+	)
+
+	server := web.New(
+		cfg.App.Host,
+		cfg.App.Port,
 	)
 
 	if err != nil {
@@ -60,6 +74,7 @@ func New() (*App, error) {
 		Logger:   log,
 		Postgres: database,
 		Redis:    cache,
+		Users:    userService,
 		Server:   server,
 	}, nil
 
