@@ -5,20 +5,22 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/X0JIO/nebula-api/internal/modules/users"
 )
 
 type Server struct {
 	http *http.Server
 }
 
-func New(host string, port int) *Server {
+func New(host string, port int, userHandler *users.Handler) *Server {
 
 	addr := fmt.Sprintf("%s:%d", host, port)
 
 	return &Server{
 		http: &http.Server{
 			Addr:              addr,
-			Handler:           NewRouter(),
+			Handler:           NewRouter(userHandler),
 			ReadHeaderTimeout: 5 * time.Second,
 		},
 	}

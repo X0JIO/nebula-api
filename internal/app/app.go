@@ -17,12 +17,13 @@ import (
 )
 
 type App struct {
-	Config   *config.Config
-	Logger   *zap.Logger
-	Postgres *postgres.DB
-	Redis    *redis.Client
-	Users    *users.Service
-	Server   *web.Server
+	Config      *config.Config
+	Logger      *zap.Logger
+	Postgres    *postgres.DB
+	Redis       *redis.Client
+	Users       *users.Service
+	UserHandler *users.Handler
+	Server      *web.Server
 }
 
 func New() (*App, error) {
@@ -60,9 +61,14 @@ func New() (*App, error) {
 		userRepository,
 	)
 
+	userHandler := users.NewHandler(
+		userService,
+	)
+
 	server := web.New(
 		cfg.App.Host,
 		cfg.App.Port,
+		userHandler,
 	)
 
 	if err != nil {
@@ -70,12 +76,13 @@ func New() (*App, error) {
 	}
 
 	return &App{
-		Config:   cfg,
-		Logger:   log,
-		Postgres: database,
-		Redis:    cache,
-		Users:    userService,
-		Server:   server,
+		Config:      cfg,
+		Logger:      log,
+		Postgres:    database,
+		Redis:       cache,
+		Users:       userService,
+		UserHandler: userHandler,
+		Server:      server,
 	}, nil
 
 }
