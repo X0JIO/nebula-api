@@ -1,0 +1,22 @@
+# Environment
+.env
+
+# Binaries
+bin/
+dist/
+
+# Go
+*.test
+*.out
+coverage.out
+
+# IDE
+.idea/
+.vscode/
+
+# Air
+tmp/
+
+# OS
+.DS_Store
+Thumbs.db
