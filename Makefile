@@ -39,3 +39,6 @@ migrate-down:
 
 migrate-status:
 	goose -dir migrations postgres "$(DB_URL)" status
+
+sqlc:
+	sqlc generate
