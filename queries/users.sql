@@ -12,7 +12,6 @@ WHERE id = $1
 LIMIT 1;
 
 
-
 -- name: GetUserByEmail :one
 
 SELECT
@@ -27,7 +26,6 @@ WHERE email = $1
 LIMIT 1;
 
 
-
 -- name: ListUsers :many
 
 SELECT
@@ -39,7 +37,6 @@ SELECT
     updated_at
 FROM users
 ORDER BY created_at DESC;
-
 
 
 -- name: CreateUser :one
@@ -59,3 +56,4 @@ RETURNING
     status,
     created_at,
     updated_at;
+

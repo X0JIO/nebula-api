@@ -5,8 +5,19 @@
 package db
 
 import (
+	"time"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type RefreshToken struct {
+	ID        pgtype.UUID
+	UserID    pgtype.UUID
+	TokenHash string
+	ExpiresAt time.Time
+	RevokedAt pgtype.Timestamp
+	CreatedAt time.Time
+}
 
 type User struct {
 	ID           pgtype.UUID      `json:"id"`
