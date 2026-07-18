@@ -7,6 +7,7 @@ import (
 	"github.com/X0JIO/nebula-api/internal/platform/config"
 	"github.com/X0JIO/nebula-api/internal/platform/logger"
 	"github.com/X0JIO/nebula-api/internal/platform/web"
+	"github.com/X0JIO/nebula-api/internal/platform/database/postgres"
 
 	"go.uber.org/zap"
 )
@@ -14,6 +15,7 @@ import (
 type App struct {
 	Config *config.Config
 	Logger *zap.Logger
+	Postgres *postgres.DB
 	Server *web.Server
 }
 
@@ -29,6 +31,14 @@ func New() (*App, error) {
 		return nil, err
 	}
 
+	database, err := postgres.New(
+	context.Background(),
+	cfg.App.Postgres,
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	server := web.New(
 		cfg.App.Host,
 		cfg.App.Port,
@@ -37,13 +47,17 @@ func New() (*App, error) {
 	return &App{
 		Config: cfg,
 		Logger: log,
+		Postgres: database,
 		Server: server,
 	}, nil
+	
 }
 
 func (a *App) Run(ctx context.Context) error {
 
 	a.Logger.Info("HTTP server starting")
+
+	defer a.Postgres.Close()
 
 	errCh := make(chan error, 1)
 
