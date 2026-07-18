@@ -18,6 +18,7 @@ type AppConfig struct {
 	LogLevel string `env:"LOG_LEVEL" envDefault:"info"`
 
 	Postgres PostgresConfig
+	Redis    RedisConfig
 }
 
 type PostgresConfig struct {
@@ -30,6 +31,13 @@ type PostgresConfig struct {
 
 	MaxConns int32 `env:"POSTGRES_MAX_CONNS" envDefault:"20"`
 	MinConns int32 `env:"POSTGRES_MIN_CONNS" envDefault:"2"`
+}
+
+type RedisConfig struct {
+	Host     string `env:"REDIS_HOST" envDefault:"localhost"`
+	Port     string `env:"REDIS_PORT" envDefault:"6379"`
+	Password string `env:"REDIS_PASSWORD"`
+	DB       int    `env:"REDIS_DB" envDefault:"0"`
 }
 
 func Load() (*Config, error) {
