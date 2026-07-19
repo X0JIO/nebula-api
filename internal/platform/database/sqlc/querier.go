@@ -22,15 +22,15 @@ type Querier interface {
 	DeleteProject(ctx context.Context, id pgtype.UUID) error
 	DeleteTask(ctx context.Context, id pgtype.UUID) error
 	DeleteUser(ctx context.Context, id pgtype.UUID) error
-	GetCommentByID(ctx context.Context, id pgtype.UUID) (Comment, error)
+	GetComment(ctx context.Context, id pgtype.UUID) (Comment, error)
 	GetProjectByID(ctx context.Context, id pgtype.UUID) (Project, error)
 	GetProjectRole(ctx context.Context, arg GetProjectRoleParams) (string, error)
 	GetRefreshToken(ctx context.Context, tokenHash string) (RefreshToken, error)
 	GetTaskByID(ctx context.Context, id pgtype.UUID) (Task, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
-	ListCommentsByTask(ctx context.Context, taskID pgtype.UUID) ([]Comment, error)
 	ListProjectsByUser(ctx context.Context, userID pgtype.UUID) ([]Project, error)
+	ListTaskComments(ctx context.Context, taskID pgtype.UUID) ([]Comment, error)
 	ListTasksByAssignee(ctx context.Context, assigneeID pgtype.UUID) ([]Task, error)
 	ListTasksByProject(ctx context.Context, projectID pgtype.UUID) ([]Task, error)
 	ListTasksByStatus(ctx context.Context, arg ListTasksByStatusParams) ([]Task, error)
@@ -38,7 +38,6 @@ type Querier interface {
 	ProjectExistsForUser(ctx context.Context, arg ProjectExistsForUserParams) (bool, error)
 	RemoveProjectMember(ctx context.Context, arg RemoveProjectMemberParams) error
 	RevokeRefreshToken(ctx context.Context, tokenHash string) error
-	UpdateComment(ctx context.Context, arg UpdateCommentParams) (Comment, error)
 	UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error)
 	UpdateTask(ctx context.Context, arg UpdateTaskParams) (Task, error)
 	UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) (User, error)

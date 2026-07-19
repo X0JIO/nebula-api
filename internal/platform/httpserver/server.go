@@ -8,6 +8,7 @@ import (
 
 	"github.com/X0JIO/nebula-api/internal/modules/admin"
 	"github.com/X0JIO/nebula-api/internal/modules/auth"
+	"github.com/X0JIO/nebula-api/internal/modules/comments"
 	"github.com/X0JIO/nebula-api/internal/modules/projects"
 	"github.com/X0JIO/nebula-api/internal/modules/tasks"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
@@ -20,16 +21,17 @@ type Server struct {
 
 func New(
 	host string,
-	port int,
+	port string,
 	userHandler *users.Handler,
 	authHandler *auth.Handler,
 	adminHandler *admin.Handler,
 	projectsHandler *projects.Handler,
 	tasksHandler *tasks.Handler,
+	commentsHandler *comments.Handler,
 	jwtMiddleware *middleware.JWTMiddleware,
 ) *Server {
 
-	addr := fmt.Sprintf("%s:%d", host, port)
+	addr := fmt.Sprintf("%s:%s", host, port)
 
 	return &Server{
 		http: &http.Server{
@@ -40,6 +42,7 @@ func New(
 				adminHandler,
 				projectsHandler,
 				tasksHandler,
+				commentsHandler,
 				jwtMiddleware,
 			),
 			ReadHeaderTimeout: 5 * time.Second,

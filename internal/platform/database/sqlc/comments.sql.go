@@ -46,9 +46,8 @@ func (q *Queries) CreateComment(ctx context.Context, arg CreateCommentParams) (C
 }
 
 const deleteComment = `-- name: DeleteComment :exec
-DELETE
-FROM comments
-WHERE id=$1
+DELETE FROM comments
+WHERE id = $1
 `
 
 func (q *Queries) DeleteComment(ctx context.Context, id pgtype.UUID) error {
@@ -56,15 +55,15 @@ func (q *Queries) DeleteComment(ctx context.Context, id pgtype.UUID) error {
 	return err
 }
 
-const getCommentByID = `-- name: GetCommentByID :one
+const getComment = `-- name: GetComment :one
 SELECT id, task_id, author_id, body, created_at, updated_at
 FROM comments
-WHERE id=$1
+WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetCommentByID(ctx context.Context, id pgtype.UUID) (Comment, error) {
-	row := q.db.QueryRow(ctx, getCommentByID, id)
+func (q *Queries) GetComment(ctx context.Context, id pgtype.UUID) (Comment, error) {
+	row := q.db.QueryRow(ctx, getComment, id)
 	var i Comment
 	err := row.Scan(
 		&i.ID,
@@ -77,15 +76,15 @@ func (q *Queries) GetCommentByID(ctx context.Context, id pgtype.UUID) (Comment, 
 	return i, err
 }
 
-const listCommentsByTask = `-- name: ListCommentsByTask :many
+const listTaskComments = `-- name: ListTaskComments :many
 SELECT id, task_id, author_id, body, created_at, updated_at
 FROM comments
-WHERE task_id=$1
+WHERE task_id = $1
 ORDER BY created_at ASC
 `
 
-func (q *Queries) ListCommentsByTask(ctx context.Context, taskID pgtype.UUID) ([]Comment, error) {
-	rows, err := q.db.Query(ctx, listCommentsByTask, taskID)
+func (q *Queries) ListTaskComments(ctx context.Context, taskID pgtype.UUID) ([]Comment, error) {
+	rows, err := q.db.Query(ctx, listTaskComments, taskID)
 	if err != nil {
 		return nil, err
 	}
@@ -109,32 +108,4 @@ func (q *Queries) ListCommentsByTask(ctx context.Context, taskID pgtype.UUID) ([
 		return nil, err
 	}
 	return items, nil
-}
-
-const updateComment = `-- name: UpdateComment :one
-UPDATE comments
-SET
-    body=$2,
-    updated_at=now()
-WHERE id=$1
-RETURNING id, task_id, author_id, body, created_at, updated_at
-`
-
-type UpdateCommentParams struct {
-	ID   pgtype.UUID `json:"id"`
-	Body string      `json:"body"`
-}
-
-func (q *Queries) UpdateComment(ctx context.Context, arg UpdateCommentParams) (Comment, error) {
-	row := q.db.QueryRow(ctx, updateComment, arg.ID, arg.Body)
-	var i Comment
-	err := row.Scan(
-		&i.ID,
-		&i.TaskID,
-		&i.AuthorID,
-		&i.Body,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
 }

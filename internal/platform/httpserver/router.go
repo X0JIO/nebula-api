@@ -7,6 +7,7 @@ import (
 
 	"github.com/X0JIO/nebula-api/internal/modules/admin"
 	"github.com/X0JIO/nebula-api/internal/modules/auth"
+	"github.com/X0JIO/nebula-api/internal/modules/comments"
 	"github.com/X0JIO/nebula-api/internal/modules/health"
 	"github.com/X0JIO/nebula-api/internal/modules/projects"
 	"github.com/X0JIO/nebula-api/internal/modules/tasks"
@@ -22,6 +23,7 @@ func NewRouter(
 	adminHandler *admin.Handler,
 	projectsHandler *projects.Handler,
 	tasksHandler *tasks.Handler,
+	commentsHandler *comments.Handler,
 	jwtMiddleware *middleware.JWTMiddleware,
 ) http.Handler {
 
@@ -132,6 +134,11 @@ func NewRouter(
 			r.Get(
 				"/project/{projectId}/status/{status}",
 				tasksHandler.ListStatusTasks,
+			)
+
+			comments.Routes(
+				r,
+				commentsHandler,
 			)
 
 		})

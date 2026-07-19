@@ -3,10 +3,12 @@ package app
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	db "github.com/X0JIO/nebula-api/internal/platform/database/sqlc"
 
 	"github.com/X0JIO/nebula-api/internal/modules/auth"
+	"github.com/X0JIO/nebula-api/internal/modules/comments"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
 
 	"github.com/X0JIO/nebula-api/internal/modules/admin"
@@ -117,18 +119,25 @@ func New() (*App, error) {
 		tasksService,
 	)
 
+	commentsRepository := comments.NewRepository(queries)
+
+	commentsService := comments.NewService(commentsRepository)
+
+	commentsHandler := comments.NewHandler(commentsService)
+
 	jwtMiddleware := middleware.NewJWTMiddleware(
 		cfg.App.JWT.Secret,
 	)
 
 	server := httpserver.New(
 		cfg.App.Host,
-		cfg.App.Port,
+		strconv.Itoa(cfg.App.Port),
 		userHandler,
 		authHandler,
 		adminHandler,
 		projectsHandler,
 		tasksHandler,
+		commentsHandler,
 		jwtMiddleware,
 	)
 
