@@ -9,15 +9,18 @@ import (
 )
 
 type Handler struct {
-	service *Service
+	service     *Service
+	permissions *PermissionService
 }
 
 func NewHandler(
 	service *Service,
+	permissions *PermissionService,
 ) *Handler {
 
 	return &Handler{
-		service: service,
+		service:     service,
+		permissions: permissions,
 	}
 }
 
@@ -194,6 +197,29 @@ func (h *Handler) UpdateProject(
 		"id",
 	)
 
+	projectUUID, err := ParseUUID(projectID)
+	if err != nil {
+		http.Error(w, "invalid project id", http.StatusBadRequest)
+		return
+	}
+
+	userUUID, err := ParseUUID(
+		middleware.UserID(r.Context()),
+	)
+	if err != nil {
+		http.Error(w, "invalid user id", http.StatusUnauthorized)
+		return
+	}
+
+	if err := h.permissions.CanUpdateProject(
+		r.Context(),
+		projectUUID,
+		userUUID,
+	); err != nil {
+		http.Error(w, err.Error(), http.StatusForbidden)
+		return
+	}
+
 	var req UpdateProjectRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -255,6 +281,29 @@ func (h *Handler) DeleteProject(
 		"id",
 	)
 
+	projectUUID, err := ParseUUID(projectID)
+	if err != nil {
+		http.Error(w, "invalid project id", http.StatusBadRequest)
+		return
+	}
+
+	userUUID, err := ParseUUID(
+		middleware.UserID(r.Context()),
+	)
+	if err != nil {
+		http.Error(w, "invalid user id", http.StatusUnauthorized)
+		return
+	}
+
+	if err := h.permissions.CanDeleteProject(
+		r.Context(),
+		projectUUID,
+		userUUID,
+	); err != nil {
+		http.Error(w, err.Error(), http.StatusForbidden)
+		return
+	}
+
 	if err := h.service.DeleteProject(
 		r.Context(),
 		projectID,
@@ -295,6 +344,29 @@ func (h *Handler) AddMember(
 		r,
 		"id",
 	)
+
+	projectUUID, err := ParseUUID(projectID)
+	if err != nil {
+		http.Error(w, "invalid project id", http.StatusBadRequest)
+		return
+	}
+
+	userUUID, err := ParseUUID(
+		middleware.UserID(r.Context()),
+	)
+	if err != nil {
+		http.Error(w, "invalid user id", http.StatusUnauthorized)
+		return
+	}
+
+	if err := h.permissions.CanManageMembers(
+		r.Context(),
+		projectUUID,
+		userUUID,
+	); err != nil {
+		http.Error(w, err.Error(), http.StatusForbidden)
+		return
+	}
 
 	var req AddMemberRequest
 
@@ -349,6 +421,29 @@ func (h *Handler) RemoveMember(
 		r,
 		"id",
 	)
+
+	projectUUID, err := ParseUUID(projectID)
+	if err != nil {
+		http.Error(w, "invalid project id", http.StatusBadRequest)
+		return
+	}
+
+	userUUID, err := ParseUUID(
+		middleware.UserID(r.Context()),
+	)
+	if err != nil {
+		http.Error(w, "invalid user id", http.StatusUnauthorized)
+		return
+	}
+
+	if err := h.permissions.CanManageMembers(
+		r.Context(),
+		projectUUID,
+		userUUID,
+	); err != nil {
+		http.Error(w, err.Error(), http.StatusForbidden)
+		return
+	}
 
 	userID := chi.URLParam(
 		r,

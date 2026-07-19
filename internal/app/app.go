@@ -37,6 +37,7 @@ type App struct {
 	AdminHandler    *admin.Handler
 	ProjectsHandler *projects.Handler
 	TasksHandler    *tasks.Handler
+	CommentsHandler *comments.Handler
 	Server          *httpserver.Server
 }
 
@@ -103,8 +104,13 @@ func New() (*App, error) {
 		projectsRepository,
 	)
 
+	projectsPermissions := projects.NewPermissionService(
+		projectsRepository,
+	)
+
 	projectsHandler := projects.NewHandler(
 		projectsService,
+		projectsPermissions,
 	)
 
 	tasksRepository := tasks.NewRepository(
@@ -152,6 +158,7 @@ func New() (*App, error) {
 		AdminHandler:    adminHandler,
 		ProjectsHandler: projectsHandler,
 		TasksHandler:    tasksHandler,
+		CommentsHandler: commentsHandler,
 		Server:          server,
 	}, nil
 }
