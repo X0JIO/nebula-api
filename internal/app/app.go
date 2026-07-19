@@ -11,6 +11,7 @@ import (
 
 	"github.com/X0JIO/nebula-api/internal/modules/admin"
 	"github.com/X0JIO/nebula-api/internal/modules/projects"
+	"github.com/X0JIO/nebula-api/internal/modules/tasks"
 	"github.com/X0JIO/nebula-api/internal/platform/cache/redis"
 	"github.com/X0JIO/nebula-api/internal/platform/config"
 	"github.com/X0JIO/nebula-api/internal/platform/database/postgres"
@@ -33,6 +34,7 @@ type App struct {
 	UserHandler     *users.Handler
 	AdminHandler    *admin.Handler
 	ProjectsHandler *projects.Handler
+	TasksHandler    *tasks.Handler
 	Server          *httpserver.Server
 }
 
@@ -103,6 +105,18 @@ func New() (*App, error) {
 		projectsService,
 	)
 
+	tasksRepository := tasks.NewRepository(
+		queries,
+	)
+
+	tasksService := tasks.NewService(
+		tasksRepository,
+	)
+
+	tasksHandler := tasks.NewHandler(
+		tasksService,
+	)
+
 	jwtMiddleware := middleware.NewJWTMiddleware(
 		cfg.App.JWT.Secret,
 	)
@@ -114,6 +128,7 @@ func New() (*App, error) {
 		authHandler,
 		adminHandler,
 		projectsHandler,
+		tasksHandler,
 		jwtMiddleware,
 	)
 
@@ -127,6 +142,7 @@ func New() (*App, error) {
 		UserHandler:     userHandler,
 		AdminHandler:    adminHandler,
 		ProjectsHandler: projectsHandler,
+		TasksHandler:    tasksHandler,
 		Server:          server,
 	}, nil
 }

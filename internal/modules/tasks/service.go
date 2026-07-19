@@ -24,19 +24,34 @@ func NewService(
 
 func (s *Service) Create(
 	ctx context.Context,
-	arg db.CreateTaskParams,
+	projectID pgtype.UUID,
+	creatorID pgtype.UUID,
+	req CreateTaskRequest,
 ) (db.Task, error) {
 
-	if arg.Title == "" {
+	if req.Title == "" {
 		return db.Task{}, apperrors.ErrTitleRequired
 	}
 
-	if err := ValidateStatus(arg.Status); err != nil {
+	if err := ValidatePriority(req.Priority); err != nil {
 		return db.Task{}, err
 	}
 
-	if err := ValidatePriority(arg.Priority); err != nil {
-		return db.Task{}, err
+	arg := db.CreateTaskParams{
+		ProjectID:   projectID,
+		CreatorID:   creatorID,
+		Title:       req.Title,
+		Description: req.Description,
+		Status:      StatusTodo,
+		Priority:    req.Priority,
+	}
+
+	if req.AssigneeID != nil {
+		arg.AssigneeID = *req.AssigneeID
+	}
+
+	if req.DueDate != nil {
+		arg.DueDate = *req.DueDate
 	}
 
 	return s.repository.Create(ctx, arg)
@@ -90,19 +105,36 @@ func (s *Service) ListStatus(
 
 func (s *Service) Update(
 	ctx context.Context,
-	arg db.UpdateTaskParams,
+	taskID pgtype.UUID,
+	req UpdateTaskRequest,
 ) (db.Task, error) {
 
-	if arg.Title == "" {
+	if req.Title == "" {
 		return db.Task{}, apperrors.ErrTitleRequired
 	}
 
-	if err := ValidateStatus(arg.Status); err != nil {
+	if err := ValidateStatus(req.Status); err != nil {
 		return db.Task{}, err
 	}
 
-	if err := ValidatePriority(arg.Priority); err != nil {
+	if err := ValidatePriority(req.Priority); err != nil {
 		return db.Task{}, err
+	}
+
+	arg := db.UpdateTaskParams{
+		ID:          taskID,
+		Title:       req.Title,
+		Description: req.Description,
+		Status:      req.Status,
+		Priority:    req.Priority,
+	}
+
+	if req.AssigneeID != nil {
+		arg.AssigneeID = *req.AssigneeID
+	}
+
+	if req.DueDate != nil {
+		arg.DueDate = *req.DueDate
 	}
 
 	return s.repository.Update(ctx, arg)

@@ -1,8 +1,6 @@
 package tasks
 
 import (
-	db "github.com/X0JIO/nebula-api/internal/platform/database/sqlc"
-
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -35,40 +33,4 @@ type TaskResponse struct {
 	DueDate     *pgtype.Timestamptz `json:"due_date,omitempty"`
 	CreatedAt   pgtype.Timestamptz  `json:"created_at"`
 	UpdatedAt   pgtype.Timestamptz  `json:"updated_at"`
-}
-
-func ToResponse(task db.Task) TaskResponse {
-	var assignee *pgtype.UUID
-	if task.AssigneeID.Valid {
-		assignee = &task.AssigneeID
-	}
-
-	var due *pgtype.Timestamptz
-	if task.DueDate.Valid {
-		t := pgtype.Timestamptz{
-			Time:  task.DueDate.Time,
-			Valid: true,
-		}
-		due = &t
-	}
-
-	return TaskResponse{
-		ID:          task.ID,
-		ProjectID:   task.ProjectID,
-		CreatorID:   task.CreatorID,
-		AssigneeID:  assignee,
-		Title:       task.Title,
-		Description: task.Description,
-		Status:      task.Status,
-		Priority:    task.Priority,
-		DueDate:     due,
-		CreatedAt: pgtype.Timestamptz{
-			Time:  task.CreatedAt.Time,
-			Valid: true,
-		},
-		UpdatedAt: pgtype.Timestamptz{
-			Time:  task.UpdatedAt.Time,
-			Valid: true,
-		},
-	}
 }

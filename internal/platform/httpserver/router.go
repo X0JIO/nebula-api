@@ -9,6 +9,7 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/auth"
 	"github.com/X0JIO/nebula-api/internal/modules/health"
 	"github.com/X0JIO/nebula-api/internal/modules/projects"
+	"github.com/X0JIO/nebula-api/internal/modules/tasks"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
 
@@ -20,6 +21,7 @@ func NewRouter(
 	authHandler *auth.Handler,
 	adminHandler *admin.Handler,
 	projectsHandler *projects.Handler,
+	tasksHandler *tasks.Handler,
 	jwtMiddleware *middleware.JWTMiddleware,
 ) http.Handler {
 
@@ -83,6 +85,20 @@ func NewRouter(
 				r.Delete("/{id}/members/{userId}", projectsHandler.RemoveMember)
 
 			})
+
+		})
+
+		r.Route("/tasks", func(r chi.Router) {
+
+			r.Use(jwtMiddleware.Handler)
+
+			r.Post("/", tasksHandler.CreateTask)
+			r.Get("/{id}", tasksHandler.GetTask)
+
+			r.Get(
+				"/project/{projectId}",
+				tasksHandler.ListProjectTasks,
+			)
 
 		})
 
