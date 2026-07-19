@@ -5,11 +5,12 @@ import (
 	"net/http"
 )
 
-func JSON(
+func WriteJSON(
 	w http.ResponseWriter,
 	status int,
 	data any,
 ) {
+
 	w.Header().Set(
 		"Content-Type",
 		"application/json",
@@ -17,5 +18,5 @@ func JSON(
 
 	w.WriteHeader(status)
 
-	json.NewEncoder(w).Encode(data)
+	_ = json.NewEncoder(w).Encode(data)
 }

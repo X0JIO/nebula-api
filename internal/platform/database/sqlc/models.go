@@ -34,6 +34,20 @@ type RefreshToken struct {
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
+type Task struct {
+	ID          pgtype.UUID        `json:"id"`
+	ProjectID   pgtype.UUID        `json:"project_id"`
+	CreatorID   pgtype.UUID        `json:"creator_id"`
+	AssigneeID  pgtype.UUID        `json:"assignee_id"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	Status      string             `json:"status"`
+	Priority    string             `json:"priority"`
+	DueDate     pgtype.Timestamptz `json:"due_date"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+}
+
 type User struct {
 	ID           pgtype.UUID      `json:"id"`
 	Email        string           `json:"email"`

@@ -3,6 +3,8 @@ package auth
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/X0JIO/nebula-api/internal/platform/web"
 )
 
 type Handler struct {
@@ -49,11 +51,13 @@ func (h *Handler) Register(
 	var req registerRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(
+
+		web.Error(
 			w,
-			"invalid request",
 			http.StatusBadRequest,
+			"invalid request",
 		)
+
 		return
 	}
 
@@ -64,20 +68,19 @@ func (h *Handler) Register(
 	)
 
 	if err != nil {
-		http.Error(
+
+		web.WriteError(
 			w,
-			err.Error(),
-			http.StatusBadRequest,
+			err,
 		)
+
 		return
 	}
 
-	w.Header().Set(
-		"Content-Type",
-		"application/json",
+	web.Created(
+		w,
+		user,
 	)
-
-	_ = json.NewEncoder(w).Encode(user)
 }
 
 // Login godoc
@@ -99,10 +102,10 @@ func (h *Handler) Login(
 	var req loginRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(
+		web.Error(
 			w,
-			"invalid request",
 			http.StatusBadRequest,
+			"invalid request",
 		)
 		return
 	}
@@ -114,20 +117,17 @@ func (h *Handler) Login(
 	)
 
 	if err != nil {
-		http.Error(
+		web.WriteError(
 			w,
-			err.Error(),
-			http.StatusUnauthorized,
+			err,
 		)
 		return
 	}
 
-	w.Header().Set(
-		"Content-Type",
-		"application/json",
+	web.OK(
+		w,
+		tokens,
 	)
-
-	_ = json.NewEncoder(w).Encode(tokens)
 }
 
 // Refresh godoc
@@ -149,10 +149,10 @@ func (h *Handler) Refresh(
 	var req refreshRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(
+		web.Error(
 			w,
-			"invalid request",
 			http.StatusBadRequest,
+			"invalid request",
 		)
 		return
 	}
@@ -163,18 +163,15 @@ func (h *Handler) Refresh(
 	)
 
 	if err != nil {
-		http.Error(
+		web.WriteError(
 			w,
-			"invalid refresh token",
-			http.StatusUnauthorized,
+			err,
 		)
 		return
 	}
 
-	w.Header().Set(
-		"Content-Type",
-		"application/json",
+	web.OK(
+		w,
+		tokens,
 	)
-
-	json.NewEncoder(w).Encode(tokens)
 }

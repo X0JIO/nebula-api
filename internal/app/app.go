@@ -14,8 +14,8 @@ import (
 	"github.com/X0JIO/nebula-api/internal/platform/cache/redis"
 	"github.com/X0JIO/nebula-api/internal/platform/config"
 	"github.com/X0JIO/nebula-api/internal/platform/database/postgres"
+	"github.com/X0JIO/nebula-api/internal/platform/httpserver"
 	"github.com/X0JIO/nebula-api/internal/platform/logger"
-	"github.com/X0JIO/nebula-api/internal/platform/web"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
 
 	"go.uber.org/zap"
@@ -33,7 +33,7 @@ type App struct {
 	UserHandler     *users.Handler
 	AdminHandler    *admin.Handler
 	ProjectsHandler *projects.Handler
-	Server          *web.Server
+	Server          *httpserver.Server
 }
 
 func New() (*App, error) {
@@ -107,7 +107,7 @@ func New() (*App, error) {
 		cfg.App.JWT.Secret,
 	)
 
-	server := web.New(
+	server := httpserver.New(
 		cfg.App.Host,
 		cfg.App.Port,
 		userHandler,
