@@ -5,18 +5,16 @@
 package db
 
 import (
-	"time"
-
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type RefreshToken struct {
-	ID        pgtype.UUID
-	UserID    pgtype.UUID
-	TokenHash string
-	ExpiresAt time.Time
-	RevokedAt pgtype.Timestamp
-	CreatedAt time.Time
+	ID        pgtype.UUID      `json:"id"`
+	UserID    pgtype.UUID      `json:"user_id"`
+	TokenHash string           `json:"token_hash"`
+	ExpiresAt pgtype.Timestamp `json:"expires_at"`
+	RevokedAt pgtype.Timestamp `json:"revoked_at"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
 type User struct {
@@ -26,4 +24,5 @@ type User struct {
 	Status       string           `json:"status"`
 	CreatedAt    pgtype.Timestamp `json:"created_at"`
 	UpdatedAt    pgtype.Timestamp `json:"updated_at"`
+	Role         string           `json:"role"`
 }

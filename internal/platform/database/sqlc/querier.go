@@ -6,12 +6,22 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
 	CreateRefreshToken(ctx context.Context, arg CreateRefreshTokenParams) (RefreshToken, error)
+	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	DashboardStats(ctx context.Context) (DashboardStatsRow, error)
+	DeleteUser(ctx context.Context, id pgtype.UUID) error
 	GetRefreshToken(ctx context.Context, tokenHash string) (RefreshToken, error)
+	GetUserByEmail(ctx context.Context, email string) (User, error)
+	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
+	ListUsers(ctx context.Context) ([]User, error)
 	RevokeRefreshToken(ctx context.Context, tokenHash string) error
+	UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) (User, error)
+	UpdateUserStatus(ctx context.Context, arg UpdateUserStatusParams) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

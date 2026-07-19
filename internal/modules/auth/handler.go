@@ -125,6 +125,7 @@ func (h *Handler) Refresh(
 	}
 
 	tokens, err := h.service.Refresh(
+		r.Context(),
 		req.RefreshToken,
 	)
 

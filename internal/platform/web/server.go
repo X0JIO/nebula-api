@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/X0JIO/nebula-api/internal/modules/admin"
 	"github.com/X0JIO/nebula-api/internal/modules/auth"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
@@ -20,6 +21,7 @@ func New(
 	port int,
 	userHandler *users.Handler,
 	authHandler *auth.Handler,
+	adminHandler *admin.Handler,
 	jwtMiddleware *middleware.JWTMiddleware,
 ) *Server {
 
@@ -31,6 +33,7 @@ func New(
 			Handler: NewRouter(
 				userHandler,
 				authHandler,
+				adminHandler,
 				jwtMiddleware,
 			),
 			ReadHeaderTimeout: 5 * time.Second,

@@ -4,8 +4,12 @@ import (
 	"context"
 	"net/http"
 
+	db "github.com/X0JIO/nebula-api/internal/platform/database/sqlc"
+
 	"github.com/X0JIO/nebula-api/internal/modules/auth"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
+
+	"github.com/X0JIO/nebula-api/internal/modules/admin"
 	"github.com/X0JIO/nebula-api/internal/platform/cache/redis"
 	"github.com/X0JIO/nebula-api/internal/platform/config"
 	"github.com/X0JIO/nebula-api/internal/platform/database/postgres"
@@ -13,20 +17,21 @@ import (
 	"github.com/X0JIO/nebula-api/internal/platform/web"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
 
-	db "github.com/X0JIO/nebula-api/internal/platform/database/sqlc"
-
 	"go.uber.org/zap"
 )
 
 type App struct {
-	Config      *config.Config
-	Logger      *zap.Logger
-	Postgres    *postgres.DB
-	Redis       *redis.Client
-	Users       *users.Service
-	Auth        *auth.Service
-	UserHandler *users.Handler
-	Server      *web.Server
+	Config   *config.Config
+	Logger   *zap.Logger
+	Postgres *postgres.DB
+	Redis    *redis.Client
+
+	Users *users.Service
+	Auth  *auth.Service
+
+	UserHandler  *users.Handler
+	AdminHandler *admin.Handler
+	Server       *web.Server
 }
 
 func New() (*App, error) {
@@ -53,33 +58,36 @@ func New() (*App, error) {
 		context.Background(),
 		cfg.App.Redis,
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	queries := db.New(database.Pool)
 
-	userRepository := users.NewRepository(
-		queries,
-	)
+	userRepository := users.NewRepository(queries)
 
-	userService := users.NewService(
-		userRepository,
-	)
+	authRepository := auth.NewRepository(queries)
 
-	jwt := auth.NewJWT(
-		cfg.App.JWT.Secret,
-	)
+	userService := users.NewService(userRepository)
+
+	jwt := auth.NewJWT(cfg.App.JWT.Secret)
 
 	authService := auth.NewService(
 		userRepository,
+		authRepository,
 		jwt,
+		cfg.App.JWT,
 	)
 
-	userHandler := users.NewHandler(
-		userService,
-	)
+	userHandler := users.NewHandler(userService)
 
-	authHandler := auth.NewHandler(
-		authService,
-	)
+	adminRepository := admin.NewRepository(queries)
+
+	adminService := admin.NewService(adminRepository)
+
+	adminHandler := admin.NewHandler(adminService)
+
+	authHandler := auth.NewHandler(authService)
 
 	jwtMiddleware := middleware.NewJWTMiddleware(
 		cfg.App.JWT.Secret,
@@ -90,24 +98,21 @@ func New() (*App, error) {
 		cfg.App.Port,
 		userHandler,
 		authHandler,
+		adminHandler,
 		jwtMiddleware,
 	)
 
-	if err != nil {
-		return nil, err
-	}
-
 	return &App{
-		Config:      cfg,
-		Logger:      log,
-		Postgres:    database,
-		Redis:       cache,
-		Users:       userService,
-		Auth:        authService,
-		UserHandler: userHandler,
-		Server:      server,
+		Config:       cfg,
+		Logger:       log,
+		Postgres:     database,
+		Redis:        cache,
+		Users:        userService,
+		Auth:         authService,
+		UserHandler:  userHandler,
+		AdminHandler: adminHandler,
+		Server:       server,
 	}, nil
-
 }
 
 func (a *App) Run(ctx context.Context) error {
@@ -120,13 +125,9 @@ func (a *App) Run(ctx context.Context) error {
 	errCh := make(chan error, 1)
 
 	go func() {
-
-		err := a.Server.Start()
-
-		if err != nil && err != http.ErrServerClosed {
+		if err := a.Server.Start(); err != nil && err != http.ErrServerClosed {
 			errCh <- err
 		}
-
 	}()
 
 	select {
@@ -140,7 +141,5 @@ func (a *App) Run(ctx context.Context) error {
 	case err := <-errCh:
 
 		return err
-
 	}
-
 }

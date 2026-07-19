@@ -11,6 +11,13 @@ type JWT struct {
 	secret []byte
 }
 
+type Claims struct {
+	Role string `json:"role"`
+	Type string `json:"type"`
+
+	jwt.RegisteredClaims
+}
+
 func NewJWT(secret string) *JWT {
 	return &JWT{
 		secret: []byte(secret),
@@ -19,14 +26,18 @@ func NewJWT(secret string) *JWT {
 
 func (j *JWT) GenerateAccessToken(
 	userID string,
+	role string,
 	ttl time.Duration,
 ) (string, error) {
 
-	claims := jwt.MapClaims{
-		"sub":  userID,
-		"type": "access",
-		"exp":  time.Now().Add(ttl).Unix(),
-		"iat":  time.Now().Unix(),
+	claims := Claims{
+		Role: role,
+		Type: "access",
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   userID,
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
 	}
 
 	token := jwt.NewWithClaims(
@@ -42,11 +53,13 @@ func (j *JWT) GenerateRefreshToken(
 	ttl time.Duration,
 ) (string, error) {
 
-	claims := jwt.MapClaims{
-		"sub":  userID,
-		"type": "refresh",
-		"exp":  time.Now().Add(ttl).Unix(),
-		"iat":  time.Now().Unix(),
+	claims := Claims{
+		Type: "refresh",
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   userID,
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
 	}
 
 	token := jwt.NewWithClaims(
@@ -59,41 +72,25 @@ func (j *JWT) GenerateRefreshToken(
 
 func (j *JWT) ParseToken(
 	tokenString string,
-) (string, error) {
+) (*Claims, error) {
 
-	token, err := jwt.Parse(
+	claims := &Claims{}
+
+	token, err := jwt.ParseWithClaims(
 		tokenString,
+		claims,
 		func(token *jwt.Token) (interface{}, error) {
-
 			return j.secret, nil
 		},
 	)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if !token.Valid {
-		return "", errors.New("invalid token")
+		return nil, errors.New("invalid token")
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
-
-	if !ok {
-		return "", errors.New("invalid claims")
-	}
-
-	tokenType, ok := claims["type"].(string)
-
-	if !ok || tokenType != "refresh" {
-		return "", errors.New("not refresh token")
-	}
-
-	userID, ok := claims["sub"].(string)
-
-	if !ok {
-		return "", errors.New("invalid subject")
-	}
-
-	return userID, nil
+	return claims, nil
 }

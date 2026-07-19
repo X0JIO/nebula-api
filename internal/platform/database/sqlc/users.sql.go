@@ -15,11 +15,13 @@ const createUser = `-- name: CreateUser :one
 
 INSERT INTO users (
     email,
-    password_hash
+    password_hash,
+    role
 )
 VALUES (
     $1,
-    $2
+    $2,
+    'user'
 )
 RETURNING
     id,
@@ -27,7 +29,8 @@ RETURNING
     password_hash,
     status,
     created_at,
-    updated_at
+    updated_at,
+    role
 `
 
 type CreateUserParams struct {
@@ -45,6 +48,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Role,
 	)
 	return i, err
 }
@@ -57,7 +61,8 @@ SELECT
     password_hash,
     status,
     created_at,
-    updated_at
+    updated_at,
+    role
 FROM users
 WHERE email = $1
 LIMIT 1
@@ -73,6 +78,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Role,
 	)
 	return i, err
 }
@@ -85,7 +91,8 @@ SELECT
     password_hash,
     status,
     created_at,
-    updated_at
+    updated_at,
+    role
 FROM users
 WHERE id = $1
 LIMIT 1
@@ -101,6 +108,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Role,
 	)
 	return i, err
 }
@@ -113,7 +121,8 @@ SELECT
     password_hash,
     status,
     created_at,
-    updated_at
+    updated_at,
+    role
 FROM users
 ORDER BY created_at DESC
 `
@@ -134,6 +143,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.Role,
 		); err != nil {
 			return nil, err
 		}

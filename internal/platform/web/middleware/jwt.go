@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/X0JIO/nebula-api/internal/modules/auth"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -18,14 +19,9 @@ func NewJWTMiddleware(secret string) *JWTMiddleware {
 	}
 }
 
-func (m *JWTMiddleware) Handler(
-	next http.Handler,
-) http.Handler {
+func (m *JWTMiddleware) Handler(next http.Handler) http.Handler {
 
-	return http.HandlerFunc(func(
-		w http.ResponseWriter,
-		r *http.Request,
-	) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		header := r.Header.Get("Authorization")
 
@@ -38,7 +34,7 @@ func (m *JWTMiddleware) Handler(
 			return
 		}
 
-		parts := strings.Split(header, " ")
+		parts := strings.SplitN(header, " ", 2)
 
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			http.Error(
@@ -49,11 +45,17 @@ func (m *JWTMiddleware) Handler(
 			return
 		}
 
-		tokenString := parts[1]
+		claims := &auth.Claims{}
 
-		token, err := jwt.Parse(
-			tokenString,
+		token, err := jwt.ParseWithClaims(
+			parts[1],
+			claims,
 			func(token *jwt.Token) (interface{}, error) {
+
+				// Разрешаем только HMAC (HS256)
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, jwt.ErrTokenSignatureInvalid
+				}
 
 				return m.secret, nil
 			},
@@ -68,23 +70,10 @@ func (m *JWTMiddleware) Handler(
 			return
 		}
 
-		claims, ok := token.Claims.(jwt.MapClaims)
-
-		if !ok {
+		if claims.Type != "access" {
 			http.Error(
 				w,
-				"invalid claims",
-				http.StatusUnauthorized,
-			)
-			return
-		}
-
-		userID, ok := claims["sub"].(string)
-
-		if !ok {
-			http.Error(
-				w,
-				"invalid user",
+				"access token required",
 				http.StatusUnauthorized,
 			)
 			return
@@ -92,8 +81,14 @@ func (m *JWTMiddleware) Handler(
 
 		ctx := context.WithValue(
 			r.Context(),
-			"user_id",
-			userID,
+			ContextUserID,
+			claims.Subject,
+		)
+
+		ctx = context.WithValue(
+			ctx,
+			ContextRole,
+			claims.Role,
 		)
 
 		next.ServeHTTP(
@@ -101,4 +96,5 @@ func (m *JWTMiddleware) Handler(
 			r.WithContext(ctx),
 		)
 	})
+
 }

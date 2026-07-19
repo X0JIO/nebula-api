@@ -6,10 +6,12 @@ SELECT
     password_hash,
     status,
     created_at,
-    updated_at
+    updated_at,
+    role
 FROM users
 WHERE id = $1
 LIMIT 1;
+
 
 
 -- name: GetUserByEmail :one
@@ -20,10 +22,12 @@ SELECT
     password_hash,
     status,
     created_at,
-    updated_at
+    updated_at,
+    role
 FROM users
 WHERE email = $1
 LIMIT 1;
+
 
 
 -- name: ListUsers :many
@@ -34,20 +38,24 @@ SELECT
     password_hash,
     status,
     created_at,
-    updated_at
+    updated_at,
+    role
 FROM users
 ORDER BY created_at DESC;
+
 
 
 -- name: CreateUser :one
 
 INSERT INTO users (
     email,
-    password_hash
+    password_hash,
+    role
 )
 VALUES (
     $1,
-    $2
+    $2,
+    'user'
 )
 RETURNING
     id,
@@ -55,5 +63,5 @@ RETURNING
     password_hash,
     status,
     created_at,
-    updated_at;
-
+    updated_at,
+    role;

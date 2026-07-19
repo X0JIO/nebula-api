@@ -1,6 +1,8 @@
 package config
 
 import (
+	"time"
+
 	"github.com/caarlos0/env/v11"
 )
 
@@ -44,12 +46,11 @@ type RedisConfig struct {
 type JWTConfig struct {
 	Secret string `env:"JWT_SECRET,required"`
 
-	AccessTTL  string `env:"JWT_ACCESS_TTL" envDefault:"15m"`
-	RefreshTTL string `env:"JWT_REFRESH_TTL" envDefault:"720h"`
+	AccessTTL  time.Duration `env:"JWT_ACCESS_TTL" envDefault:"15m"`
+	RefreshTTL time.Duration `env:"JWT_REFRESH_TTL" envDefault:"720h"`
 }
 
 func Load() (*Config, error) {
-
 	cfg := &Config{}
 
 	if err := env.Parse(&cfg.App); err != nil {

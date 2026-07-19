@@ -3,8 +3,6 @@ package users
 import (
 	"encoding/json"
 	"net/http"
-
-	db "github.com/X0JIO/nebula-api/internal/platform/database/sqlc"
 )
 
 type Handler struct {
@@ -70,7 +68,6 @@ func (h *Handler) Create(
 	)
 }
 
-
 func (h *Handler) Me(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -109,18 +106,4 @@ func (h *Handler) Me(
 	json.NewEncoder(w).Encode(
 		ToResponse(user),
 	)
-}
-
-
-func ToResponse(
-	user db.User,
-) UserResponse {
-
-	return UserResponse{
-		ID:        user.ID.String(),
-		Email:     user.Email,
-		Status:    user.Status,
-		CreatedAt: user.CreatedAt.Time,
-		UpdatedAt: user.UpdatedAt.Time,
-	}
 }
