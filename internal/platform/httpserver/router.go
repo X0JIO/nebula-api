@@ -92,12 +92,46 @@ func NewRouter(
 
 			r.Use(jwtMiddleware.Handler)
 
-			r.Post("/", tasksHandler.CreateTask)
-			r.Get("/{id}", tasksHandler.GetTask)
+			// create task
+			r.Post(
+				"/",
+				tasksHandler.CreateTask,
+			)
 
+			// get single task
+			r.Get(
+				"/{id}",
+				tasksHandler.GetTask,
+			)
+
+			// update task
+			r.Put(
+				"/{id}",
+				tasksHandler.UpdateTask,
+			)
+
+			// delete task
+			r.Delete(
+				"/{id}",
+				tasksHandler.DeleteTask,
+			)
+
+			// tasks by project
 			r.Get(
 				"/project/{projectId}",
 				tasksHandler.ListProjectTasks,
+			)
+
+			// tasks by assignee
+			r.Get(
+				"/assignee/{userId}",
+				tasksHandler.ListAssigneeTasks,
+			)
+
+			// tasks by project and status
+			r.Get(
+				"/project/{projectId}/status/{status}",
+				tasksHandler.ListStatusTasks,
 			)
 
 		})

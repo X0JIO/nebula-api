@@ -271,3 +271,103 @@ func (h *Handler) DeleteTask(
 		http.StatusNoContent,
 	)
 }
+
+func (h *Handler) ListAssigneeTasks(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	userID := chi.URLParam(
+		r,
+		"userId",
+	)
+
+	var id pgtype.UUID
+
+	if err := id.Scan(userID); err != nil {
+
+		http.Error(
+			w,
+			"invalid user id",
+			http.StatusBadRequest,
+		)
+
+		return
+	}
+
+	tasks, err := h.service.ListAssignee(
+		r.Context(),
+		id,
+	)
+
+	if err != nil {
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+
+		return
+	}
+
+	w.Header().Set(
+		"Content-Type",
+		"application/json",
+	)
+
+	json.NewEncoder(w).Encode(tasks)
+}
+
+func (h *Handler) ListStatusTasks(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	projectID := chi.URLParam(
+		r,
+		"projectId",
+	)
+
+	status := chi.URLParam(
+		r,
+		"status",
+	)
+
+	var id pgtype.UUID
+
+	if err := id.Scan(projectID); err != nil {
+
+		http.Error(
+			w,
+			"invalid project id",
+			http.StatusBadRequest,
+		)
+
+		return
+	}
+
+	tasks, err := h.service.ListStatus(
+		r.Context(),
+		id,
+		status,
+	)
+
+	if err != nil {
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+
+		return
+	}
+
+	w.Header().Set(
+		"Content-Type",
+		"application/json",
+	)
+
+	json.NewEncoder(w).Encode(tasks)
+}
