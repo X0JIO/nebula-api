@@ -8,18 +8,24 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/admin"
 	"github.com/X0JIO/nebula-api/internal/modules/auth"
 	"github.com/X0JIO/nebula-api/internal/modules/health"
+	"github.com/X0JIO/nebula-api/internal/modules/projects"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
+
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func NewRouter(
 	userHandler *users.Handler,
 	authHandler *auth.Handler,
 	adminHandler *admin.Handler,
+	projectsHandler *projects.Handler,
 	jwtMiddleware *middleware.JWTMiddleware,
 ) http.Handler {
 
 	r := chi.NewRouter()
+
+	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	r.Route("/api/v1", func(r chi.Router) {
 
@@ -57,6 +63,26 @@ func NewRouter(
 				"/users/me",
 				userHandler.Me,
 			)
+
+		})
+
+		r.Group(func(r chi.Router) {
+
+			r.Use(jwtMiddleware.Handler)
+
+			r.Route("/projects", func(r chi.Router) {
+
+				r.Get("/", projectsHandler.ListProjects)
+				r.Post("/", projectsHandler.CreateProject)
+
+				r.Get("/{id}", projectsHandler.GetProject)
+				r.Put("/{id}", projectsHandler.UpdateProject)
+				r.Delete("/{id}", projectsHandler.DeleteProject)
+
+				r.Post("/{id}/members", projectsHandler.AddMember)
+				r.Delete("/{id}/members/{userId}", projectsHandler.RemoveMember)
+
+			})
 
 		})
 

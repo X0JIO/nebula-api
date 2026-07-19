@@ -27,6 +27,16 @@ type statusRequest struct {
 	Status string `json:"status"`
 }
 
+// Dashboard godoc
+//
+//	@Summary		Admin dashboard
+//	@Description	Get dashboard statistics
+//	@Tags			Admin
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{object}	Dashboard
+//	@Failure		403	{string}	string
+//	@Router			/admin/dashboard [get]
 func (h *Handler) Dashboard(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -40,6 +50,16 @@ func (h *Handler) Dashboard(
 	writeJSON(w, http.StatusOK, stats)
 }
 
+// ListUsers godoc
+//
+//	@Summary		List users
+//	@Description	Get list of users
+//	@Tags			Admin
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{array}	users.UserResponse
+//	@Failure		403	{string}	string
+//	@Router			/admin/users [get]
 func (h *Handler) ListUsers(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -59,6 +79,17 @@ func (h *Handler) ListUsers(
 	writeJSON(w, http.StatusOK, resp)
 }
 
+// GetUser godoc
+//
+//	@Summary		Get user
+//	@Description	Get user by ID
+//	@Tags			Admin
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{object}	users.UserResponse
+//	@Failure		403	{string}	string
+//	@Failure		404	{string}	string
+//	@Router			/admin/users/{id} [get]
 func (h *Handler) GetUser(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -78,6 +109,17 @@ func (h *Handler) GetUser(
 	)
 }
 
+// ChangeRole godoc
+//
+//	@Summary		Change user role
+//	@Description	Change the role of a user
+//	@Tags			Admin
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{object}	users.UserResponse
+//	@Failure		403	{string}	string
+//	@Failure		404	{string}	string
+//	@Router			/admin/users/{id}/role [put]
 func (h *Handler) ChangeRole(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -118,6 +160,17 @@ func (h *Handler) ChangeRole(
 	)
 }
 
+// ChangeStatus godoc
+//
+//	@Summary		Change user status
+//	@Description	Change the status of a user
+//	@Tags			Admin
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{object}	users.UserResponse
+//	@Failure		403	{string}	string
+//	@Failure		404	{string}	string
+//	@Router			/admin/users/{id}/status [put]
 func (h *Handler) ChangeStatus(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -158,6 +211,17 @@ func (h *Handler) ChangeStatus(
 	)
 }
 
+// DeleteUser godoc
+//
+//	@Summary		Delete user
+//	@Description	Delete a user by ID
+//	@Tags			Admin
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		204	{string}	string
+//	@Failure		403	{string}	string
+//	@Failure		404	{string}	string
+//	@Router			/admin/users/{id} [delete]
 func (h *Handler) DeleteUser(
 	w http.ResponseWriter,
 	r *http.Request,

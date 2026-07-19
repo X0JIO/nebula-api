@@ -68,6 +68,16 @@ func (h *Handler) Create(
 	)
 }
 
+// Me godoc
+//
+//	@Summary		Current user
+//	@Description	Get current authenticated user
+//	@Tags			Users
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{object}	users.UserResponse
+//	@Failure		401	{string}	string
+//	@Router			/users/me [get]
 func (h *Handler) Me(
 	w http.ResponseWriter,
 	r *http.Request,

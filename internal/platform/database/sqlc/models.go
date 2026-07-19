@@ -8,6 +8,23 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Project struct {
+	ID          pgtype.UUID      `json:"id"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	OwnerID     pgtype.UUID      `json:"owner_id"`
+	Visibility  string           `json:"visibility"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+}
+
+type ProjectMember struct {
+	ProjectID pgtype.UUID      `json:"project_id"`
+	UserID    pgtype.UUID      `json:"user_id"`
+	Role      string           `json:"role"`
+	JoinedAt  pgtype.Timestamp `json:"joined_at"`
+}
+
 type RefreshToken struct {
 	ID        pgtype.UUID      `json:"id"`
 	UserID    pgtype.UUID      `json:"user_id"`

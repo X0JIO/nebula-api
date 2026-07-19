@@ -8,6 +8,7 @@ import (
 
 	"github.com/X0JIO/nebula-api/internal/modules/admin"
 	"github.com/X0JIO/nebula-api/internal/modules/auth"
+	"github.com/X0JIO/nebula-api/internal/modules/projects"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
 )
@@ -22,7 +23,8 @@ func New(
 	userHandler *users.Handler,
 	authHandler *auth.Handler,
 	adminHandler *admin.Handler,
-	jwtMiddleware *middleware.JWTMiddleware,
+	projectsHandler *projects.Handler,
+	jwt *middleware.JWTMiddleware,
 ) *Server {
 
 	addr := fmt.Sprintf("%s:%d", host, port)
@@ -34,7 +36,8 @@ func New(
 				userHandler,
 				authHandler,
 				adminHandler,
-				jwtMiddleware,
+				projectsHandler,
+				jwt,
 			),
 			ReadHeaderTimeout: 5 * time.Second,
 		},

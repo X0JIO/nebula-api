@@ -1,3 +1,11 @@
+// @title Nebula API
+// @version 1.0
+// @description REST API for Nebula
+// @BasePath /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 package main
 
 import (
@@ -8,6 +16,8 @@ import (
 
 	"github.com/X0JIO/nebula-api/internal/app"
 	"github.com/joho/godotenv"
+
+	_ "github.com/X0JIO/nebula-api/docs"
 )
 
 func main() {

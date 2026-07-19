@@ -31,6 +31,17 @@ type refreshRequest struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+// Register godoc
+//
+//	@Summary		Register
+//	@Description	Create new user
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		registerRequest	true	"Register request"
+//	@Success		200		{object}	users.UserResponse
+//	@Failure		400		{string}	string
+//	@Router			/auth/register [post]
 func (h *Handler) Register(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -69,6 +80,17 @@ func (h *Handler) Register(
 	_ = json.NewEncoder(w).Encode(user)
 }
 
+// Login godoc
+//
+//	@Summary		Login
+//	@Description	Authenticate user and return JWT tokens
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		loginRequest	true	"Login request"
+//	@Success		200		{object}	Tokens
+//	@Failure		401		{string}	string
+//	@Router			/auth/login [post]
 func (h *Handler) Login(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -108,6 +130,17 @@ func (h *Handler) Login(
 	_ = json.NewEncoder(w).Encode(tokens)
 }
 
+// Refresh godoc
+//
+//	@Summary		Refresh tokens
+//	@Description	Get new access token
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		refreshRequest	true	"Refresh request"
+//	@Success		200		{object}	Tokens
+//	@Failure		401		{string}	string
+//	@Router			/auth/refresh [post]
 func (h *Handler) Refresh(
 	w http.ResponseWriter,
 	r *http.Request,

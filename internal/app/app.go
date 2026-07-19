@@ -10,6 +10,7 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/users"
 
 	"github.com/X0JIO/nebula-api/internal/modules/admin"
+	"github.com/X0JIO/nebula-api/internal/modules/projects"
 	"github.com/X0JIO/nebula-api/internal/platform/cache/redis"
 	"github.com/X0JIO/nebula-api/internal/platform/config"
 	"github.com/X0JIO/nebula-api/internal/platform/database/postgres"
@@ -29,9 +30,10 @@ type App struct {
 	Users *users.Service
 	Auth  *auth.Service
 
-	UserHandler  *users.Handler
-	AdminHandler *admin.Handler
-	Server       *web.Server
+	UserHandler     *users.Handler
+	AdminHandler    *admin.Handler
+	ProjectsHandler *projects.Handler
+	Server          *web.Server
 }
 
 func New() (*App, error) {
@@ -89,6 +91,18 @@ func New() (*App, error) {
 
 	authHandler := auth.NewHandler(authService)
 
+	projectsRepository := projects.NewRepository(
+		queries,
+	)
+
+	projectsService := projects.NewService(
+		projectsRepository,
+	)
+
+	projectsHandler := projects.NewHandler(
+		projectsService,
+	)
+
 	jwtMiddleware := middleware.NewJWTMiddleware(
 		cfg.App.JWT.Secret,
 	)
@@ -99,19 +113,21 @@ func New() (*App, error) {
 		userHandler,
 		authHandler,
 		adminHandler,
+		projectsHandler,
 		jwtMiddleware,
 	)
 
 	return &App{
-		Config:       cfg,
-		Logger:       log,
-		Postgres:     database,
-		Redis:        cache,
-		Users:        userService,
-		Auth:         authService,
-		UserHandler:  userHandler,
-		AdminHandler: adminHandler,
-		Server:       server,
+		Config:          cfg,
+		Logger:          log,
+		Postgres:        database,
+		Redis:           cache,
+		Users:           userService,
+		Auth:            authService,
+		UserHandler:     userHandler,
+		AdminHandler:    adminHandler,
+		ProjectsHandler: projectsHandler,
+		Server:          server,
 	}, nil
 }
 
