@@ -37,24 +37,16 @@ func (s *Service) Create(
 		return db.Task{}, err
 	}
 
-	arg := db.CreateTaskParams{
-		ProjectID:   projectID,
-		CreatorID:   creatorID,
-		Title:       req.Title,
-		Description: req.Description,
-		Status:      StatusTodo,
-		Priority:    req.Priority,
-	}
+	arg := ToCreateParams(
+		projectID,
+		creatorID,
+		req,
+	)
 
-	if req.AssigneeID != nil {
-		arg.AssigneeID = *req.AssigneeID
-	}
-
-	if req.DueDate != nil {
-		arg.DueDate = *req.DueDate
-	}
-
-	return s.repository.Create(ctx, arg)
+	return s.repository.Create(
+		ctx,
+		arg,
+	)
 }
 
 func (s *Service) Get(
@@ -121,23 +113,15 @@ func (s *Service) Update(
 		return db.Task{}, err
 	}
 
-	arg := db.UpdateTaskParams{
-		ID:          taskID,
-		Title:       req.Title,
-		Description: req.Description,
-		Status:      req.Status,
-		Priority:    req.Priority,
-	}
+	arg := ToUpdateParams(
+		taskID,
+		req,
+	)
 
-	if req.AssigneeID != nil {
-		arg.AssigneeID = *req.AssigneeID
-	}
-
-	if req.DueDate != nil {
-		arg.DueDate = *req.DueDate
-	}
-
-	return s.repository.Update(ctx, arg)
+	return s.repository.Update(
+		ctx,
+		arg,
+	)
 }
 
 func (s *Service) Delete(

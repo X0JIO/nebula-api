@@ -1,6 +1,10 @@
 package tasks
 
 import (
+	"time"
+
+	"github.com/google/uuid"
+
 	db "github.com/X0JIO/nebula-api/internal/platform/database/sqlc"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -12,25 +16,50 @@ func ToCreateParams(
 	req CreateTaskRequest,
 ) db.CreateTaskParams {
 
-	var assignee pgtype.UUID
+	var assigneeID pgtype.UUID
+
 	if req.AssigneeID != nil {
-		assignee = *req.AssigneeID
+
+		id, err := uuid.Parse(*req.AssigneeID)
+
+		if err == nil {
+
+			assigneeID = pgtype.UUID{
+				Bytes: id,
+				Valid: true,
+			}
+
+		}
 	}
 
-	var due pgtype.Timestamptz
+	var dueDate pgtype.Timestamptz
+
 	if req.DueDate != nil {
-		due = *req.DueDate
+
+		dueDate = pgtype.Timestamptz{
+			Time:  *req.DueDate,
+			Valid: true,
+		}
+
 	}
 
 	return db.CreateTaskParams{
-		ProjectID:   projectID,
-		CreatorID:   creatorID,
-		Title:       req.Title,
+
+		ProjectID: projectID,
+
+		CreatorID: creatorID,
+
+		AssigneeID: assigneeID,
+
+		Title: req.Title,
+
 		Description: req.Description,
-		AssigneeID:  assignee,
-		Status:      StatusTodo,
-		Priority:    req.Priority,
-		DueDate:     due,
+
+		Status: StatusTodo,
+
+		Priority: req.Priority,
+
+		DueDate: dueDate,
 	}
 }
 
@@ -39,54 +68,117 @@ func ToUpdateParams(
 	req UpdateTaskRequest,
 ) db.UpdateTaskParams {
 
-	var assignee pgtype.UUID
+	var assigneeID pgtype.UUID
+
 	if req.AssigneeID != nil {
-		assignee = *req.AssigneeID
+
+		value, err := uuid.Parse(*req.AssigneeID)
+
+		if err == nil {
+
+			assigneeID = pgtype.UUID{
+				Bytes: value,
+				Valid: true,
+			}
+
+		}
 	}
 
-	var due pgtype.Timestamptz
+	var dueDate pgtype.Timestamptz
+
 	if req.DueDate != nil {
-		due = *req.DueDate
+
+		dueDate = pgtype.Timestamptz{
+			Time:  *req.DueDate,
+			Valid: true,
+		}
+
 	}
 
 	return db.UpdateTaskParams{
-		ID:          id,
-		Title:       req.Title,
+
+		ID: id,
+
+		AssigneeID: assigneeID,
+
+		Title: req.Title,
+
 		Description: req.Description,
-		AssigneeID:  assignee,
-		Status:      req.Status,
-		Priority:    req.Priority,
-		DueDate:     due,
+
+		Status: req.Status,
+
+		Priority: req.Priority,
+
+		DueDate: dueDate,
 	}
 }
 
-func ToResponse(task db.Task) TaskResponse {
+func ToResponse(
+	task db.Task,
+) TaskResponse {
 
-	var assignee *pgtype.UUID
+	var assigneeID *string
+
 	if task.AssigneeID.Valid {
-		assignee = &task.AssigneeID
+
+		value := task.AssigneeID.String()
+
+		assigneeID = &value
 	}
 
-	var due *pgtype.Timestamptz
+	var dueDate *time.Time
+
 	if task.DueDate.Valid {
-		t := pgtype.Timestamptz{
-			Time:  task.DueDate.Time,
-			Valid: true,
-		}
-		due = &t
+
+		value := task.DueDate.Time
+
+		dueDate = &value
 	}
 
 	return TaskResponse{
-		ID:          task.ID,
-		ProjectID:   task.ProjectID,
-		CreatorID:   task.CreatorID,
-		AssigneeID:  assignee,
-		Title:       task.Title,
+
+		ID: task.ID.String(),
+
+		ProjectID: task.ProjectID.String(),
+
+		CreatorID: task.CreatorID.String(),
+
+		AssigneeID: assigneeID,
+
+		Title: task.Title,
+
 		Description: task.Description,
-		Status:      task.Status,
-		Priority:    task.Priority,
-		DueDate:     due,
-		CreatedAt:   task.CreatedAt,
-		UpdatedAt:   task.UpdatedAt,
+
+		Status: task.Status,
+
+		Priority: task.Priority,
+
+		DueDate: dueDate,
+
+		CreatedAt: task.CreatedAt.Time,
+
+		UpdatedAt: task.UpdatedAt.Time,
 	}
+}
+
+func ToResponses(
+	tasks []db.Task,
+) []TaskResponse {
+
+	result := make(
+		[]TaskResponse,
+		0,
+		len(tasks),
+	)
+
+	for _, task := range tasks {
+
+		result = append(
+			result,
+			ToResponse(task),
+		)
+
+	}
+
+	return result
 }
