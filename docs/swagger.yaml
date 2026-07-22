@@ -25,6 +25,11 @@ definitions:
       password:
         type: string
     type: object
+  auth.logoutRequest:
+    properties:
+      refresh_token:
+        type: string
+    type: object
   auth.refreshRequest:
     properties:
       refresh_token:
@@ -35,6 +40,56 @@ definitions:
       email:
         type: string
       password:
+        type: string
+    type: object
+  auth.registerResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      role:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  comments.CommentResponse:
+    properties:
+      author_id:
+        type: string
+      body:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      task_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  comments.CreateCommentRequest:
+    properties:
+      body:
+        type: string
+    type: object
+  devices.DeviceResponse:
+    properties:
+      current:
+        type: boolean
+      id:
+        type: string
+      last_ip:
+        type: string
+      last_seen:
+        type: string
+      name:
+        type: string
+      platform:
         type: string
     type: object
   projects.AddMemberRequest:
@@ -294,8 +349,17 @@ paths:
     post:
       consumes:
       - application/json
-      description: Authenticate user and return JWT tokens
+      description: Authenticate user
       parameters:
+      - description: Unique device fingerprint
+        in: header
+        name: X-Device-Fingerprint
+        required: true
+        type: string
+      - description: Device name
+        in: header
+        name: X-Device-Name
+        type: string
       - description: Login request
         in: body
         name: request
@@ -314,6 +378,63 @@ paths:
           schema:
             type: string
       summary: Login
+      tags:
+      - Auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout current session
+      parameters:
+      - description: Logout request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.logoutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Logout
+      tags:
+      - Auth
+  /auth/logout-all:
+    post:
+      consumes:
+      - application/json
+      description: Revoke all user sessions and refresh tokens
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Logout from all devices
       tags:
       - Auth
   /auth/refresh:
@@ -360,7 +481,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/users.UserResponse'
+            $ref: '#/definitions/auth.registerResponse'
         "400":
           description: Bad Request
           schema:
@@ -368,6 +489,60 @@ paths:
       summary: Register
       tags:
       - Auth
+  /comments/{id}:
+    delete:
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Delete comment
+      tags:
+      - Comments
+  /devices:
+    delete:
+      description: Deletes all devices for the current user
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Delete all devices
+      tags:
+      - Devices
+    get:
+      description: Returns current user's devices
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/devices.DeviceResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List devices
+      tags:
+      - Devices
+  /devices/{id}:
+    delete:
+      description: Deletes a specific device
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Delete device
+      tags:
+      - Devices
   /projects:
     get:
       produces:
@@ -621,6 +796,63 @@ paths:
       summary: Update task
       tags:
       - Tasks
+  /tasks/{taskId}/comments:
+    get:
+      parameters:
+      - description: Task ID
+        in: path
+        name: taskId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/comments.CommentResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List task comments
+      tags:
+      - Comments
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Task ID
+        in: path
+        name: taskId
+        required: true
+        type: string
+      - description: Comment
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/comments.CreateCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/comments.CommentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create comment
+      tags:
+      - Comments
   /tasks/assignee/{userId}:
     get:
       parameters:

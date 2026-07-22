@@ -12,8 +12,10 @@ type JWT struct {
 }
 
 type Claims struct {
-	Role string `json:"role"`
 	Type string `json:"type"`
+	Role string `json:"role"`
+
+	SessionID string `json:"sid"`
 
 	jwt.RegisteredClaims
 }
@@ -27,12 +29,14 @@ func NewJWT(secret string) *JWT {
 func (j *JWT) GenerateAccessToken(
 	userID string,
 	role string,
+	sessionID string,
 	ttl time.Duration,
 ) (string, error) {
 
 	claims := Claims{
-		Role: role,
-		Type: "access",
+		Role:      role,
+		Type:      "access",
+		SessionID: sessionID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   userID,
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl)),

@@ -12,7 +12,9 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/users"
 
 	"github.com/X0JIO/nebula-api/internal/modules/admin"
+	"github.com/X0JIO/nebula-api/internal/modules/devices"
 	"github.com/X0JIO/nebula-api/internal/modules/projects"
+	"github.com/X0JIO/nebula-api/internal/modules/sessions"
 	"github.com/X0JIO/nebula-api/internal/modules/tasks"
 	"github.com/X0JIO/nebula-api/internal/platform/cache/redis"
 	"github.com/X0JIO/nebula-api/internal/platform/config"
@@ -38,6 +40,8 @@ type App struct {
 	ProjectsHandler *projects.Handler
 	TasksHandler    *tasks.Handler
 	CommentsHandler *comments.Handler
+	DevicesHandler  *devices.Handler
+	SessionsHandler *sessions.Handler
 	Server          *httpserver.Server
 }
 
@@ -71,30 +75,41 @@ func New() (*App, error) {
 
 	queries := db.New(database.Pool)
 
+	// repositories
 	userRepository := users.NewRepository(queries)
-
 	authRepository := auth.NewRepository(queries)
+	devicesRepository := devices.NewRepository(queries)
+	sessionsRepository := sessions.NewRepository(queries)
 
+	// services
 	userService := users.NewService(userRepository)
+	sessionsService := sessions.NewService(sessionsRepository)
+
+	devicesService := devices.NewService(
+		devicesRepository,
+		sessionsService,
+	)
 
 	jwt := auth.NewJWT(cfg.App.JWT.Secret)
 
 	authService := auth.NewService(
 		userRepository,
 		authRepository,
+		devicesService,
 		jwt,
 		cfg.App.JWT,
 	)
 
+	// handlers
 	userHandler := users.NewHandler(userService)
+	authHandler := auth.NewHandler(authService)
+	devicesHandler := devices.NewHandler(devicesService)
 
 	adminRepository := admin.NewRepository(queries)
 
 	adminService := admin.NewService(adminRepository)
 
 	adminHandler := admin.NewHandler(adminService)
-
-	authHandler := auth.NewHandler(authService)
 
 	projectsRepository := projects.NewRepository(
 		queries,
@@ -131,35 +146,53 @@ func New() (*App, error) {
 
 	commentsHandler := comments.NewHandler(commentsService)
 
+	sessionsHandler := sessions.NewHandler(
+		sessionsService,
+	)
+
 	jwtMiddleware := middleware.NewJWTMiddleware(
 		cfg.App.JWT.Secret,
+		sessionsRepository,
 	)
 
 	server := httpserver.New(
 		cfg.App.Host,
 		strconv.Itoa(cfg.App.Port),
+
 		userHandler,
 		authHandler,
 		adminHandler,
+
 		projectsHandler,
 		tasksHandler,
 		commentsHandler,
+
+		sessionsHandler,
+		devicesHandler,
+
 		jwtMiddleware,
 	)
 
 	return &App{
-		Config:          cfg,
-		Logger:          log,
-		Postgres:        database,
-		Redis:           cache,
-		Users:           userService,
-		Auth:            authService,
-		UserHandler:     userHandler,
-		AdminHandler:    adminHandler,
+		Config:   cfg,
+		Logger:   log,
+		Postgres: database,
+		Redis:    cache,
+
+		Users: userService,
+		Auth:  authService,
+
+		UserHandler:  userHandler,
+		AdminHandler: adminHandler,
+
 		ProjectsHandler: projectsHandler,
 		TasksHandler:    tasksHandler,
 		CommentsHandler: commentsHandler,
-		Server:          server,
+
+		SessionsHandler: sessionsHandler,
+		DevicesHandler:  devicesHandler,
+
+		Server: server,
 	}, nil
 }
 

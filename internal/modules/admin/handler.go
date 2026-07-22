@@ -57,7 +57,7 @@ func (h *Handler) Dashboard(
 //	@Tags			Admin
 //	@Security		BearerAuth
 //	@Produce		json
-//	@Success		200	{array}	users.UserResponse
+//	@Success		200	{array}		users.UserResponse
 //	@Failure		403	{string}	string
 //	@Router			/admin/users [get]
 func (h *Handler) ListUsers(

@@ -5,6 +5,8 @@
 package db
 
 import (
+	"net/netip"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -15,6 +17,19 @@ type Comment struct {
 	Body      string             `json:"body"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+type Device struct {
+	ID          pgtype.UUID        `json:"id"`
+	UserID      pgtype.UUID        `json:"user_id"`
+	SessionID   pgtype.UUID        `json:"session_id"`
+	Name        string             `json:"name"`
+	Platform    string             `json:"platform"`
+	Fingerprint string             `json:"fingerprint"`
+	VpnUuid     pgtype.UUID        `json:"vpn_uuid"`
+	LastIp      *netip.Addr        `json:"last_ip"`
+	LastSeen    pgtype.Timestamptz `json:"last_seen"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 }
 
 type Project struct {
@@ -41,6 +56,19 @@ type RefreshToken struct {
 	ExpiresAt pgtype.Timestamp `json:"expires_at"`
 	RevokedAt pgtype.Timestamp `json:"revoked_at"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
+}
+
+type Session struct {
+	ID               pgtype.UUID        `json:"id"`
+	UserID           pgtype.UUID        `json:"user_id"`
+	RefreshTokenHash string             `json:"refresh_token_hash"`
+	DeviceName       pgtype.Text        `json:"device_name"`
+	Ip               *netip.Addr        `json:"ip"`
+	UserAgent        pgtype.Text        `json:"user_agent"`
+	ExpiresAt        pgtype.Timestamptz `json:"expires_at"`
+	LastSeen         pgtype.Timestamptz `json:"last_seen"`
+	Revoked          bool               `json:"revoked"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
 }
 
 type Task struct {

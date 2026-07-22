@@ -27,17 +27,17 @@ func NewHandler(
 
 // CreateComment godoc
 //
-//	@Summary		Create comment
-//	@Tags			Comments
-//	@Security		BearerAuth
-//	@Accept			json
-//	@Produce		json
-//	@Param			taskId	path		string					true	"Task ID"
-//	@Param			request	body		CreateCommentRequest	true	"Comment"
-//	@Success		200		{object}	CommentResponse
-//	@Failure		400		{string}	string
-//	@Failure		401		{string}	string
-//	@Router			/tasks/{taskId}/comments [post]
+//	@Summary	Create comment
+//	@Tags		Comments
+//	@Security	BearerAuth
+//	@Accept		json
+//	@Produce	json
+//	@Param		taskId	path		string					true	"Task ID"
+//	@Param		request	body		CreateCommentRequest	true	"Comment"
+//	@Success	200		{object}	CommentResponse
+//	@Failure	400		{string}	string
+//	@Failure	401		{string}	string
+//	@Router		/tasks/{taskId}/comments [post]
 func (h *Handler) CreateComment(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -127,13 +127,13 @@ func (h *Handler) CreateComment(
 
 // ListTaskComments godoc
 //
-//	@Summary		List task comments
-//	@Tags			Comments
-//	@Security		BearerAuth
-//	@Produce		json
-//	@Param			taskId	path		string	true	"Task ID"
-//	@Success		200		{array}		CommentResponse
-//	@Router			/tasks/{taskId}/comments [get]
+//	@Summary	List task comments
+//	@Tags		Comments
+//	@Security	BearerAuth
+//	@Produce	json
+//	@Param		taskId	path	string	true	"Task ID"
+//	@Success	200		{array}	CommentResponse
+//	@Router		/tasks/{taskId}/comments [get]
 func (h *Handler) ListTaskComments(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -187,12 +187,12 @@ func (h *Handler) ListTaskComments(
 
 // DeleteComment godoc
 //
-//	@Summary		Delete comment
-//	@Tags			Comments
-//	@Security		BearerAuth
-//	@Param			id	path	string	true	"Comment ID"
-//	@Success		204
-//	@Router			/comments/{id} [delete]
+//	@Summary	Delete comment
+//	@Tags		Comments
+//	@Security	BearerAuth
+//	@Param		id	path	string	true	"Comment ID"
+//	@Success	204
+//	@Router		/comments/{id} [delete]
 func (h *Handler) DeleteComment(
 	w http.ResponseWriter,
 	r *http.Request,

@@ -8,6 +8,7 @@ const (
 	ContextUserID    contextKey = "user_id"
 	ContextRole      contextKey = "role"
 	ContextProjectID contextKey = "project_id"
+	ContextSessionID contextKey = "session_id"
 )
 
 func WithProjectID(

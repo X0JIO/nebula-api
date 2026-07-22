@@ -5,17 +5,38 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/X0JIO/nebula-api/internal/modules/auth"
+	db "github.com/X0JIO/nebula-api/internal/platform/database/sqlc"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type JWTMiddleware struct {
-	secret []byte
+type Claims struct {
+	Subject   string `json:"sub"`
+	Role      string `json:"role"`
+	SessionID string `json:"sid"`
+	Type      string `json:"type"`
+	jwt.RegisteredClaims
 }
 
-func NewJWTMiddleware(secret string) *JWTMiddleware {
+type SessionRepository interface {
+	GetByID(
+		context.Context,
+		string,
+	) (db.Session, error)
+}
+
+type JWTMiddleware struct {
+	secret   []byte
+	sessions SessionRepository
+}
+
+func NewJWTMiddleware(
+	secret string,
+	sessions SessionRepository,
+) *JWTMiddleware {
+
 	return &JWTMiddleware{
-		secret: []byte(secret),
+		secret:   []byte(secret),
+		sessions: sessions,
 	}
 }
 
@@ -45,8 +66,7 @@ func (m *JWTMiddleware) Handler(next http.Handler) http.Handler {
 			return
 		}
 
-		claims := &auth.Claims{}
-
+		claims := &Claims{}
 		token, err := jwt.ParseWithClaims(
 			parts[1],
 			claims,
@@ -76,6 +96,29 @@ func (m *JWTMiddleware) Handler(next http.Handler) http.Handler {
 				"access token required",
 				http.StatusUnauthorized,
 			)
+
+			return
+		}
+
+		session, err := m.sessions.GetByID(
+			r.Context(),
+			claims.SessionID,
+		)
+		if err != nil {
+			http.Error(
+				w,
+				"session not found",
+				http.StatusUnauthorized,
+			)
+			return
+		}
+
+		if session.Revoked {
+			http.Error(
+				w,
+				"session revoked",
+				http.StatusUnauthorized,
+			)
 			return
 		}
 
@@ -87,8 +130,8 @@ func (m *JWTMiddleware) Handler(next http.Handler) http.Handler {
 
 		ctx = context.WithValue(
 			ctx,
-			ContextRole,
-			claims.Role,
+			ContextSessionID,
+			claims.SessionID,
 		)
 
 		next.ServeHTTP(

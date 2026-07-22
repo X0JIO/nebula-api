@@ -9,7 +9,9 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/admin"
 	"github.com/X0JIO/nebula-api/internal/modules/auth"
 	"github.com/X0JIO/nebula-api/internal/modules/comments"
+	"github.com/X0JIO/nebula-api/internal/modules/devices"
 	"github.com/X0JIO/nebula-api/internal/modules/projects"
+	"github.com/X0JIO/nebula-api/internal/modules/sessions"
 	"github.com/X0JIO/nebula-api/internal/modules/tasks"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
@@ -28,6 +30,8 @@ func New(
 	projectsHandler *projects.Handler,
 	tasksHandler *tasks.Handler,
 	commentsHandler *comments.Handler,
+	sessionsHandler *sessions.Handler,
+	devicesHandler *devices.Handler,
 	jwtMiddleware *middleware.JWTMiddleware,
 ) *Server {
 
@@ -43,6 +47,8 @@ func New(
 				projectsHandler,
 				tasksHandler,
 				commentsHandler,
+				sessionsHandler,
+				devicesHandler,
 				jwtMiddleware,
 			),
 			ReadHeaderTimeout: 5 * time.Second,

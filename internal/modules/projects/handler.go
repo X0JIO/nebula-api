@@ -26,16 +26,16 @@ func NewHandler(
 
 // CreateProject godoc
 //
-//	@Summary		Create project
-//	@Tags			Projects
-//	@Security		BearerAuth
-//	@Accept			json
-//	@Produce		json
-//	@Param			request	body		CreateProjectRequest	true	"Project"
-//	@Success		200		{object}	ProjectResponse
-//	@Failure		400		{string}	string
-//	@Failure		401		{string}	string
-//	@Router			/projects [post]
+//	@Summary	Create project
+//	@Tags		Projects
+//	@Security	BearerAuth
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		CreateProjectRequest	true	"Project"
+//	@Success	200		{object}	ProjectResponse
+//	@Failure	400		{string}	string
+//	@Failure	401		{string}	string
+//	@Router		/projects [post]
 func (h *Handler) CreateProject(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -87,12 +87,12 @@ func (h *Handler) CreateProject(
 
 // ListProjects godoc
 //
-//	@Summary		My projects
-//	@Tags			Projects
-//	@Security		BearerAuth
-//	@Produce		json
-//	@Success		200		{array}		ProjectResponse
-//	@Router			/projects [get]
+//	@Summary	My projects
+//	@Tags		Projects
+//	@Security	BearerAuth
+//	@Produce	json
+//	@Success	200	{array}	ProjectResponse
+//	@Router		/projects [get]
 func (h *Handler) ListProjects(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -130,14 +130,14 @@ func (h *Handler) ListProjects(
 
 // GetProject godoc
 //
-//	@Summary		Get project
-//	@Tags			Projects
-//	@Security		BearerAuth
-//	@Produce		json
-//	@Param			id	path		string	true	"Project ID"
-//	@Success		200	{object}	ProjectResponse
-//	@Failure		404	{string}	string
-//	@Router			/projects/{id} [get]
+//	@Summary	Get project
+//	@Tags		Projects
+//	@Security	BearerAuth
+//	@Produce	json
+//	@Param		id	path		string	true	"Project ID"
+//	@Success	200	{object}	ProjectResponse
+//	@Failure	404	{string}	string
+//	@Router		/projects/{id} [get]
 func (h *Handler) GetProject(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -176,17 +176,17 @@ func (h *Handler) GetProject(
 
 // UpdateProject godoc
 //
-//	@Summary		Update project
-//	@Tags			Projects
-//	@Security		BearerAuth
-//	@Accept			json
-//	@Produce		json
-//	@Param			id		path		string					true	"Project ID"
-//	@Param			request	body		UpdateProjectRequest	true	"Project"
-//	@Success		200		{object}	ProjectResponse
-//	@Failure		400		{string}	string
-//	@Failure		404		{string}	string
-//	@Router			/projects/{id} [put]
+//	@Summary	Update project
+//	@Tags		Projects
+//	@Security	BearerAuth
+//	@Accept		json
+//	@Produce	json
+//	@Param		id		path		string					true	"Project ID"
+//	@Param		request	body		UpdateProjectRequest	true	"Project"
+//	@Success	200		{object}	ProjectResponse
+//	@Failure	400		{string}	string
+//	@Failure	404		{string}	string
+//	@Router		/projects/{id} [put]
 func (h *Handler) UpdateProject(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -264,13 +264,13 @@ func (h *Handler) UpdateProject(
 
 // DeleteProject godoc
 //
-//	@Summary		Delete project
-//	@Tags			Projects
-//	@Security		BearerAuth
-//	@Param			id	path	string	true	"Project ID"
-//	@Success		204
-//	@Failure		404	{string}	string
-//	@Router			/projects/{id} [delete]
+//	@Summary	Delete project
+//	@Tags		Projects
+//	@Security	BearerAuth
+//	@Param		id	path	string	true	"Project ID"
+//	@Success	204
+//	@Failure	404	{string}	string
+//	@Router		/projects/{id} [delete]
 func (h *Handler) DeleteProject(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -325,16 +325,16 @@ func (h *Handler) DeleteProject(
 
 // AddMember godoc
 //
-//	@Summary		Add member
-//	@Tags			Projects
-//	@Security		BearerAuth
-//	@Accept			json
-//	@Produce		json
-//	@Param			id		path	string					true	"Project ID"
-//	@Param			request	body	AddMemberRequest		true	"Member"
-//	@Success		204
-//	@Failure		400	{string}	string
-//	@Router			/projects/{id}/members [post]
+//	@Summary	Add member
+//	@Tags		Projects
+//	@Security	BearerAuth
+//	@Accept		json
+//	@Produce	json
+//	@Param		id		path	string				true	"Project ID"
+//	@Param		request	body	AddMemberRequest	true	"Member"
+//	@Success	204
+//	@Failure	400	{string}	string
+//	@Router		/projects/{id}/members [post]
 func (h *Handler) AddMember(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -404,14 +404,14 @@ func (h *Handler) AddMember(
 
 // RemoveMember godoc
 //
-//	@Summary		Remove member
-//	@Tags			Projects
-//	@Security		BearerAuth
-//	@Param			id		path	string	true	"Project ID"
-//	@Param			userId	path	string	true	"User ID"
-//	@Success		204
-//	@Failure		400	{string}	string
-//	@Router			/projects/{id}/members/{userId} [delete]
+//	@Summary	Remove member
+//	@Tags		Projects
+//	@Security	BearerAuth
+//	@Param		id		path	string	true	"Project ID"
+//	@Param		userId	path	string	true	"User ID"
+//	@Success	204
+//	@Failure	400	{string}	string
+//	@Router		/projects/{id}/members/{userId} [delete]
 func (h *Handler) RemoveMember(
 	w http.ResponseWriter,
 	r *http.Request,

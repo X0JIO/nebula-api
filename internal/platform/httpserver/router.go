@@ -8,8 +8,10 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/admin"
 	"github.com/X0JIO/nebula-api/internal/modules/auth"
 	"github.com/X0JIO/nebula-api/internal/modules/comments"
+	"github.com/X0JIO/nebula-api/internal/modules/devices"
 	"github.com/X0JIO/nebula-api/internal/modules/health"
 	"github.com/X0JIO/nebula-api/internal/modules/projects"
+	"github.com/X0JIO/nebula-api/internal/modules/sessions"
 	"github.com/X0JIO/nebula-api/internal/modules/tasks"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
@@ -24,6 +26,8 @@ func NewRouter(
 	projectsHandler *projects.Handler,
 	tasksHandler *tasks.Handler,
 	commentsHandler *comments.Handler,
+	sessionsHandler *sessions.Handler,
+	devicesHandler *devices.Handler,
 	jwtMiddleware *middleware.JWTMiddleware,
 ) http.Handler {
 
@@ -55,6 +59,16 @@ func NewRouter(
 			authHandler.Refresh,
 		)
 
+		// protected auth routes
+		r.Group(func(r chi.Router) {
+			r.Use(jwtMiddleware.Handler)
+
+			r.Post("/auth/logout", authHandler.Logout)
+			r.Post("/auth/logout-all", authHandler.LogoutAll)
+
+			r.Get("/users/me", userHandler.Me)
+		})
+
 		// authenticated routes
 
 		r.Group(func(r chi.Router) {
@@ -62,12 +76,6 @@ func NewRouter(
 			r.Use(
 				jwtMiddleware.Handler,
 			)
-
-			r.Get(
-				"/users/me",
-				userHandler.Me,
-			)
-
 		})
 
 		r.Group(func(r chi.Router) {
@@ -141,6 +149,17 @@ func NewRouter(
 				commentsHandler,
 			)
 
+		})
+
+		r.Route("/devices", func(r chi.Router) {
+
+			r.Use(jwtMiddleware.Handler)
+
+			r.Get("/", devicesHandler.List)
+
+			r.Delete("/", devicesHandler.DeleteAll)
+
+			r.Delete("/{id}", devicesHandler.Delete)
 		})
 
 		// admin routes

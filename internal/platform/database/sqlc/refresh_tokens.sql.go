@@ -67,6 +67,18 @@ func (q *Queries) GetRefreshToken(ctx context.Context, tokenHash string) (Refres
 	return i, err
 }
 
+const revokeAllRefreshTokens = `-- name: RevokeAllRefreshTokens :exec
+UPDATE refresh_tokens
+SET revoked_at = NOW()
+WHERE user_id = $1
+AND revoked_at IS NULL
+`
+
+func (q *Queries) RevokeAllRefreshTokens(ctx context.Context, userID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, revokeAllRefreshTokens, userID)
+	return err
+}
+
 const revokeRefreshToken = `-- name: RevokeRefreshToken :exec
 UPDATE refresh_tokens
 SET revoked_at = NOW()
@@ -75,5 +87,24 @@ WHERE token_hash = $1
 
 func (q *Queries) RevokeRefreshToken(ctx context.Context, tokenHash string) error {
 	_, err := q.db.Exec(ctx, revokeRefreshToken, tokenHash)
+	return err
+}
+
+const updateRefreshToken = `-- name: UpdateRefreshToken :exec
+UPDATE refresh_tokens
+SET
+    token_hash = $2,
+    expires_at = $3
+WHERE token_hash = $1
+`
+
+type UpdateRefreshTokenParams struct {
+	TokenHash   string           `json:"token_hash"`
+	TokenHash_2 string           `json:"token_hash_2"`
+	ExpiresAt   pgtype.Timestamp `json:"expires_at"`
+}
+
+func (q *Queries) UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error {
+	_, err := q.db.Exec(ctx, updateRefreshToken, arg.TokenHash, arg.TokenHash_2, arg.ExpiresAt)
 	return err
 }

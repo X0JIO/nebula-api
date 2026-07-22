@@ -13,23 +13,35 @@ import (
 type Querier interface {
 	AddProjectMember(ctx context.Context, arg AddProjectMemberParams) error
 	CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error)
+	CreateDevice(ctx context.Context, arg CreateDeviceParams) (Device, error)
 	CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error)
 	CreateRefreshToken(ctx context.Context, arg CreateRefreshTokenParams) (RefreshToken, error)
+	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateTask(ctx context.Context, arg CreateTaskParams) (Task, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DashboardStats(ctx context.Context) (DashboardStatsRow, error)
 	DeleteComment(ctx context.Context, id pgtype.UUID) error
+	DeleteDevice(ctx context.Context, id pgtype.UUID) error
 	DeleteProject(ctx context.Context, id pgtype.UUID) error
+	DeleteSession(ctx context.Context, id pgtype.UUID) error
 	DeleteTask(ctx context.Context, id pgtype.UUID) error
 	DeleteUser(ctx context.Context, id pgtype.UUID) error
+	DeleteUserDevices(ctx context.Context, userID pgtype.UUID) error
 	GetComment(ctx context.Context, id pgtype.UUID) (Comment, error)
+	GetDevice(ctx context.Context, id pgtype.UUID) (Device, error)
+	GetDeviceByFingerprint(ctx context.Context, arg GetDeviceByFingerprintParams) (Device, error)
+	GetDeviceBySessionID(ctx context.Context, sessionID pgtype.UUID) (Device, error)
 	GetProjectByID(ctx context.Context, id pgtype.UUID) (Project, error)
 	GetProjectRole(ctx context.Context, arg GetProjectRoleParams) (string, error)
 	GetRefreshToken(ctx context.Context, tokenHash string) (RefreshToken, error)
+	GetSession(ctx context.Context, id pgtype.UUID) (Session, error)
+	GetSessionByRefreshHash(ctx context.Context, refreshTokenHash string) (Session, error)
 	GetTaskByID(ctx context.Context, id pgtype.UUID) (Task, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
+	ListDevices(ctx context.Context, userID pgtype.UUID) ([]Device, error)
 	ListProjectsByUser(ctx context.Context, userID pgtype.UUID) ([]Project, error)
+	ListSessions(ctx context.Context, userID pgtype.UUID) ([]Session, error)
 	ListTaskComments(ctx context.Context, taskID pgtype.UUID) ([]Comment, error)
 	ListTasksByAssignee(ctx context.Context, assigneeID pgtype.UUID) ([]Task, error)
 	ListTasksByProject(ctx context.Context, projectID pgtype.UUID) ([]Task, error)
@@ -37,8 +49,15 @@ type Querier interface {
 	ListUsers(ctx context.Context) ([]User, error)
 	ProjectExistsForUser(ctx context.Context, arg ProjectExistsForUserParams) (bool, error)
 	RemoveProjectMember(ctx context.Context, arg RemoveProjectMemberParams) error
+	RevokeAllRefreshTokens(ctx context.Context, userID pgtype.UUID) error
 	RevokeRefreshToken(ctx context.Context, tokenHash string) error
+	RevokeSession(ctx context.Context, id pgtype.UUID) error
+	RevokeUserSessions(ctx context.Context, userID pgtype.UUID) error
+	UpdateDeviceLastSeen(ctx context.Context, arg UpdateDeviceLastSeenParams) error
+	UpdateDeviceSession(ctx context.Context, arg UpdateDeviceSessionParams) error
 	UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error)
+	UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error
+	UpdateSessionRefresh(ctx context.Context, arg UpdateSessionRefreshParams) error
 	UpdateTask(ctx context.Context, arg UpdateTaskParams) (Task, error)
 	UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) (User, error)
 	UpdateUserStatus(ctx context.Context, arg UpdateUserStatusParams) (User, error)

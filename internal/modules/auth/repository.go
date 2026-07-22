@@ -15,11 +15,14 @@ type Repository struct {
 func NewRepository(
 	queries *db.Queries,
 ) *Repository {
-
 	return &Repository{
 		queries: queries,
 	}
 }
+
+// ----------------------------------------------------------------------
+// Refresh Tokens
+// ----------------------------------------------------------------------
 
 func (r *Repository) CreateRefreshToken(
 	ctx context.Context,
@@ -28,17 +31,16 @@ func (r *Repository) CreateRefreshToken(
 	expiresAt pgtype.Timestamp,
 ) (db.RefreshToken, error) {
 
-	var id pgtype.UUID
+	var uid pgtype.UUID
 
-	err := id.Scan(userID)
-	if err != nil {
+	if err := uid.Scan(userID); err != nil {
 		return db.RefreshToken{}, err
 	}
 
 	return r.queries.CreateRefreshToken(
 		ctx,
 		db.CreateRefreshTokenParams{
-			UserID:    id,
+			UserID:    uid,
 			TokenHash: hash,
 			ExpiresAt: expiresAt,
 		},
@@ -64,5 +66,102 @@ func (r *Repository) RevokeRefreshToken(
 	return r.queries.RevokeRefreshToken(
 		ctx,
 		hash,
+	)
+}
+
+func (r *Repository) RevokeAllRefreshTokens(
+	ctx context.Context,
+	userID pgtype.UUID,
+) error {
+	return r.queries.RevokeAllRefreshTokens(
+		ctx,
+		userID,
+	)
+}
+
+// ----------------------------------------------------------------------
+// Sessions
+// ----------------------------------------------------------------------
+
+func (r *Repository) CreateSession(
+	ctx context.Context,
+	arg db.CreateSessionParams,
+) (db.Session, error) {
+
+	return r.queries.CreateSession(
+		ctx,
+		arg,
+	)
+}
+
+func (r *Repository) GetSessionByRefreshHash(
+	ctx context.Context,
+	hash string,
+) (db.Session, error) {
+
+	return r.queries.GetSessionByRefreshHash(
+		ctx,
+		hash,
+	)
+}
+
+func (r *Repository) UpdateSessionRefresh(
+	ctx context.Context,
+	arg db.UpdateSessionRefreshParams,
+) error {
+
+	return r.queries.UpdateSessionRefresh(
+		ctx,
+		arg,
+	)
+}
+
+func (r *Repository) RevokeSession(
+	ctx context.Context,
+	id pgtype.UUID,
+) error {
+
+	return r.queries.RevokeSession(
+		ctx,
+		id,
+	)
+}
+
+func (r *Repository) RevokeUserSessions(
+	ctx context.Context,
+	userID pgtype.UUID,
+) error {
+
+	return r.queries.RevokeUserSessions(
+		ctx,
+		userID,
+	)
+}
+
+func (r *Repository) ListSessions(
+	ctx context.Context,
+	userID pgtype.UUID,
+) ([]db.Session, error) {
+
+	return r.queries.ListSessions(
+		ctx,
+		userID,
+	)
+}
+
+func (r *Repository) UpdateRefreshToken(
+	ctx context.Context,
+	oldHash string,
+	newHash string,
+	expires pgtype.Timestamp,
+) error {
+
+	return r.queries.UpdateRefreshToken(
+		ctx,
+		db.UpdateRefreshTokenParams{
+			TokenHash:   oldHash,
+			TokenHash_2: newHash,
+			ExpiresAt:   expires,
+		},
 	)
 }

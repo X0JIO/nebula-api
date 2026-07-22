@@ -1,11 +1,11 @@
-// @title Nebula API
-// @version 1.0
-// @description REST API for Nebula
-// @BasePath /api/v1
+//	@title			Nebula API
+//	@version		1.0
+//	@description	REST API for Nebula
+//	@BasePath		/api/v1
 
-// @securityDefinitions.apikey BearerAuth
-// @in header
-// @name Authorization
+// @securityDefinitions.apikey	BearerAuth
+// @in							header
+// @name						Authorization
 package main
 
 import (

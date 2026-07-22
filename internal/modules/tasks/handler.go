@@ -25,16 +25,16 @@ func NewHandler(
 
 // CreateTask godoc
 //
-// @Summary Create task
-// @Tags Tasks
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param projectId path string true "Project ID"
-// @Param request body CreateTaskRequest true "Task"
-// @Success 200 {object} TaskResponse
-// @Failure 400 {string} string
-// @Router /tasks/project/{projectId} [post]
+//	@Summary	Create task
+//	@Tags		Tasks
+//	@Security	BearerAuth
+//	@Accept		json
+//	@Produce	json
+//	@Param		projectId	path		string				true	"Project ID"
+//	@Param		request		body		CreateTaskRequest	true	"Task"
+//	@Success	200			{object}	TaskResponse
+//	@Failure	400			{string}	string
+//	@Router		/tasks/project/{projectId} [post]
 func (h *Handler) CreateTask(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -105,14 +105,14 @@ func (h *Handler) CreateTask(
 
 // GetTask godoc
 //
-// @Summary Get task
-// @Tags Tasks
-// @Security BearerAuth
-// @Produce json
-// @Param id path string true "Task ID"
-// @Success 200 {object} TaskResponse
-// @Failure 404 {string} string
-// @Router /tasks/{id} [get]
+//	@Summary	Get task
+//	@Tags		Tasks
+//	@Security	BearerAuth
+//	@Produce	json
+//	@Param		id	path		string	true	"Task ID"
+//	@Success	200	{object}	TaskResponse
+//	@Failure	404	{string}	string
+//	@Router		/tasks/{id} [get]
 func (h *Handler) GetTask(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -158,13 +158,13 @@ func (h *Handler) GetTask(
 
 // ListProjectTasks godoc
 //
-// @Summary List project tasks
-// @Tags Tasks
-// @Security BearerAuth
-// @Produce json
-// @Param projectId path string true "Project ID"
-// @Success 200 {array} TaskResponse
-// @Router /tasks/project/{projectId} [get]
+//	@Summary	List project tasks
+//	@Tags		Tasks
+//	@Security	BearerAuth
+//	@Produce	json
+//	@Param		projectId	path	string	true	"Project ID"
+//	@Success	200			{array}	TaskResponse
+//	@Router		/tasks/project/{projectId} [get]
 func (h *Handler) ListProjectTasks(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -210,16 +210,16 @@ func (h *Handler) ListProjectTasks(
 
 // UpdateTask godoc
 //
-// @Summary Update task
-// @Tags Tasks
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Param id path string true "Task ID"
-// @Param request body UpdateTaskRequest true "Task"
-// @Success 200 {object} TaskResponse
-// @Failure 400 {string} string
-// @Router /tasks/{id} [put]
+//	@Summary	Update task
+//	@Tags		Tasks
+//	@Security	BearerAuth
+//	@Accept		json
+//	@Produce	json
+//	@Param		id		path		string				true	"Task ID"
+//	@Param		request	body		UpdateTaskRequest	true	"Task"
+//	@Success	200		{object}	TaskResponse
+//	@Failure	400		{string}	string
+//	@Router		/tasks/{id} [put]
 func (h *Handler) UpdateTask(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -272,13 +272,13 @@ func (h *Handler) UpdateTask(
 
 // DeleteTask godoc
 //
-// @Summary Delete task
-// @Tags Tasks
-// @Security BearerAuth
-// @Param id path string true "Task ID"
-// @Success 204
-// @Failure 400 {string} string
-// @Router /tasks/{id} [delete]
+//	@Summary	Delete task
+//	@Tags		Tasks
+//	@Security	BearerAuth
+//	@Param		id	path	string	true	"Task ID"
+//	@Success	204
+//	@Failure	400	{string}	string
+//	@Router		/tasks/{id} [delete]
 func (h *Handler) DeleteTask(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -321,13 +321,13 @@ func (h *Handler) DeleteTask(
 
 // ListAssigneeTasks godoc
 //
-// @Summary List assigned tasks
-// @Tags Tasks
-// @Security BearerAuth
-// @Produce json
-// @Param userId path string true "User ID"
-// @Success 200 {array} TaskResponse
-// @Router /tasks/assignee/{userId} [get]
+//	@Summary	List assigned tasks
+//	@Tags		Tasks
+//	@Security	BearerAuth
+//	@Produce	json
+//	@Param		userId	path	string	true	"User ID"
+//	@Success	200		{array}	TaskResponse
+//	@Router		/tasks/assignee/{userId} [get]
 func (h *Handler) ListAssigneeTasks(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -377,14 +377,14 @@ func (h *Handler) ListAssigneeTasks(
 
 // ListStatusTasks godoc
 //
-// @Summary List tasks by status
-// @Tags Tasks
-// @Security BearerAuth
-// @Produce json
-// @Param projectId path string true "Project ID"
-// @Param status path string true "Status"
-// @Success 200 {array} TaskResponse
-// @Router /tasks/project/{projectId}/status/{status} [get]
+//	@Summary	List tasks by status
+//	@Tags		Tasks
+//	@Security	BearerAuth
+//	@Produce	json
+//	@Param		projectId	path	string	true	"Project ID"
+//	@Param		status		path	string	true	"Status"
+//	@Success	200			{array}	TaskResponse
+//	@Router		/tasks/project/{projectId}/status/{status} [get]
 func (h *Handler) ListStatusTasks(
 	w http.ResponseWriter,
 	r *http.Request,
