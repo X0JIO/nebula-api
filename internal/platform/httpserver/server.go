@@ -14,6 +14,7 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/sessions"
 	"github.com/X0JIO/nebula-api/internal/modules/tasks"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
+	"github.com/X0JIO/nebula-api/internal/modules/vpn"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
 )
 
@@ -32,6 +33,7 @@ func New(
 	commentsHandler *comments.Handler,
 	sessionsHandler *sessions.Handler,
 	devicesHandler *devices.Handler,
+	vpnHandler *vpn.Handler,
 	jwtMiddleware *middleware.JWTMiddleware,
 ) *Server {
 
@@ -49,6 +51,7 @@ func New(
 				commentsHandler,
 				sessionsHandler,
 				devicesHandler,
+				vpnHandler,
 				jwtMiddleware,
 			),
 			ReadHeaderTimeout: 5 * time.Second,

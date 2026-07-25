@@ -1,0 +1,115 @@
+package xray
+
+import (
+	"context"
+	"fmt"
+)
+
+func (c *HTTPClient) SyncUser(
+	ctx context.Context,
+	user User,
+	protocol string,
+) error {
+
+	inbound, err := c.FindInboundByProtocol(
+		ctx,
+		protocol,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	req := AddUserRequest{
+		InboundID: inbound.ID,
+		User:      user,
+	}
+
+	return c.AddUser(
+		ctx,
+		req,
+	)
+}
+
+func (c *HTTPClient) RemoveUserByProtocol(
+	ctx context.Context,
+	uuid string,
+	protocol string,
+) error {
+
+	inbound, err := c.FindInboundByProtocol(
+		ctx,
+		protocol,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	req := DeleteUserRequest{
+		InboundID: inbound.ID,
+		UUID:      uuid,
+	}
+
+	return c.DeleteUser(
+		ctx,
+		req,
+	)
+}
+
+func (c *HTTPClient) UpdateUserByProtocol(
+	ctx context.Context,
+	user User,
+	protocol string,
+) error {
+
+	inbound, err := c.FindInboundByProtocol(
+		ctx,
+		protocol,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	req := UpdateUserRequest{
+		InboundID: inbound.ID,
+		User:      user,
+	}
+
+	return c.UpdateUser(
+		ctx,
+		req,
+	)
+}
+
+func (c *HTTPClient) UserStatsByProtocol(
+	ctx context.Context,
+	uuid string,
+	protocol string,
+) (*UserStats, error) {
+
+	_, err := c.FindInboundByProtocol(
+		ctx,
+		protocol,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	stats, err := c.GetUserStats(
+		ctx,
+		uuid,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if stats == nil {
+		return nil, fmt.Errorf("stats not found")
+	}
+
+	return stats, nil
+}

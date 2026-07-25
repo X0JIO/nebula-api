@@ -16,12 +16,14 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/projects"
 	"github.com/X0JIO/nebula-api/internal/modules/sessions"
 	"github.com/X0JIO/nebula-api/internal/modules/tasks"
+	"github.com/X0JIO/nebula-api/internal/modules/vpn"
 	"github.com/X0JIO/nebula-api/internal/platform/cache/redis"
 	"github.com/X0JIO/nebula-api/internal/platform/config"
 	"github.com/X0JIO/nebula-api/internal/platform/database/postgres"
 	"github.com/X0JIO/nebula-api/internal/platform/httpserver"
 	"github.com/X0JIO/nebula-api/internal/platform/logger"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
+	"github.com/X0JIO/nebula-api/internal/platform/xray"
 
 	"go.uber.org/zap"
 )
@@ -32,8 +34,12 @@ type App struct {
 	Postgres *postgres.DB
 	Redis    *redis.Client
 
+	Xray xray.Client
+
 	Users *users.Service
 	Auth  *auth.Service
+
+	VPN *vpn.Service
 
 	UserHandler     *users.Handler
 	AdminHandler    *admin.Handler
@@ -42,6 +48,7 @@ type App struct {
 	CommentsHandler *comments.Handler
 	DevicesHandler  *devices.Handler
 	SessionsHandler *sessions.Handler
+	VPNHandler      *vpn.Handler
 	Server          *httpserver.Server
 }
 
@@ -75,12 +82,31 @@ func New() (*App, error) {
 
 	queries := db.New(database.Pool)
 
+	vpnRepository := vpn.NewRepository(queries)
+
 	// repositories
 	userRepository := users.NewRepository(queries)
 	authRepository := auth.NewRepository(queries)
 	devicesRepository := devices.NewRepository(queries)
 	sessionsRepository := sessions.NewRepository(queries)
 
+	xrayClient := xray.NewClient(&xray.Config{
+		Enabled: false,
+
+		BaseURL: "http://localhost:8081",
+		APIKey:  "",
+	})
+
+	// Sync service
+	vpnSync := vpn.NewSyncService(xrayClient)
+
+	// VPN service
+	vpnService := vpn.NewService(
+		vpnRepository,
+		vpnSync,
+	)
+
+	vpnHandler := vpn.NewHandler(vpnService)
 	// services
 	userService := users.NewService(userRepository)
 	sessionsService := sessions.NewService(sessionsRepository)
@@ -170,6 +196,8 @@ func New() (*App, error) {
 		sessionsHandler,
 		devicesHandler,
 
+		vpnHandler,
+
 		jwtMiddleware,
 	)
 
@@ -179,8 +207,11 @@ func New() (*App, error) {
 		Postgres: database,
 		Redis:    cache,
 
+		Xray: xrayClient,
+
 		Users: userService,
 		Auth:  authService,
+		VPN:   vpnService,
 
 		UserHandler:  userHandler,
 		AdminHandler: adminHandler,
@@ -191,6 +222,7 @@ func New() (*App, error) {
 
 		SessionsHandler: sessionsHandler,
 		DevicesHandler:  devicesHandler,
+		VPNHandler:      vpnHandler,
 
 		Server: server,
 	}, nil

@@ -19,6 +19,7 @@ type Querier interface {
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateTask(ctx context.Context, arg CreateTaskParams) (Task, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	CreateVPNUser(ctx context.Context, arg CreateVPNUserParams) (VpnUser, error)
 	DashboardStats(ctx context.Context) (DashboardStatsRow, error)
 	DeleteComment(ctx context.Context, id pgtype.UUID) error
 	DeleteDevice(ctx context.Context, id pgtype.UUID) error
@@ -27,6 +28,7 @@ type Querier interface {
 	DeleteTask(ctx context.Context, id pgtype.UUID) error
 	DeleteUser(ctx context.Context, id pgtype.UUID) error
 	DeleteUserDevices(ctx context.Context, userID pgtype.UUID) error
+	DeleteVPNConfig(ctx context.Context, id pgtype.UUID) error
 	GetComment(ctx context.Context, id pgtype.UUID) (Comment, error)
 	GetDevice(ctx context.Context, id pgtype.UUID) (Device, error)
 	GetDeviceByFingerprint(ctx context.Context, arg GetDeviceByFingerprintParams) (Device, error)
@@ -39,6 +41,9 @@ type Querier interface {
 	GetTaskByID(ctx context.Context, id pgtype.UUID) (Task, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
+	GetVPNConfig(ctx context.Context, id pgtype.UUID) (VpnConfig, error)
+	GetVPNUserBySubscription(ctx context.Context, subscriptionToken string) (VpnUser, error)
+	GetVPNUserByUserID(ctx context.Context, userID pgtype.UUID) (VpnUser, error)
 	ListDevices(ctx context.Context, userID pgtype.UUID) ([]Device, error)
 	ListProjectsByUser(ctx context.Context, userID pgtype.UUID) ([]Project, error)
 	ListSessions(ctx context.Context, userID pgtype.UUID) ([]Session, error)
@@ -47,12 +52,14 @@ type Querier interface {
 	ListTasksByProject(ctx context.Context, projectID pgtype.UUID) ([]Task, error)
 	ListTasksByStatus(ctx context.Context, arg ListTasksByStatusParams) ([]Task, error)
 	ListUsers(ctx context.Context) ([]User, error)
+	ListVPNConfigs(ctx context.Context, vpnUserID pgtype.UUID) ([]VpnConfig, error)
 	ProjectExistsForUser(ctx context.Context, arg ProjectExistsForUserParams) (bool, error)
 	RemoveProjectMember(ctx context.Context, arg RemoveProjectMemberParams) error
 	RevokeAllRefreshTokens(ctx context.Context, userID pgtype.UUID) error
 	RevokeRefreshToken(ctx context.Context, tokenHash string) error
 	RevokeSession(ctx context.Context, id pgtype.UUID) error
 	RevokeUserSessions(ctx context.Context, userID pgtype.UUID) error
+	SaveVPNConfig(ctx context.Context, arg SaveVPNConfigParams) (VpnConfig, error)
 	UpdateDeviceLastSeen(ctx context.Context, arg UpdateDeviceLastSeenParams) error
 	UpdateDeviceSession(ctx context.Context, arg UpdateDeviceSessionParams) error
 	UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error)

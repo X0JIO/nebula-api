@@ -14,6 +14,7 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/sessions"
 	"github.com/X0JIO/nebula-api/internal/modules/tasks"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
+	"github.com/X0JIO/nebula-api/internal/modules/vpn"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
 
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -28,6 +29,7 @@ func NewRouter(
 	commentsHandler *comments.Handler,
 	sessionsHandler *sessions.Handler,
 	devicesHandler *devices.Handler,
+	vpnHandler *vpn.Handler,
 	jwtMiddleware *middleware.JWTMiddleware,
 ) http.Handler {
 
@@ -160,6 +162,19 @@ func NewRouter(
 			r.Delete("/", devicesHandler.DeleteAll)
 
 			r.Delete("/{id}", devicesHandler.Delete)
+		})
+
+		r.Route("/vpn", func(r chi.Router) {
+
+			r.Use(jwtMiddleware.Handler)
+
+			r.Post("/config", vpnHandler.CreateConfig)
+
+			r.Get("/configs", vpnHandler.ListConfigs)
+
+			r.Get("/subscription", vpnHandler.Subscription)
+
+			r.Get("/subscription/base64", vpnHandler.SubscriptionBase64)
 		})
 
 		// admin routes

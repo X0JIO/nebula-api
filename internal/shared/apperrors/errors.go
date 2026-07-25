@@ -28,3 +28,12 @@ var (
 
 	ErrTitleRequired = errors.New("title is required")
 )
+
+// VPN
+
+var (
+	ErrProtocolRequired    = errors.New("protocol is required")
+	ErrUnsupportedProtocol = errors.New("unsupported protocol")
+	ErrVPNUserNotFound     = errors.New("vpn user not found")
+	ErrVPNConfigNotFound   = errors.New("vpn config not found")
+)

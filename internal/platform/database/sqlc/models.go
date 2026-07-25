@@ -94,3 +94,22 @@ type User struct {
 	UpdatedAt    pgtype.Timestamp `json:"updated_at"`
 	Role         string           `json:"role"`
 }
+
+type VpnConfig struct {
+	ID        pgtype.UUID        `json:"id"`
+	VpnUserID pgtype.UUID        `json:"vpn_user_id"`
+	Protocol  string             `json:"protocol"`
+	Config    string             `json:"config"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
+type VpnUser struct {
+	ID                pgtype.UUID        `json:"id"`
+	UserID            pgtype.UUID        `json:"user_id"`
+	Uuid              string             `json:"uuid"`
+	PrivateKey        string             `json:"private_key"`
+	PublicKey         string             `json:"public_key"`
+	ShortID           string             `json:"short_id"`
+	SubscriptionToken string             `json:"subscription_token"`
+	CreatedAt         pgtype.Timestamptz `json:"created_at"`
+}

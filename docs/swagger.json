@@ -1226,6 +1226,136 @@
                     }
                 }
             }
+        },
+        "/vpn/config": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Generate VPN configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Create VPN config",
+                "parameters": [
+                    {
+                        "description": "Protocol",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/vpn.CreateConfigRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/vpn.ConfigResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/vpn/configs": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all VPN configs for current user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Get VPN configs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/vpn.ConfigResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/vpn/subscription": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Get subscription",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/vpn/subscription/base64": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Get subscription (Base64)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1544,6 +1674,34 @@
                 "updated_at": {
                     "type": "string",
                     "example": "2026-07-19T10:25:12Z"
+                }
+            }
+        },
+        "vpn.ConfigResponse": {
+            "type": "object",
+            "properties": {
+                "reality": {
+                    "type": "string"
+                },
+                "shadowsocks": {
+                    "type": "string"
+                },
+                "trojan": {
+                    "type": "string"
+                },
+                "vless": {
+                    "type": "string"
+                },
+                "vmess": {
+                    "type": "string"
+                }
+            }
+        },
+        "vpn.CreateConfigRequest": {
+            "type": "object",
+            "properties": {
+                "protocol": {
+                    "type": "string"
                 }
             }
         }

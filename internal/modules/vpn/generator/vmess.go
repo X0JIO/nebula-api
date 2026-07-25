@@ -1,0 +1,41 @@
+package generator
+
+import (
+	"encoding/base64"
+	"encoding/json"
+)
+
+type vmessConfig struct {
+	V    string `json:"v"`
+	Ps   string `json:"ps"`
+	Add  string `json:"add"`
+	Port string `json:"port"`
+	ID   string `json:"id"`
+	Aid  string `json:"aid"`
+	Net  string `json:"net"`
+	Type string `json:"type"`
+	Host string `json:"host"`
+	Path string `json:"path"`
+	TLS  string `json:"tls"`
+}
+
+func GenerateVMess(identity *Identity, host string) string {
+
+	cfg := vmessConfig{
+		V:    "2",
+		Ps:   "Nebula",
+		Add:  host,
+		Port: "443",
+		ID:   identity.UserUUID,
+		Aid:  "0",
+		Net:  "tcp",
+		Type: "none",
+		Host: "",
+		Path: "",
+		TLS:  "tls",
+	}
+
+	data, _ := json.Marshal(cfg)
+
+	return "vmess://" + base64.StdEncoding.EncodeToString(data)
+}

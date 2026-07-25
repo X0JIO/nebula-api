@@ -208,6 +208,24 @@ definitions:
         example: "2026-07-19T10:25:12Z"
         type: string
     type: object
+  vpn.ConfigResponse:
+    properties:
+      reality:
+        type: string
+      shadowsocks:
+        type: string
+      trojan:
+        type: string
+      vless:
+        type: string
+      vmess:
+        type: string
+    type: object
+  vpn.CreateConfigRequest:
+    properties:
+      protocol:
+        type: string
+    type: object
 info:
   contact: {}
   description: REST API for Nebula
@@ -974,6 +992,85 @@ paths:
       summary: Current user
       tags:
       - Users
+  /vpn/config:
+    post:
+      consumes:
+      - application/json
+      description: Generate VPN configuration
+      parameters:
+      - description: Protocol
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/vpn.CreateConfigRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/vpn.ConfigResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create VPN config
+      tags:
+      - VPN
+  /vpn/configs:
+    get:
+      description: Get all VPN configs for current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/vpn.ConfigResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get VPN configs
+      tags:
+      - VPN
+  /vpn/subscription:
+    get:
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get subscription
+      tags:
+      - VPN
+  /vpn/subscription/base64:
+    get:
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get subscription (Base64)
+      tags:
+      - VPN
 securityDefinitions:
   BearerAuth:
     in: header

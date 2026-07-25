@@ -2,6 +2,7 @@ package web
 
 import (
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/X0JIO/nebula-api/internal/shared/apperrors"
@@ -86,16 +87,48 @@ func WriteError(
 			http.StatusBadRequest,
 		)
 
+	case errors.Is(err, apperrors.ErrProtocolRequired):
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusBadRequest,
+		)
+
+	case errors.Is(err, apperrors.ErrUnsupportedProtocol):
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusBadRequest,
+		)
+
+	case errors.Is(err, apperrors.ErrVPNUserNotFound):
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusNotFound,
+		)
+
+	case errors.Is(err, apperrors.ErrVPNConfigNotFound):
+
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusNotFound,
+		)
+
 	default:
+
+		log.Printf("INTERNAL ERROR: %+v\n", err)
 
 		http.Error(
 			w,
 			"internal server error",
 			http.StatusInternalServerError,
 		)
-
 	}
-
 }
 
 func Error(
@@ -109,5 +142,4 @@ func Error(
 		message,
 		status,
 	)
-
 }
