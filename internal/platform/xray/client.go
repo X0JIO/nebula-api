@@ -24,6 +24,9 @@ type Client interface {
 	CreateInbound(ctx context.Context, req CreateInboundRequest) error
 	UpdateInbound(ctx context.Context, req UpdateInboundRequest) error
 	DeleteInbound(ctx context.Context, id int) error
+
+	Reload(ctx context.Context) error
+	Restart(ctx context.Context) error
 }
 
 type HTTPClient struct {

@@ -26,33 +26,19 @@ type UpdateInboundRequest struct {
 	Protocol string `json:"protocol"`
 }
 
-type CreateInboundResponse struct {
-	Success bool `json:"success"`
-}
-
-type UpdateInboundResponse struct {
-	Success bool `json:"success"`
-}
-
-type DeleteInboundResponse struct {
-	Success bool `json:"success"`
-}
-
 func (c *HTTPClient) ListInbounds(
 	ctx context.Context,
 ) ([]Inbound, error) {
 
 	var resp []Inbound
 
-	err := c.do(
+	if err := c.do(
 		ctx,
 		http.MethodGet,
 		"/inbounds",
 		nil,
 		&resp,
-	)
-
-	if err != nil {
+	); err != nil {
 		return nil, err
 	}
 
@@ -70,13 +56,12 @@ func (c *HTTPClient) FindInboundByProtocol(
 	}
 
 	for _, inbound := range inbounds {
-
 		if inbound.Protocol == protocol {
 			return &inbound, nil
 		}
 	}
 
-	return nil, fmt.Errorf("inbound for protocol %s not found", protocol)
+	return nil, fmt.Errorf("inbound for protocol %q not found", protocol)
 }
 
 func (c *HTTPClient) CreateInbound(
@@ -84,25 +69,13 @@ func (c *HTTPClient) CreateInbound(
 	req CreateInboundRequest,
 ) error {
 
-	var resp CreateInboundResponse
-
-	err := c.do(
+	return c.do(
 		ctx,
 		http.MethodPost,
 		"/inbounds",
 		req,
-		&resp,
+		nil,
 	)
-
-	if err != nil {
-		return err
-	}
-
-	if !resp.Success {
-		return ErrRequestFailed
-	}
-
-	return nil
 }
 
 func (c *HTTPClient) UpdateInbound(
@@ -110,25 +83,13 @@ func (c *HTTPClient) UpdateInbound(
 	req UpdateInboundRequest,
 ) error {
 
-	var resp UpdateInboundResponse
-
-	err := c.do(
+	return c.do(
 		ctx,
 		http.MethodPut,
-		"/inbounds",
+		fmt.Sprintf("/inbounds/%d", req.ID),
 		req,
-		&resp,
+		nil,
 	)
-
-	if err != nil {
-		return err
-	}
-
-	if !resp.Success {
-		return ErrRequestFailed
-	}
-
-	return nil
 }
 
 func (c *HTTPClient) DeleteInbound(
@@ -136,23 +97,11 @@ func (c *HTTPClient) DeleteInbound(
 	id int,
 ) error {
 
-	var resp DeleteInboundResponse
-
-	err := c.do(
+	return c.do(
 		ctx,
 		http.MethodDelete,
 		fmt.Sprintf("/inbounds/%d", id),
 		nil,
-		&resp,
+		nil,
 	)
-
-	if err != nil {
-		return err
-	}
-
-	if !resp.Success {
-		return ErrRequestFailed
-	}
-
-	return nil
 }

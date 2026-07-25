@@ -64,3 +64,31 @@ func (s *StubClient) UpdateInbound(ctx context.Context, req UpdateInboundRequest
 func (s *StubClient) DeleteInbound(ctx context.Context, id int) error {
 	return nil
 }
+
+func (s *StubClient) Start(ctx context.Context) error {
+	return nil
+}
+
+func (s *StubClient) Stop(ctx context.Context) error {
+	return nil
+}
+
+func (s *StubClient) Restart(ctx context.Context) error {
+	return nil
+}
+
+func (s *StubClient) Reload(ctx context.Context) error {
+	return nil
+}
+
+func (s *StubClient) Validate(ctx context.Context) error {
+	return nil
+}
+
+func (s *StubClient) Version(ctx context.Context) (string, error) {
+	return "stub", nil
+}
+
+func (s *StubClient) Health(ctx context.Context) error {
+	return nil
+}
