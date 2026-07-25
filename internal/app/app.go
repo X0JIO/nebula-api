@@ -91,22 +91,29 @@ func New() (*App, error) {
 	sessionsRepository := sessions.NewRepository(queries)
 
 	xrayClient := xray.NewClient(&xray.Config{
-		Enabled: false,
-
-		BaseURL: "http://localhost:8081",
-		APIKey:  "",
+		Enabled: cfg.XRay.Enabled,
+		BaseURL: cfg.XRay.BaseURL,
+		APIKey:  cfg.XRay.APIKey,
+		Timeout: cfg.XRay.Timeout,
 	})
 
-	// Sync service
 	vpnSync := vpn.NewSyncService(xrayClient)
 
-	// VPN service
 	vpnService := vpn.NewService(
 		vpnRepository,
 		vpnSync,
 	)
 
 	vpnHandler := vpn.NewHandler(vpnService)
+
+	inboundManager := xray.NewInboundManager(xrayClient)
+
+	if err := inboundManager.EnsureDefaults(context.Background()); err != nil {
+		log.Warn(
+			"failed to ensure default xray inbounds",
+			zap.Error(err),
+		)
+	}
 	// services
 	userService := users.NewService(userRepository)
 	sessionsService := sessions.NewService(sessionsRepository)

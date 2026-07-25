@@ -7,7 +7,8 @@ import (
 )
 
 type Config struct {
-	App AppConfig
+	App  AppConfig
+	XRay XRayConfig
 }
 
 type AppConfig struct {

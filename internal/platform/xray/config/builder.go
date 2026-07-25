@@ -1,5 +1,7 @@
 package config
 
+import "encoding/json"
+
 type Builder struct {
 	cfg Config
 }
@@ -14,8 +16,12 @@ func (b *Builder) Config() Config {
 	return b.cfg
 }
 
-func (b *Builder) Build() Config {
-	return b.cfg
+func (b *Builder) Build() ([]byte, error) {
+	if err := b.Validate(); err != nil {
+		return nil, err
+	}
+
+	return json.MarshalIndent(b.cfg, "", "  ")
 }
 
 func (b *Builder) SetLog(level string) {
@@ -48,4 +54,14 @@ func (b *Builder) AddInbound(inbound Inbound) {
 
 func (b *Builder) AddOutbounds(outbounds ...Outbound) {
 	b.cfg.Outbounds = append(b.cfg.Outbounds, outbounds...)
+}
+
+func (b *Builder) Validate() error {
+	for _, inbound := range b.cfg.Inbounds {
+		if err := ValidateInbound(inbound); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

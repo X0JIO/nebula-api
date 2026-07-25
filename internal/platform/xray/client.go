@@ -27,6 +27,7 @@ type Client interface {
 
 	Reload(ctx context.Context) error
 	Restart(ctx context.Context) error
+	Version(ctx context.Context) (string, error)
 }
 
 type HTTPClient struct {
@@ -37,19 +38,24 @@ type HTTPClient struct {
 
 type Config struct {
 	Enabled bool
-
 	BaseURL string
 	APIKey  string
 
-	Timeout int
+	Timeout time.Duration
 }
 
 func NewHTTPClient(cfg *Config) *HTTPClient {
+
+	timeout := cfg.Timeout
+	if timeout == 0 {
+		timeout = 15 * time.Second
+	}
+
 	return &HTTPClient{
 		baseURL: cfg.BaseURL,
 		apiKey:  cfg.APIKey,
 		client: &http.Client{
-			Timeout: 15 * time.Second,
+			Timeout: timeout,
 		},
 	}
 }
@@ -108,8 +114,9 @@ func (c *HTTPClient) do(
 		raw, _ := io.ReadAll(resp.Body)
 
 		return fmt.Errorf(
-			"%w: %s",
+			"%w (%d): %s",
 			ErrRequestFailed,
+			resp.StatusCode,
 			string(raw),
 		)
 	}

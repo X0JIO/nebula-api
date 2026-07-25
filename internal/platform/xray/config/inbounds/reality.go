@@ -6,9 +6,8 @@ type RealitySettings struct {
 	Xver        int      `json:"xver"`
 	ServerNames []string `json:"serverNames"`
 
-	PrivateKey string `json:"privateKey"`
-
-	ShortIds []string `json:"shortIds"`
+	PrivateKey string   `json:"privateKey"`
+	ShortIds   []string `json:"shortIds"`
 }
 
 type StreamSettings struct {

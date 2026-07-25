@@ -7,4 +7,6 @@ type Manager interface {
 
 	Reload(ctx context.Context) error
 	Restart(ctx context.Context) error
+
+	Version(ctx context.Context) (string, error)
 }

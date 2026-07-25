@@ -23,3 +23,7 @@ func (m *HTTPManager) Reload(ctx context.Context) error {
 func (m *HTTPManager) Restart(ctx context.Context) error {
 	return m.client.Restart(ctx)
 }
+
+func (m *HTTPManager) Version(ctx context.Context) (string, error) {
+	return m.client.Version(ctx)
+}
