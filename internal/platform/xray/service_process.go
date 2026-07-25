@@ -3,11 +3,11 @@ package xray
 import "context"
 
 type Service struct {
-	process *ProcessManager
+	process ProcessManager
 }
 
 func NewService(
-	process *ProcessManager,
+	process ProcessManager,
 ) *Service {
 
 	return &Service{
@@ -22,9 +22,11 @@ func (s *Service) Start(
 	return s.process.Start(ctx)
 }
 
-func (s *Service) Stop() error {
+func (s *Service) Stop(
+	ctx context.Context,
+) error {
 
-	return s.process.Stop()
+	return s.process.Stop(ctx)
 }
 
 func (s *Service) Restart(

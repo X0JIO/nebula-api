@@ -7,4 +7,8 @@ type XRayConfig struct {
 	BaseURL string
 	APIKey  string
 	Timeout time.Duration
+
+	BinaryPath string
+	ConfigPath string
+	WorkingDir string
 }

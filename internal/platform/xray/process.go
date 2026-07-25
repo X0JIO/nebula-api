@@ -5,29 +5,31 @@ import (
 	"errors"
 	"os"
 	"os/exec"
-	"sync"
 )
 
-type ProcessManager struct {
-	binary string
-	config string
+type ProcessManager interface {
+	Start(ctx context.Context) error
+	Stop(ctx context.Context) error
+	Restart(ctx context.Context) error
 
-	cmd *exec.Cmd
-	mu  sync.Mutex
+	Running() bool
+	PID() int
 }
 
 func NewProcessManager(
-	binary string,
-	config string,
-) *ProcessManager {
+	binaryPath string,
+	configPath string,
+	workingDir string,
+) ProcessManager {
 
-	return &ProcessManager{
-		binary: binary,
-		config: config,
+	return &WindowsProcessManager{
+		binaryPath: binaryPath,
+		configPath: configPath,
+		workingDir: workingDir,
 	}
 }
 
-func (p *ProcessManager) Start(
+func (p *WindowsProcessManager) Start(
 	ctx context.Context,
 ) error {
 
@@ -40,11 +42,15 @@ func (p *ProcessManager) Start(
 
 	cmd := exec.CommandContext(
 		ctx,
-		p.binary,
+		p.binaryPath,
 		"run",
 		"-config",
-		p.config,
+		p.configPath,
 	)
+
+	if p.workingDir != "" {
+		cmd.Dir = p.workingDir
+	}
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -58,7 +64,9 @@ func (p *ProcessManager) Start(
 	return nil
 }
 
-func (p *ProcessManager) Stop() error {
+func (p *WindowsProcessManager) Stop(
+	ctx context.Context,
+) error {
 
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -74,21 +82,33 @@ func (p *ProcessManager) Stop() error {
 	return err
 }
 
-func (p *ProcessManager) Restart(
+func (p *WindowsProcessManager) Restart(
 	ctx context.Context,
 ) error {
 
-	if err := p.Stop(); err != nil {
+	if err := p.Stop(ctx); err != nil {
 		return err
 	}
 
 	return p.Start(ctx)
 }
 
-func (p *ProcessManager) Running() bool {
+func (p *WindowsProcessManager) Running() bool {
 
-	p.mu.Lock()
-	defer p.mu.Unlock()
+	p.mu.RLock()
+	defer p.mu.RUnlock()
 
 	return p.cmd != nil
+}
+
+func (p *WindowsProcessManager) PID() int {
+
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+
+	if p.cmd == nil || p.cmd.Process == nil {
+		return 0
+	}
+
+	return p.cmd.Process.Pid
 }

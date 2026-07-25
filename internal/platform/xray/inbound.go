@@ -9,8 +9,9 @@ import (
 type Inbound struct {
 	ID       int    `json:"id"`
 	Tag      string `json:"tag"`
-	Port     int    `json:"port"`
 	Protocol string `json:"protocol"`
+	Port     int    `json:"port"`
+	Listen   string `json:"listen"`
 }
 
 type CreateInboundRequest struct {

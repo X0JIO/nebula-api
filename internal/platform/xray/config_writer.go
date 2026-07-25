@@ -1,26 +1,33 @@
 package xray
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 )
 
-type ConfigWriter struct {
+type ConfigWriter interface {
+	Save(ctx context.Context, data []byte) error
+}
+
+type FileWriter struct {
 	path string
 }
 
-func NewConfigWriter(
-	path string,
-) *ConfigWriter {
-
-	return &ConfigWriter{
+func NewConfigWriter(path string) ConfigWriter {
+	return &FileWriter{
 		path: path,
 	}
 }
 
-func (w *ConfigWriter) Save(
-	cfg []byte,
+func (w *FileWriter) Save(
+	ctx context.Context,
+	data []byte,
 ) error {
+
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 
 	dir := filepath.Dir(w.path)
 
@@ -30,7 +37,7 @@ func (w *ConfigWriter) Save(
 
 	return os.WriteFile(
 		w.path,
-		cfg,
+		data,
 		0644,
 	)
 }
