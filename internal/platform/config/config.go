@@ -7,54 +7,104 @@ import (
 )
 
 type Config struct {
-	App  AppConfig
-	XRay XRayConfig
+	App AppConfig
+
+	Database DatabaseConfig
+
+	Redis RedisConfig
+
+	Xray XrayConfig
 }
 
-type AppConfig struct {
-	Name string `env:"APP_NAME,required"`
-	Env  string `env:"APP_ENV" envDefault:"development"`
+type DatabaseConfig struct {
+	Host string `env:"POSTGRES_HOST" envDefault:"localhost"`
+	Port int    `env:"POSTGRES_PORT" envDefault:"5432"`
 
-	Host string `env:"SERVER_HOST" envDefault:"0.0.0.0"`
-	Port int    `env:"SERVER_PORT" envDefault:"8080"`
-
-	LogLevel string `env:"LOG_LEVEL" envDefault:"info"`
-
-	Postgres PostgresConfig
-	Redis    RedisConfig
-	JWT      JWTConfig
-}
-
-type PostgresConfig struct {
-	Host     string `env:"POSTGRES_HOST" envDefault:"localhost"`
-	Port     int    `env:"POSTGRES_PORT" envDefault:"5432"`
 	Database string `env:"POSTGRES_DB" envDefault:"nebula"`
 	User     string `env:"POSTGRES_USER" envDefault:"nebula"`
 	Password string `env:"POSTGRES_PASSWORD" envDefault:"nebula"`
-	SSLMode  string `env:"POSTGRES_SSLMODE" envDefault:"disable"`
+
+	SSLMode string `env:"POSTGRES_SSLMODE" envDefault:"disable"`
 
 	MaxConns int32 `env:"POSTGRES_MAX_CONNS" envDefault:"20"`
 	MinConns int32 `env:"POSTGRES_MIN_CONNS" envDefault:"2"`
 }
 
+type XrayConfig struct {
+	Enabled bool `env:"XRAY_ENABLED" envDefault:"false"`
+
+	BinaryPath string `env:"XRAY_BINARY_PATH"`
+
+	ConfigPath string `env:"XRAY_CONFIG_PATH"`
+
+	WorkingDir string `env:"XRAY_WORKING_DIR"`
+
+	BaseURL string `env:"XRAY_API_URL"`
+
+	APIKey string `env:"XRAY_API_KEY"`
+
+	Timeout time.Duration `env:"XRAY_TIMEOUT" envDefault:"10s"`
+}
+
+type AppConfig struct {
+	Name string `env:"APP_NAME,required"`
+
+	Env string `env:"APP_ENV" envDefault:"development"`
+
+	Host string `env:"SERVER_HOST" envDefault:"0.0.0.0"`
+
+	Port int `env:"SERVER_PORT" envDefault:"8080"`
+
+	LogLevel string `env:"LOG_LEVEL" envDefault:"info"`
+
+	Postgres PostgresConfig
+
+	Redis RedisConfig
+
+	JWT JWTConfig
+}
+
+type PostgresConfig struct {
+	Host string `env:"POSTGRES_HOST" envDefault:"localhost"`
+
+	Port int `env:"POSTGRES_PORT" envDefault:"5432"`
+
+	Database string `env:"POSTGRES_DB" envDefault:"nebula"`
+
+	User string `env:"POSTGRES_USER" envDefault:"nebula"`
+
+	Password string `env:"POSTGRES_PASSWORD" envDefault:"nebula"`
+
+	SSLMode string `env:"POSTGRES_SSLMODE" envDefault:"disable"`
+
+	MaxConns int32 `env:"POSTGRES_MAX_CONNS" envDefault:"20"`
+
+	MinConns int32 `env:"POSTGRES_MIN_CONNS" envDefault:"2"`
+}
+
 type RedisConfig struct {
-	Host     string `env:"REDIS_HOST" envDefault:"localhost"`
-	Port     string `env:"REDIS_PORT" envDefault:"6379"`
+	Host string `env:"REDIS_HOST" envDefault:"localhost"`
+
+	Port string `env:"REDIS_PORT" envDefault:"6379"`
+
 	Password string `env:"REDIS_PASSWORD"`
-	DB       int    `env:"REDIS_DB" envDefault:"0"`
+
+	DB int `env:"REDIS_DB" envDefault:"0"`
 }
 
 type JWTConfig struct {
 	Secret string `env:"JWT_SECRET,required"`
 
-	AccessTTL  time.Duration `env:"JWT_ACCESS_TTL" envDefault:"15m"`
+	AccessTTL time.Duration `env:"JWT_ACCESS_TTL" envDefault:"15m"`
+
 	RefreshTTL time.Duration `env:"JWT_REFRESH_TTL" envDefault:"720h"`
 }
 
 func Load() (*Config, error) {
+
 	cfg := &Config{}
 
-	if err := env.Parse(&cfg.App); err != nil {
+	if err := env.Parse(cfg); err != nil {
 		return nil, err
 	}
 

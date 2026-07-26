@@ -2,8 +2,13 @@ package xray
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 )
+
+type HTTPController struct {
+	service *Service
+}
 
 func (c *HTTPClient) Restart(ctx context.Context) error {
 	var resp struct {
@@ -74,4 +79,14 @@ func (c *HTTPClient) Validate(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (h *HTTPController) Status(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	json.NewEncoder(w).Encode(
+		h.service.Status(),
+	)
 }

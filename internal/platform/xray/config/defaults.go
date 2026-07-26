@@ -58,17 +58,6 @@ func Default() Config {
 
 		Inbounds: []model.Inbound{},
 
-		Outbounds: []model.Outbound{
-
-			{
-				Tag:      "direct",
-				Protocol: "freedom",
-			},
-
-			{
-				Tag:      "blocked",
-				Protocol: "blackhole",
-			},
-		},
+		Outbounds: []model.Outbound{},
 	}
 }

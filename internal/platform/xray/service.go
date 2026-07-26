@@ -2,76 +2,48 @@ package xray
 
 import (
 	"context"
-
-	"github.com/X0JIO/nebula-api/internal/platform/xray/config"
-	"github.com/X0JIO/nebula-api/internal/platform/xray/config/inbounds"
 )
 
-type ConfigService struct {
-	builder *config.Builder
-	writer  ConfigWriter
+type Service struct {
+	process ProcessManager
 }
 
-func NewConfigService(
-	writer ConfigWriter,
-) *ConfigService {
+func NewService(
+	process ProcessManager,
+) *Service {
 
-	return &ConfigService{
-
-		builder: config.NewBuilder(),
-
-		writer: writer,
+	return &Service{
+		process: process,
 	}
 }
 
-func (s *ConfigService) Build() (config.Config, error) {
-
-	return s.builder.Build()
-}
-
-func (s *ConfigService) Generate(
+func (s *Service) Start(
 	ctx context.Context,
 ) error {
 
-	cfg, err := s.Build()
-
-	if err != nil {
-		return err
-	}
-
-	data, err := config.Generate(cfg)
-
-	if err != nil {
-		return err
-	}
-
-	return s.writer.Save(
-		ctx,
-		data,
-	)
+	return s.process.Start(ctx)
 }
 
-func (s *ConfigService) AddRealityInbound(
-	port int,
-	privateKey string,
-	shortID string,
-	serverName string,
-	client inbounds.Client,
-) {
+func (s *Service) Stop(
+	ctx context.Context,
+) error {
 
-	s.builder.AddInbound(
+	return s.process.Stop(ctx)
+}
 
-		inbounds.NewVLESSReality(
+func (s *Service) Restart(
+	ctx context.Context,
+) error {
 
-			port,
+	return s.process.Restart(ctx)
+}
 
-			privateKey,
+func (s *Service) Running() bool {
 
-			shortID,
+	return s.process.Running()
+}
 
-			serverName,
+func (s *Service) PID() int {
 
-			client,
-		),
-	)
+	return s.process.PID()
 }

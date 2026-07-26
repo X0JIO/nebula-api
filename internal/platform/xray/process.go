@@ -9,11 +9,16 @@ import (
 
 type ProcessManager interface {
 	Start(ctx context.Context) error
+
 	Stop(ctx context.Context) error
+
 	Restart(ctx context.Context) error
 
 	Running() bool
+
 	PID() int
+
+	Status() Status
 }
 
 func NewProcessManager(
@@ -60,6 +65,21 @@ func (p *WindowsProcessManager) Start(
 	}
 
 	p.cmd = cmd
+
+	go func() {
+
+		err := cmd.Wait()
+
+		p.mu.Lock()
+		defer p.mu.Unlock()
+
+		p.cmd = nil
+
+		if err != nil {
+			// TODO: добавить logger
+		}
+
+	}()
 
 	return nil
 }
@@ -111,4 +131,23 @@ func (p *WindowsProcessManager) PID() int {
 	}
 
 	return p.cmd.Process.Pid
+}
+
+func (p *WindowsProcessManager) Status() Status {
+
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+
+	if p.cmd == nil || p.cmd.Process == nil {
+
+		return Status{
+			Running: false,
+			PID:     0,
+		}
+	}
+
+	return Status{
+		Running: true,
+		PID:     p.cmd.Process.Pid,
+	}
 }

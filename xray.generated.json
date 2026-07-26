@@ -1,0 +1,125 @@
+{
+  "log": {
+    "loglevel": "warning"
+  },
+  "api": {
+    "tag": "api",
+    "services": [
+      "HandlerService",
+      "StatsService"
+    ]
+  },
+  "stats": {},
+  "dns": {
+    "servers": [
+      "1.1.1.1",
+      "8.8.8.8"
+    ]
+  },
+  "routing": {
+    "domainStrategy": "AsIs"
+  },
+  "policy": {
+    "levels": {
+      "0": {
+        "statsUserUplink": true,
+        "statsUserDownlink": true,
+        "statsUserOnline": true
+      }
+    }
+  },
+  "inbounds": [
+    {
+      "tag": "vless",
+      "listen": "0.0.0.0",
+      "port": 443,
+      "protocol": "vless",
+      "settings": {}
+    },
+    {
+      "tag": "vmess",
+      "listen": "0.0.0.0",
+      "port": 10086,
+      "protocol": "vmess",
+      "settings": {
+        "clients": [
+          {
+            "id": "",
+            "alterId": 0,
+            "email": "",
+            "security": "auto"
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp"
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ]
+      }
+    },
+    {
+      "tag": "trojan",
+      "listen": "0.0.0.0",
+      "port": 4433,
+      "protocol": "trojan",
+      "settings": {
+        "clients": []
+      }
+    },
+    {
+      "tag": "shadowsocks",
+      "listen": "0.0.0.0",
+      "port": 8388,
+      "protocol": "shadowsocks",
+      "settings": {
+        "clients": []
+      }
+    },
+    {
+      "tag": "vless-reality",
+      "listen": "0.0.0.0",
+      "port": 8443,
+      "protocol": "vless",
+      "settings": {
+        "clients": [
+          {
+            "id": "625ae31b-cab2-484b-9243-b2dc6b7e658a",
+            "email": "default"
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "reality",
+        "realitySettings": {
+          "show": false,
+          "dest": "example.com:443",
+          "xver": 0,
+          "serverNames": [
+            "example.com"
+          ],
+          "privateKey": "EE-vv3hYlsxdSdVZQp9L1c4NGdYGRWsE_8TSEHNB40Y",
+          "shortIds": [
+            "a81bdf5fc49391d6"
+          ]
+        }
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "direct",
+      "protocol": "freedom"
+    },
+    {
+      "tag": "blocked",
+      "protocol": "blackhole"
+    }
+  ]
+}

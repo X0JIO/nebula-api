@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	db "github.com/X0JIO/nebula-api/internal/platform/database/sqlc"
+	"github.com/X0JIO/nebula-api/internal/platform/xray"
 
 	"github.com/X0JIO/nebula-api/internal/modules/auth"
 	"github.com/X0JIO/nebula-api/internal/modules/comments"
@@ -24,7 +25,6 @@ import (
 	"github.com/X0JIO/nebula-api/internal/platform/httpserver"
 	"github.com/X0JIO/nebula-api/internal/platform/logger"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
-	"github.com/X0JIO/nebula-api/internal/platform/xray"
 
 	"go.uber.org/zap"
 )
@@ -34,9 +34,6 @@ type App struct {
 	Logger   *zap.Logger
 	Postgres *postgres.DB
 	Redis    *redis.Client
-
-	XrayClient  xray.Client
-	XrayService *xray.Service
 
 	Users *users.Service
 	Auth  *auth.Service
@@ -91,23 +88,6 @@ func New() (*App, error) {
 	authRepository := auth.NewRepository(queries)
 	devicesRepository := devices.NewRepository(queries)
 	sessionsRepository := sessions.NewRepository(queries)
-
-	xrayClient := xray.NewClient(&xray.Config{
-		Enabled: cfg.XRay.Enabled,
-		BaseURL: cfg.XRay.BaseURL,
-		APIKey:  cfg.XRay.APIKey,
-		Timeout: cfg.XRay.Timeout,
-	})
-
-	xrayProcess := xray.NewProcessManager(
-		cfg.XRay.BinaryPath,
-		cfg.XRay.ConfigPath,
-		cfg.XRay.WorkingDir,
-	)
-
-	xrayService := xray.NewService(
-		xrayProcess,
-	)
 
 	vpnSync := vpn.NewSyncService(xrayClient)
 
@@ -228,9 +208,6 @@ func New() (*App, error) {
 		Logger:   log,
 		Postgres: database,
 		Redis:    cache,
-
-		XrayClient:  xrayClient,
-		XrayService: xrayService,
 
 		Users: userService,
 		Auth:  authService,

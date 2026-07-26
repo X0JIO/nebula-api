@@ -1,76 +1,56 @@
 package xray
 
-import (
-	"context"
-	"os"
-	"path/filepath"
-)
+import "context"
 
 type Runtime struct {
-	ConfigService *ConfigService
+	process ProcessManager
 
-	Process *Service
-
-	BinaryPath string
-
-	ConfigPath string
+	config *ConfigService
 }
 
 func NewRuntime(
-	baseDir string,
-	binaryPath string,
+	process ProcessManager,
+	config *ConfigService,
+
 ) *Runtime {
-
-	configPath := filepath.Join(
-		baseDir,
-		"config.json",
-	)
-
-	writer := NewConfigWriter(
-		configPath,
-	)
-
-	configService := NewConfigService(
-		writer,
-	)
-
-	process := NewProcessManager(
-		binaryPath,
-		configPath,
-		baseDir,
-	)
 
 	return &Runtime{
 
-		ConfigService: configService,
+		process: process,
 
-		Process: NewService(process),
-
-		BinaryPath: binaryPath,
-
-		ConfigPath: configPath,
+		config: config,
 	}
-}
-
-func (r *Runtime) Prepare() error {
-
-	dir := filepath.Dir(
-		r.ConfigPath,
-	)
-
-	return os.MkdirAll(
-		dir,
-		0755,
-	)
 }
 
 func (r *Runtime) Start(
 	ctx context.Context,
 ) error {
 
-	if err := r.Prepare(); err != nil {
+	err := r.config.Generate(ctx)
+
+	if err != nil {
+
 		return err
 	}
 
-	return r.Process.Start(ctx)
+	return r.process.Start(ctx)
+}
+
+func (r *Runtime) Stop(
+	ctx context.Context,
+) error {
+
+	return r.process.Stop(ctx)
+}
+
+func (r *Runtime) Restart(
+	ctx context.Context,
+) error {
+
+	return r.process.Restart(ctx)
+}
+
+func (r *Runtime) Status() Status {
+
+	return r.process.Status()
 }

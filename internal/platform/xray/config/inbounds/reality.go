@@ -2,12 +2,12 @@ package inbounds
 
 import (
 	"github.com/X0JIO/nebula-api/internal/platform/xray/model"
+	"github.com/X0JIO/nebula-api/internal/platform/xray/reality"
 )
 
 func NewVLESSReality(
 	port int,
-	privateKey string,
-	shortID string,
+	credentials *reality.Credentials,
 	serverName string,
 	client Client,
 ) model.Inbound {
@@ -40,14 +40,16 @@ func NewVLESSReality(
 
 				Dest: serverName + ":443",
 
+				Xver: 0,
+
 				ServerNames: []string{
 					serverName,
 				},
 
-				PrivateKey: privateKey,
+				PrivateKey: credentials.PrivateKey,
 
 				ShortIds: []string{
-					shortID,
+					credentials.ShortID,
 				},
 			},
 		},
