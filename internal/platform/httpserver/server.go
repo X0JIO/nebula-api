@@ -16,6 +16,7 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/users"
 	"github.com/X0JIO/nebula-api/internal/modules/vpn"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
+	"github.com/X0JIO/nebula-api/internal/platform/xray"
 )
 
 type Server struct {
@@ -34,6 +35,7 @@ func New(
 	sessionsHandler *sessions.Handler,
 	devicesHandler *devices.Handler,
 	vpnHandler *vpn.Handler,
+	xrayHandler *xray.HTTPController,
 	jwtMiddleware *middleware.JWTMiddleware,
 ) *Server {
 
@@ -52,6 +54,7 @@ func New(
 				sessionsHandler,
 				devicesHandler,
 				vpnHandler,
+				xrayHandler,
 				jwtMiddleware,
 			),
 			ReadHeaderTimeout: 5 * time.Second,

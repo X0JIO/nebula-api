@@ -16,6 +16,7 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/users"
 	"github.com/X0JIO/nebula-api/internal/modules/vpn"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
+	"github.com/X0JIO/nebula-api/internal/platform/xray"
 
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -30,6 +31,7 @@ func NewRouter(
 	sessionsHandler *sessions.Handler,
 	devicesHandler *devices.Handler,
 	vpnHandler *vpn.Handler,
+	xrayHandler *xray.HTTPController,
 	jwtMiddleware *middleware.JWTMiddleware,
 ) http.Handler {
 
@@ -175,6 +177,17 @@ func NewRouter(
 			r.Get("/subscription", vpnHandler.Subscription)
 
 			r.Get("/subscription/base64", vpnHandler.SubscriptionBase64)
+		})
+
+		r.Route("/xray", func(r chi.Router) {
+
+			r.Use(jwtMiddleware.Handler)
+
+			r.Get(
+				"/status",
+				xrayHandler.Status,
+			)
+
 		})
 
 		// admin routes

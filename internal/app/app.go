@@ -96,6 +96,20 @@ func New() (*App, error) {
 		Timeout: cfg.Xray.Timeout,
 	})
 
+	xrayProcess := xray.NewProcessManager(
+		cfg.Xray.BinaryPath,
+		cfg.Xray.ConfigPath,
+		cfg.Xray.WorkingDir,
+	)
+
+	xrayService := xray.NewService(
+		xrayProcess,
+	)
+
+	xrayHandler := xray.NewHTTPHandler(
+		xrayService,
+	)
+
 	vpnSync := vpn.NewSyncService(xrayClient)
 
 	provisionService := provision.NewService(xrayClient)
@@ -206,6 +220,8 @@ func New() (*App, error) {
 		devicesHandler,
 
 		vpnHandler,
+
+		xrayHandler,
 
 		jwtMiddleware,
 	)

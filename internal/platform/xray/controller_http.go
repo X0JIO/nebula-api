@@ -10,6 +10,15 @@ type HTTPController struct {
 	service *Service
 }
 
+func NewHTTPHandler(
+	service *Service,
+) *HTTPController {
+
+	return &HTTPController{
+		service: service,
+	}
+}
+
 func (c *HTTPClient) Restart(ctx context.Context) error {
 	var resp struct {
 		Success bool `json:"success"`
