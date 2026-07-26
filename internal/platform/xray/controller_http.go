@@ -1,7 +1,6 @@
 package xray
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 )
@@ -19,77 +18,6 @@ func NewHTTPHandler(
 	}
 }
 
-func (c *HTTPClient) Restart(ctx context.Context) error {
-	var resp struct {
-		Success bool `json:"success"`
-	}
-
-	if err := c.do(ctx, http.MethodPost, "/restart", nil, &resp); err != nil {
-		return err
-	}
-
-	if !resp.Success {
-		return ErrRequestFailed
-	}
-
-	return nil
-}
-
-func (c *HTTPClient) Reload(ctx context.Context) error {
-	var resp struct {
-		Success bool `json:"success"`
-	}
-
-	if err := c.do(ctx, http.MethodPost, "/reload", nil, &resp); err != nil {
-		return err
-	}
-
-	if !resp.Success {
-		return ErrRequestFailed
-	}
-
-	return nil
-}
-
-func (c *HTTPClient) Version(ctx context.Context) (string, error) {
-	var resp struct {
-		Version string `json:"version"`
-	}
-
-	if err := c.do(ctx, http.MethodGet, "/version", nil, &resp); err != nil {
-		return "", err
-	}
-
-	return resp.Version, nil
-}
-
-func (c *HTTPClient) Start(ctx context.Context) error {
-	// Пока Xray запускается systemd/docker.
-	// Реализация появится позже.
-	return nil
-}
-
-func (c *HTTPClient) Stop(ctx context.Context) error {
-	// Пока Xray запускается systemd/docker.
-	return nil
-}
-
-func (c *HTTPClient) Validate(ctx context.Context) error {
-	var resp struct {
-		Valid bool `json:"valid"`
-	}
-
-	if err := c.do(ctx, http.MethodGet, "/validate", nil, &resp); err != nil {
-		return err
-	}
-
-	if !resp.Valid {
-		return ErrRequestFailed
-	}
-
-	return nil
-}
-
 func (h *HTTPController) Status(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -98,4 +26,114 @@ func (h *HTTPController) Status(
 	json.NewEncoder(w).Encode(
 		h.service.Status(),
 	)
+}
+
+func (h *HTTPController) Start(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	if err := h.service.Start(r.Context()); err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *HTTPController) Stop(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	if err := h.service.Stop(r.Context()); err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *HTTPController) Restart(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	if err := h.service.Restart(r.Context()); err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *HTTPController) Reload(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	if err := h.service.Reload(r.Context()); err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *HTTPController) Version(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	version, err := h.service.Version(
+		r.Context(),
+	)
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	json.NewEncoder(w).Encode(
+		map[string]string{
+			"version": version,
+		},
+	)
+}
+
+func (h *HTTPController) Validate(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	if err := h.service.Validate(r.Context()); err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

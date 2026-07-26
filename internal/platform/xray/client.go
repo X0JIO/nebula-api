@@ -28,6 +28,8 @@ type Client interface {
 	Reload(ctx context.Context) error
 	Restart(ctx context.Context) error
 	Version(ctx context.Context) (string, error)
+
+	Validate(ctx context.Context) error
 }
 
 type HTTPClient struct {
@@ -126,4 +128,86 @@ func (c *HTTPClient) do(
 	}
 
 	return json.NewDecoder(resp.Body).Decode(response)
+}
+
+func (c *HTTPClient) Reload(
+	ctx context.Context,
+) error {
+
+	var resp struct {
+		Success bool `json:"success"`
+	}
+
+	return c.do(
+		ctx,
+		http.MethodPost,
+		"/reload",
+		nil,
+		&resp,
+	)
+}
+
+func (c *HTTPClient) Restart(
+	ctx context.Context,
+) error {
+
+	var resp struct {
+		Success bool `json:"success"`
+	}
+
+	return c.do(
+		ctx,
+		http.MethodPost,
+		"/restart",
+		nil,
+		&resp,
+	)
+}
+
+func (c *HTTPClient) Version(
+	ctx context.Context,
+) (string, error) {
+
+	var resp struct {
+		Version string `json:"version"`
+	}
+
+	err := c.do(
+		ctx,
+		http.MethodGet,
+		"/version",
+		nil,
+		&resp,
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	return resp.Version, nil
+}
+
+func (c *HTTPClient) Validate(
+	ctx context.Context,
+) error {
+
+	var resp struct {
+		Valid bool `json:"valid"`
+	}
+
+	if err := c.do(
+		ctx,
+		http.MethodGet,
+		"/validate",
+		nil,
+		&resp,
+	); err != nil {
+		return err
+	}
+
+	if !resp.Valid {
+		return ErrRequestFailed
+	}
+
+	return nil
 }

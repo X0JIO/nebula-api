@@ -4,6 +4,8 @@ func NewRuntimeService(
 	binaryPath string,
 	configPath string,
 	workingDir string,
+	config *ConfigService,
+	client Client,
 ) *Service {
 
 	process := NewProcessManager(
@@ -12,12 +14,9 @@ func NewRuntimeService(
 		workingDir,
 	)
 
-	configService := NewDefaultConfigService(
-		workingDir,
-	)
-
 	return NewService(
 		process,
-		configService,
+		client,
+		config,
 	)
 }

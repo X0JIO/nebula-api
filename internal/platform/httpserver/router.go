@@ -188,6 +188,36 @@ func NewRouter(
 				xrayHandler.Status,
 			)
 
+			r.Post(
+				"/start",
+				xrayHandler.Start,
+			)
+
+			r.Post(
+				"/stop",
+				xrayHandler.Stop,
+			)
+
+			r.Post(
+				"/restart",
+				xrayHandler.Restart,
+			)
+
+			r.Post(
+				"/reload",
+				xrayHandler.Reload,
+			)
+
+			r.Get(
+				"/version",
+				xrayHandler.Version,
+			)
+
+			r.Get(
+				"/validate",
+				xrayHandler.Validate,
+			)
+
 		})
 
 		// admin routes

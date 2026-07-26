@@ -4,16 +4,19 @@ import "context"
 
 type Service struct {
 	process ProcessManager
+	client  Client
 	config  *ConfigService
 }
 
 func NewService(
 	process ProcessManager,
+	client Client,
 	config *ConfigService,
 ) *Service {
 
 	return &Service{
 		process: process,
+		client:  client,
 		config:  config,
 	}
 }
@@ -43,27 +46,43 @@ func (s *Service) Restart(
 	ctx context.Context,
 ) error {
 
-	if err := s.Stop(ctx); err != nil {
-		return err
+	return s.process.Restart(ctx)
+}
+
+func (s *Service) Reload(
+	ctx context.Context,
+) error {
+
+	if s.client == nil {
+		return nil
 	}
 
-	return s.Start(ctx)
+	return s.client.Reload(ctx)
 }
 
-func (s *Service) Running() bool {
+func (s *Service) Version(
+	ctx context.Context,
+) (string, error) {
 
-	return s.process.Running()
-}
+	if s.client == nil {
+		return "unknown", nil
+	}
 
-func (s *Service) PID() int {
-
-	return s.process.PID()
+	return s.client.Version(ctx)
 }
 
 func (s *Service) Status() Status {
 
-	return Status{
-		Running: s.Running(),
-		PID:     s.PID(),
+	return s.process.Status()
+}
+
+func (s *Service) Validate(
+	ctx context.Context,
+) error {
+
+	if s.client == nil {
+		return nil
 	}
+
+	return s.client.Validate(ctx)
 }

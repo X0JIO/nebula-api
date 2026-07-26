@@ -108,6 +108,7 @@ func New() (*App, error) {
 
 	xrayService := xray.NewService(
 		xrayProcess,
+		xrayClient,
 		configService,
 	)
 

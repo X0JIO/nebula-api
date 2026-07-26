@@ -3,6 +3,7 @@ package xray
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 )
@@ -52,6 +53,13 @@ func (p *WindowsProcessManager) Start(
 		"-config",
 		p.configPath,
 	)
+
+	if _, err := os.Stat(p.binaryPath); err != nil {
+		return fmt.Errorf(
+			"xray binary not found: %s",
+			p.binaryPath,
+		)
+	}
 
 	if p.workingDir != "" {
 		cmd.Dir = p.workingDir
@@ -138,16 +146,14 @@ func (p *WindowsProcessManager) Status() Status {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
-	if p.cmd == nil || p.cmd.Process == nil {
+	if p.cmd != nil &&
+		p.cmd.Process != nil {
 
 		return Status{
-			Running: false,
-			PID:     0,
+			Running: true,
+			PID:     p.cmd.Process.Pid,
 		}
 	}
 
-	return Status{
-		Running: true,
-		PID:     p.cmd.Process.Pid,
-	}
+	return p.detectExternalProcess()
 }
