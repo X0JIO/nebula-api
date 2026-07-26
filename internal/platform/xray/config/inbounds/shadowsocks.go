@@ -1,5 +1,7 @@
 package inbounds
 
+import "github.com/X0JIO/nebula-api/internal/platform/xray/model"
+
 type ShadowsocksClient struct {
 	Method   string `json:"method"`
 	Password string `json:"password"`
@@ -10,7 +12,7 @@ type ShadowsocksSettings struct {
 	Clients []ShadowsocksClient `json:"clients"`
 }
 
-func Shadowsocks(port int) Inbound {
+func Shadowsocks(port int) model.Inbound {
 
 	return BaseInbound(
 		"shadowsocks",

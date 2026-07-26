@@ -14,7 +14,13 @@ func DefaultConfig() config.Config {
 	)
 
 	builder.AddInbound(
-		inbounds.RealityInbound(8443),
+		inbounds.NewVLESSReality(
+			8443,
+			"",
+			"",
+			"example.com",
+			inbounds.Client{},
+		),
 	)
 
 	builder.AddInbound(

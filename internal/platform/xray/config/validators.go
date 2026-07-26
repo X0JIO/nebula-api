@@ -1,8 +1,12 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
 
-func ValidateInbound(i Inbound) error {
+	"github.com/X0JIO/nebula-api/internal/platform/xray/model"
+)
+
+func ValidateInbound(i model.Inbound) error {
 	if i.Tag == "" {
 		return fmt.Errorf("tag is empty")
 	}

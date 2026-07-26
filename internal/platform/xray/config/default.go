@@ -13,6 +13,9 @@ func DefaultVPNConfig() Config {
 
 	builder.AddOutbound(
 		outbounds.Freedom(),
+	)
+
+	builder.AddOutbound(
 		outbounds.Blackhole(),
 	)
 
@@ -25,15 +28,21 @@ func DefaultVPNConfig() Config {
 	)
 
 	builder.AddInbound(
-		inbounds.TrojanInbound(4433),
+		inbounds.Trojan(4433),
 	)
 
 	builder.AddInbound(
-		inbounds.ShadowsocksInbound(8388),
+		inbounds.Shadowsocks(8388),
 	)
 
 	builder.AddInbound(
-		inbounds.RealityInbound(8443),
+		inbounds.NewVLESSReality(
+			8443,
+			"",
+			"",
+			"example.com",
+			inbounds.Client{},
+		),
 	)
 
 	cfg := builder.Config()

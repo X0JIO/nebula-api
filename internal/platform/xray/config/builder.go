@@ -1,5 +1,7 @@
 package config
 
+import "github.com/X0JIO/nebula-api/internal/platform/xray/model"
+
 type Builder struct {
 	cfg Config
 }
@@ -46,12 +48,15 @@ func (b *Builder) EnableStats() {
 	b.cfg.Stats = &StatsConfig{}
 }
 
-func (b *Builder) AddInbound(inbound Inbound) {
+func (b *Builder) AddInbound(inbound model.Inbound) {
 	b.cfg.Inbounds = append(b.cfg.Inbounds, inbound)
 }
 
-func (b *Builder) AddOutbounds(outbounds ...Outbound) {
-	b.cfg.Outbounds = append(b.cfg.Outbounds, outbounds...)
+func (b *Builder) AddOutbound(outbound model.Outbound) {
+	b.cfg.Outbounds = append(
+		b.cfg.Outbounds,
+		outbound,
+	)
 }
 
 func (b *Builder) Validate() error {

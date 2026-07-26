@@ -1,11 +1,13 @@
 package inbounds
 
-import "github.com/X0JIO/nebula-api/internal/platform/xray/config"
+import (
+	"github.com/X0JIO/nebula-api/internal/platform/xray/model"
+)
 
 func NewVLESSInbound(
 	port int,
 	client Client,
-) config.Inbound {
+) model.Inbound {
 
 	return BaseInbound(
 		"vless",
@@ -20,7 +22,7 @@ func NewVLESSInbound(
 	)
 }
 
-func VLESSInbound(port int) config.Inbound {
+func VLESSInbound(port int) model.Inbound {
 
 	return BaseInbound(
 		"vless",

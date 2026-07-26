@@ -1,4 +1,4 @@
-package config
+package model
 
 type Outbound struct {
 	Tag      string `json:"tag"`

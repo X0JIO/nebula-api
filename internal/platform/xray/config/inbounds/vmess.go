@@ -1,6 +1,8 @@
 package inbounds
 
-import "github.com/X0JIO/nebula-api/internal/platform/xray/config"
+import (
+	"github.com/X0JIO/nebula-api/internal/platform/xray/model"
+)
 
 type VMessClient struct {
 	ID       string `json:"id"`
@@ -48,9 +50,9 @@ func NewVMessInbound(
 	port int,
 	uuid string,
 	email string,
-) config.Inbound {
+) model.Inbound {
 
-	return config.Inbound{
+	return model.Inbound{
 		Tag:      tag,
 		Listen:   "0.0.0.0",
 		Port:     port,
@@ -82,7 +84,7 @@ func NewVMessInbound(
 	}
 }
 
-func VMessInbound(port int) config.Inbound {
+func VMessInbound(port int) model.Inbound {
 
 	return NewVMessInbound(
 		"vmess",

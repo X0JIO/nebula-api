@@ -1,5 +1,12 @@
 package config
 
+import "github.com/X0JIO/nebula-api/internal/platform/xray/model"
+
+type Defaults struct {
+	Inbounds  []model.Inbound
+	Outbounds []model.Outbound
+}
+
 func Default() Config {
 
 	return Config{
@@ -49,9 +56,9 @@ func Default() Config {
 
 		Stats: &StatsConfig{},
 
-		Inbounds: []Inbound{},
+		Inbounds: []model.Inbound{},
 
-		Outbounds: []Outbound{
+		Outbounds: []model.Outbound{
 
 			{
 				Tag:      "direct",
