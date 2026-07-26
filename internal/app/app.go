@@ -6,25 +6,28 @@ import (
 	"strconv"
 
 	db "github.com/X0JIO/nebula-api/internal/platform/database/sqlc"
-	"github.com/X0JIO/nebula-api/internal/platform/xray"
-
-	"github.com/X0JIO/nebula-api/internal/modules/auth"
-	"github.com/X0JIO/nebula-api/internal/modules/comments"
-	"github.com/X0JIO/nebula-api/internal/modules/users"
-	"github.com/X0JIO/nebula-api/internal/modules/vpn/provision"
 
 	"github.com/X0JIO/nebula-api/internal/modules/admin"
+	"github.com/X0JIO/nebula-api/internal/modules/auth"
+	"github.com/X0JIO/nebula-api/internal/modules/comments"
 	"github.com/X0JIO/nebula-api/internal/modules/devices"
 	"github.com/X0JIO/nebula-api/internal/modules/projects"
 	"github.com/X0JIO/nebula-api/internal/modules/sessions"
 	"github.com/X0JIO/nebula-api/internal/modules/tasks"
+	"github.com/X0JIO/nebula-api/internal/modules/users"
 	"github.com/X0JIO/nebula-api/internal/modules/vpn"
+	"github.com/X0JIO/nebula-api/internal/modules/vpn/provision"
+
 	"github.com/X0JIO/nebula-api/internal/platform/cache/redis"
 	"github.com/X0JIO/nebula-api/internal/platform/config"
 	"github.com/X0JIO/nebula-api/internal/platform/database/postgres"
 	"github.com/X0JIO/nebula-api/internal/platform/httpserver"
 	"github.com/X0JIO/nebula-api/internal/platform/logger"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
+
+	"github.com/X0JIO/nebula-api/internal/platform/xray"
+	xrayconfig "github.com/X0JIO/nebula-api/internal/platform/xray/config"
+	"github.com/X0JIO/nebula-api/internal/platform/xray/reality"
 
 	"go.uber.org/zap"
 )
@@ -48,7 +51,8 @@ type App struct {
 	DevicesHandler  *devices.Handler
 	SessionsHandler *sessions.Handler
 	VPNHandler      *vpn.Handler
-	Server          *httpserver.Server
+
+	Server *httpserver.Server
 }
 
 func New() (*App, error) {
@@ -81,13 +85,16 @@ func New() (*App, error) {
 
 	queries := db.New(database.Pool)
 
+	// repositories
+
 	vpnRepository := vpn.NewRepository(queries)
 
-	// repositories
 	userRepository := users.NewRepository(queries)
 	authRepository := auth.NewRepository(queries)
 	devicesRepository := devices.NewRepository(queries)
 	sessionsRepository := sessions.NewRepository(queries)
+
+	// Xray
 
 	xrayClient := xray.NewClient(&xray.Config{
 		Enabled: cfg.Xray.Enabled,
@@ -106,6 +113,19 @@ func New() (*App, error) {
 		cfg.Xray.WorkingDir,
 	)
 
+	realityCredentials, err := reality.Generate()
+	if err != nil {
+		return nil, err
+	}
+
+	xrayGenerator := xrayconfig.NewGenerator(
+		realityCredentials,
+	)
+
+	writer := xray.NewConfigWriter(
+		cfg.Xray.ConfigPath,
+	)
+
 	xrayService := xray.NewService(
 		xrayProcess,
 		xrayClient,
@@ -116,9 +136,17 @@ func New() (*App, error) {
 		xrayService,
 	)
 
-	vpnSync := vpn.NewSyncService(xrayClient)
+	// VPN provisioning
 
-	provisionService := provision.NewService(xrayClient)
+	vpnSync := vpn.NewSyncService(
+		xrayClient,
+	)
+
+	provisionService := provision.NewService(
+		xrayClient,
+		xrayGenerator,
+		writer,
+	)
 
 	vpnService := vpn.NewService(
 		vpnRepository,
@@ -126,26 +154,44 @@ func New() (*App, error) {
 		provisionService,
 	)
 
-	vpnHandler := vpn.NewHandler(vpnService)
+	vpnHandler := vpn.NewHandler(
+		vpnService,
+	)
 
-	inboundManager := xray.NewInboundManager(xrayClient)
+	// Xray defaults
 
-	if err := inboundManager.EnsureDefaults(context.Background()); err != nil {
+	inboundManager := xray.NewInboundManager(
+		xrayClient,
+	)
+
+	if err := inboundManager.EnsureDefaults(
+		context.Background(),
+	); err != nil {
+
 		log.Warn(
 			"failed to ensure default xray inbounds",
 			zap.Error(err),
 		)
 	}
+
 	// services
-	userService := users.NewService(userRepository)
-	sessionsService := sessions.NewService(sessionsRepository)
+
+	userService := users.NewService(
+		userRepository,
+	)
+
+	sessionsService := sessions.NewService(
+		sessionsRepository,
+	)
 
 	devicesService := devices.NewService(
 		devicesRepository,
 		sessionsService,
 	)
 
-	jwt := auth.NewJWT(cfg.App.JWT.Secret)
+	jwt := auth.NewJWT(
+		cfg.App.JWT.Secret,
+	)
 
 	authService := auth.NewService(
 		userRepository,
@@ -156,15 +202,30 @@ func New() (*App, error) {
 	)
 
 	// handlers
-	userHandler := users.NewHandler(userService)
-	authHandler := auth.NewHandler(authService)
-	devicesHandler := devices.NewHandler(devicesService)
 
-	adminRepository := admin.NewRepository(queries)
+	userHandler := users.NewHandler(
+		userService,
+	)
 
-	adminService := admin.NewService(adminRepository)
+	authHandler := auth.NewHandler(
+		authService,
+	)
 
-	adminHandler := admin.NewHandler(adminService)
+	devicesHandler := devices.NewHandler(
+		devicesService,
+	)
+
+	adminRepository := admin.NewRepository(
+		queries,
+	)
+
+	adminService := admin.NewService(
+		adminRepository,
+	)
+
+	adminHandler := admin.NewHandler(
+		adminService,
+	)
 
 	projectsRepository := projects.NewRepository(
 		queries,
@@ -195,11 +256,17 @@ func New() (*App, error) {
 		tasksService,
 	)
 
-	commentsRepository := comments.NewRepository(queries)
+	commentsRepository := comments.NewRepository(
+		queries,
+	)
 
-	commentsService := comments.NewService(commentsRepository)
+	commentsService := comments.NewService(
+		commentsRepository,
+	)
 
-	commentsHandler := comments.NewHandler(commentsService)
+	commentsHandler := comments.NewHandler(
+		commentsService,
+	)
 
 	sessionsHandler := sessions.NewHandler(
 		sessionsService,
@@ -251,7 +318,8 @@ func New() (*App, error) {
 
 		SessionsHandler: sessionsHandler,
 		DevicesHandler:  devicesHandler,
-		VPNHandler:      vpnHandler,
+
+		VPNHandler: vpnHandler,
 
 		Server: server,
 	}, nil
@@ -259,7 +327,9 @@ func New() (*App, error) {
 
 func (a *App) Run(ctx context.Context) error {
 
-	a.Logger.Info("HTTP server starting")
+	a.Logger.Info(
+		"HTTP server starting",
+	)
 
 	defer a.Postgres.Close()
 	defer a.Redis.Close()
@@ -267,18 +337,26 @@ func (a *App) Run(ctx context.Context) error {
 	errCh := make(chan error, 1)
 
 	go func() {
-		if err := a.Server.Start(); err != nil && err != http.ErrServerClosed {
+
+		if err := a.Server.Start(); err != nil &&
+			err != http.ErrServerClosed {
+
 			errCh <- err
 		}
+
 	}()
 
 	select {
 
 	case <-ctx.Done():
 
-		a.Logger.Info("shutdown signal received")
+		a.Logger.Info(
+			"shutdown signal received",
+		)
 
-		return a.Server.Shutdown(context.Background())
+		return a.Server.Shutdown(
+			context.Background(),
+		)
 
 	case err := <-errCh:
 

@@ -4,15 +4,25 @@ import (
 	"context"
 
 	"github.com/X0JIO/nebula-api/internal/platform/xray"
+	"github.com/X0JIO/nebula-api/internal/platform/xray/config"
 )
 
 type Service struct {
-	xray xray.Client
+	xray      xray.Client
+	generator *config.Generator
+	writer    xray.ConfigWriter
 }
 
-func NewService(client xray.Client) *Service {
+func NewService(
+	client xray.Client,
+	generator *config.Generator,
+	writer xray.ConfigWriter,
+) *Service {
+
 	return &Service{
-		xray: client,
+		xray:      client,
+		generator: generator,
+		writer:    writer,
 	}
 }
 
