@@ -4,20 +4,30 @@ import "context"
 
 type Service struct {
 	process ProcessManager
+	config  *ConfigService
 }
 
 func NewService(
 	process ProcessManager,
+	config *ConfigService,
 ) *Service {
 
 	return &Service{
 		process: process,
+		config:  config,
 	}
 }
 
 func (s *Service) Start(
 	ctx context.Context,
 ) error {
+
+	if s.config != nil {
+
+		if err := s.config.Generate(ctx); err != nil {
+			return err
+		}
+	}
 
 	return s.process.Start(ctx)
 }
@@ -33,7 +43,11 @@ func (s *Service) Restart(
 	ctx context.Context,
 ) error {
 
-	return s.process.Restart(ctx)
+	if err := s.Stop(ctx); err != nil {
+		return err
+	}
+
+	return s.Start(ctx)
 }
 
 func (s *Service) Running() bool {

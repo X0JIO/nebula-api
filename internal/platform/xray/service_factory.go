@@ -12,5 +12,12 @@ func NewRuntimeService(
 		workingDir,
 	)
 
-	return NewService(process)
+	configService := NewDefaultConfigService(
+		workingDir,
+	)
+
+	return NewService(
+		process,
+		configService,
+	)
 }

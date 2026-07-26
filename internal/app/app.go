@@ -102,8 +102,13 @@ func New() (*App, error) {
 		cfg.Xray.WorkingDir,
 	)
 
+	configService := xray.NewDefaultConfigService(
+		cfg.Xray.WorkingDir,
+	)
+
 	xrayService := xray.NewService(
 		xrayProcess,
+		configService,
 	)
 
 	xrayHandler := xray.NewHTTPHandler(
