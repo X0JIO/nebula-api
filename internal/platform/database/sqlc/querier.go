@@ -19,6 +19,7 @@ type Querier interface {
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateTask(ctx context.Context, arg CreateTaskParams) (Task, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	CreateVPNServer(ctx context.Context, arg CreateVPNServerParams) (VpnServer, error)
 	CreateVPNUser(ctx context.Context, arg CreateVPNUserParams) (VpnUser, error)
 	DashboardStats(ctx context.Context) (DashboardStatsRow, error)
 	DeleteComment(ctx context.Context, id pgtype.UUID) error
@@ -29,6 +30,7 @@ type Querier interface {
 	DeleteUser(ctx context.Context, id pgtype.UUID) error
 	DeleteUserDevices(ctx context.Context, userID pgtype.UUID) error
 	DeleteVPNConfig(ctx context.Context, id pgtype.UUID) error
+	GetActiveVPNServer(ctx context.Context) (VpnServer, error)
 	GetComment(ctx context.Context, id pgtype.UUID) (Comment, error)
 	GetDevice(ctx context.Context, id pgtype.UUID) (Device, error)
 	GetDeviceByFingerprint(ctx context.Context, arg GetDeviceByFingerprintParams) (Device, error)
@@ -53,6 +55,7 @@ type Querier interface {
 	ListTasksByStatus(ctx context.Context, arg ListTasksByStatusParams) ([]Task, error)
 	ListUsers(ctx context.Context) ([]User, error)
 	ListVPNConfigs(ctx context.Context, vpnUserID pgtype.UUID) ([]VpnConfig, error)
+	ListVPNServers(ctx context.Context) ([]VpnServer, error)
 	ProjectExistsForUser(ctx context.Context, arg ProjectExistsForUserParams) (bool, error)
 	RemoveProjectMember(ctx context.Context, arg RemoveProjectMemberParams) error
 	RevokeAllRefreshTokens(ctx context.Context, userID pgtype.UUID) error

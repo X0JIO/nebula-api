@@ -5,27 +5,31 @@ import (
 
 	"github.com/X0JIO/nebula-api/internal/modules/vpn/generator"
 	"github.com/X0JIO/nebula-api/internal/modules/vpn/provision"
+	"github.com/X0JIO/nebula-api/internal/modules/vpn/server"
 	db "github.com/X0JIO/nebula-api/internal/platform/database/sqlc"
 	"github.com/X0JIO/nebula-api/internal/shared/apperrors"
 )
 
-const defaultVPNHost = "vpn.example.com"
-
 type Service struct {
-	repo      *Repository
-	sync      *SyncService
-	provision *provision.Service
+	repo       *Repository
+	sync       *SyncService
+	provision  *provision.Service
+	serverRepo *server.Repository
 }
 
 func NewService(
 	repo *Repository,
 	sync *SyncService,
 	provision *provision.Service,
+	serverRepo *server.Repository,
+
 ) *Service {
+
 	return &Service{
-		repo:      repo,
-		sync:      sync,
-		provision: provision,
+		repo:       repo,
+		sync:       sync,
+		provision:  provision,
+		serverRepo: serverRepo,
 	}
 }
 
@@ -37,6 +41,12 @@ func (s *Service) CreateConfig(
 
 	if protocol == "" {
 		return nil, apperrors.ErrProtocolRequired
+	}
+
+	vpnServer, err := s.serverRepo.GetActive(ctx)
+
+	if err != nil {
+		return nil, err
 	}
 
 	vpnUser, err := s.repo.GetVPNUser(ctx, userID)
@@ -82,36 +92,38 @@ func (s *Service) CreateConfig(
 
 	var config string
 
+	serverHost := vpnServer.Host
+
 	switch protocol {
 
 	case "vless":
 		config = generator.GenerateVLESS(
 			identity,
-			defaultVPNHost,
+			serverHost,
 		)
 
 	case "reality":
 		config = generator.GenerateReality(
 			identity,
-			defaultVPNHost,
+			serverHost,
 		)
 
 	case "vmess":
 		config = generator.GenerateVMess(
 			identity,
-			defaultVPNHost,
+			serverHost,
 		)
 
 	case "trojan":
 		config = generator.GenerateTrojan(
 			identity,
-			defaultVPNHost,
+			serverHost,
 		)
 
 	case "shadowsocks":
 		config = generator.GenerateShadowsocks(
 			identity,
-			defaultVPNHost,
+			serverHost,
 		)
 
 	default:

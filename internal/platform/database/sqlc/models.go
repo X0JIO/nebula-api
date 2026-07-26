@@ -103,6 +103,20 @@ type VpnConfig struct {
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
+type VpnServer struct {
+	ID         pgtype.UUID      `json:"id"`
+	Name       string           `json:"name"`
+	Host       string           `json:"host"`
+	Port       int32            `json:"port"`
+	Country    string           `json:"country"`
+	PublicKey  pgtype.Text      `json:"public_key"`
+	PrivateKey pgtype.Text      `json:"private_key"`
+	ShortID    pgtype.Text      `json:"short_id"`
+	Status     string           `json:"status"`
+	Capacity   int32            `json:"capacity"`
+	CreatedAt  pgtype.Timestamp `json:"created_at"`
+}
+
 type VpnUser struct {
 	ID                pgtype.UUID        `json:"id"`
 	UserID            pgtype.UUID        `json:"user_id"`

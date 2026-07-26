@@ -17,6 +17,7 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/users"
 	"github.com/X0JIO/nebula-api/internal/modules/vpn"
 	"github.com/X0JIO/nebula-api/internal/modules/vpn/provision"
+	"github.com/X0JIO/nebula-api/internal/modules/vpn/server"
 
 	"github.com/X0JIO/nebula-api/internal/platform/cache/redis"
 	"github.com/X0JIO/nebula-api/internal/platform/config"
@@ -138,6 +139,10 @@ func New() (*App, error) {
 
 	// VPN provisioning
 
+	vpnServerRepository := server.NewRepository(
+		queries,
+	)
+
 	vpnSync := vpn.NewSyncService(
 		xrayClient,
 	)
@@ -152,6 +157,7 @@ func New() (*App, error) {
 		vpnRepository,
 		vpnSync,
 		provisionService,
+		vpnServerRepository,
 	)
 
 	vpnHandler := vpn.NewHandler(
