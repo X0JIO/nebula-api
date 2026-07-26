@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/X0JIO/nebula-api/internal/modules/vpn/generator"
+	"github.com/X0JIO/nebula-api/internal/modules/vpn/provision"
 	db "github.com/X0JIO/nebula-api/internal/platform/database/sqlc"
 	"github.com/X0JIO/nebula-api/internal/shared/apperrors"
 )
@@ -11,17 +12,20 @@ import (
 const defaultVPNHost = "vpn.example.com"
 
 type Service struct {
-	repo *Repository
-	sync *SyncService
+	repo      *Repository
+	sync      *SyncService
+	provision *provision.Service
 }
 
 func NewService(
 	repo *Repository,
 	sync *SyncService,
+	provision *provision.Service,
 ) *Service {
 	return &Service{
-		repo: repo,
-		sync: sync,
+		repo:      repo,
+		sync:      sync,
+		provision: provision,
 	}
 }
 
@@ -57,11 +61,11 @@ func (s *Service) CreateConfig(
 			return nil, err
 		}
 
-		err = s.sync.AddUser(
+		err = s.provision.Add(
 			ctx,
-			identity.UserUUID,
-			vpnUser.SubscriptionToken,
 			protocol,
+			identity.UserUUID,
+			userID,
 		)
 		if err != nil {
 			return nil, err

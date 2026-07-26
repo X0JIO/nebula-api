@@ -10,6 +10,7 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/auth"
 	"github.com/X0JIO/nebula-api/internal/modules/comments"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
+	"github.com/X0JIO/nebula-api/internal/modules/vpn/provision"
 
 	"github.com/X0JIO/nebula-api/internal/modules/admin"
 	"github.com/X0JIO/nebula-api/internal/modules/devices"
@@ -99,9 +100,12 @@ func New() (*App, error) {
 
 	vpnSync := vpn.NewSyncService(xrayClient)
 
+	provisionService := provision.NewService(xrayClient)
+
 	vpnService := vpn.NewService(
 		vpnRepository,
 		vpnSync,
+		provisionService,
 	)
 
 	vpnHandler := vpn.NewHandler(vpnService)

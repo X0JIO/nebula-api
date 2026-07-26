@@ -3,41 +3,44 @@ package provision
 import (
 	"context"
 
-	"github.com/X0JIO/nebula-api/internal/platform/xray/reality"
+	"github.com/X0JIO/nebula-api/internal/platform/xray"
 )
 
 type Service struct {
-	ports PortAllocator
+	xray xray.Client
 }
 
-func NewService(
-	ports PortAllocator,
-) *Service {
-
+func NewService(client xray.Client) *Service {
 	return &Service{
-		ports: ports,
+		xray: client,
 	}
 }
 
-func (s *Service) Create(
+func (s *Service) Add(
 	ctx context.Context,
-) (*ProvisionResult, error) {
+	protocol string,
+	uuid string,
+	email string,
+) error {
 
-	port, err := s.ports.Allocate(ctx)
-	if err != nil {
-		return nil, err
+	switch protocol {
+
+	case "vless":
+		return s.addVLESS(ctx, uuid, email)
+
+	case "reality":
+		return s.addReality(ctx, uuid, email)
+
+	case "vmess":
+		return s.addVMess(ctx, uuid, email)
+
+	case "trojan":
+		return s.addTrojan(ctx, uuid, email)
+
+	case "shadowsocks":
+		return s.addShadowsocks(ctx, uuid, email)
+
+	default:
+		return xray.ErrUnsupportedProtocol
 	}
-
-	cfg, err := reality.Generate()
-	if err != nil {
-		return nil, err
-	}
-
-	return &ProvisionResult{
-		UUID:       cfg.UUID,
-		Port:       port,
-		PrivateKey: cfg.PrivateKey,
-		PublicKey:  cfg.PublicKey,
-		ShortID:    cfg.ShortID,
-	}, nil
 }

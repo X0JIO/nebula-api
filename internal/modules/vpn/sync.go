@@ -71,17 +71,18 @@ func (s *SyncService) AddUser(
 	protocol string,
 ) error {
 
-	if _, err := s.inboundID(ctx, protocol); err != nil {
+	id, err := s.inboundID(ctx, protocol)
+	if err != nil {
 		return err
 	}
 
 	return s.client.AddUser(
 		ctx,
 		xray.AddUserRequest{
-			UUID:     uuid,
-			Email:    email,
-			Protocol: protocol,
-			Inbound:  protocol,
+			UUID:      uuid,
+			Email:     email,
+			Protocol:  protocol,
+			InboundID: id,
 		},
 	)
 }

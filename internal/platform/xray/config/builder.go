@@ -1,7 +1,5 @@
 package config
 
-import "encoding/json"
-
 type Builder struct {
 	cfg Config
 }
@@ -16,12 +14,12 @@ func (b *Builder) Config() Config {
 	return b.cfg
 }
 
-func (b *Builder) Build() ([]byte, error) {
+func (b *Builder) Build() (Config, error) {
 	if err := b.Validate(); err != nil {
-		return nil, err
+		return Config{}, err
 	}
 
-	return json.MarshalIndent(b.cfg, "", "  ")
+	return b.cfg, nil
 }
 
 func (b *Builder) SetLog(level string) {

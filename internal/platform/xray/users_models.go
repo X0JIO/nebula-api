@@ -1,11 +1,20 @@
 package xray
 
 type AddUserRequest struct {
-	UUID      string `json:"uuid"`
-	Email     string `json:"email,omitempty"`
-	Protocol  string `json:"protocol"`
-	Inbound   string `json:"inbound"`
-	ExpiresAt int64  `json:"expires_at,omitempty"`
+	UUID  string `json:"uuid"`
+	Email string `json:"email"`
+
+	InboundID int `json:"inbound_id"`
+
+	Protocol string `json:"protocol"`
+
+	AlterID int `json:"alter_id,omitempty"`
+
+	Flow string `json:"flow,omitempty"`
+
+	Password string `json:"password,omitempty"`
+
+	Method string `json:"method,omitempty"`
 }
 
 type UpdateUserRequest struct {

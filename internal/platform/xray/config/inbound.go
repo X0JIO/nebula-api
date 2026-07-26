@@ -1,5 +1,9 @@
 package config
 
+type Sniffing struct {
+	Enabled      bool     `json:"enabled"`
+	DestOverride []string `json:"destOverride,omitempty"`
+}
 type Inbound struct {
 	Tag      string `json:"tag"`
 	Listen   string `json:"listen,omitempty"`
