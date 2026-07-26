@@ -5,9 +5,12 @@ type Sniffing struct {
 	DestOverride []string `json:"destOverride,omitempty"`
 }
 type Inbound struct {
-	Tag      string `json:"tag"`
-	Listen   string `json:"listen,omitempty"`
-	Port     int    `json:"port"`
+	Tag string `json:"tag"`
+
+	Listen string `json:"listen,omitempty"`
+
+	Port int `json:"port"`
+
 	Protocol string `json:"protocol"`
 
 	Settings any `json:"settings,omitempty"`

@@ -81,3 +81,13 @@ func NewVMessInbound(
 		},
 	}
 }
+
+func VMessInbound(port int) config.Inbound {
+
+	return NewVMessInbound(
+		"vmess",
+		port,
+		"",
+		"",
+	)
+}

@@ -1,7 +1,9 @@
 package config
 
 func Default() Config {
+
 	return Config{
+
 		Log: LogConfig{
 			Loglevel: "warning",
 		},
@@ -19,20 +21,43 @@ func Default() Config {
 		},
 
 		Policy: PolicyConfig{
-			Levels: map[string]PolicyLevel{},
+
+			Levels: map[string]PolicyLevel{
+
+				"0": {
+
+					StatsUserUplink: true,
+
+					StatsUserDownlink: true,
+
+					StatsUserOnline: true,
+				},
+			},
 		},
 
-		API: nil,
+		API: &APIConfig{
 
-		Stats: nil,
+			Tag: "api",
+
+			Services: []string{
+
+				"HandlerService",
+
+				"StatsService",
+			},
+		},
+
+		Stats: &StatsConfig{},
 
 		Inbounds: []Inbound{},
 
 		Outbounds: []Outbound{
+
 			{
 				Tag:      "direct",
 				Protocol: "freedom",
 			},
+
 			{
 				Tag:      "blocked",
 				Protocol: "blackhole",

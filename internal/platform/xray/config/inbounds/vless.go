@@ -19,3 +19,16 @@ func NewVLESSInbound(
 		nil,
 	)
 }
+
+func VLESSInbound(port int) config.Inbound {
+
+	return BaseInbound(
+		"vless",
+		"vless",
+		port,
+		Settings{
+			Clients: []Client{},
+		},
+		nil,
+	)
+}

@@ -35,7 +35,8 @@ type App struct {
 	Postgres *postgres.DB
 	Redis    *redis.Client
 
-	Xray xray.Client
+	XrayClient  xray.Client
+	XrayService *xray.Service
 
 	Users *users.Service
 	Auth  *auth.Service
@@ -97,6 +98,16 @@ func New() (*App, error) {
 		APIKey:  cfg.XRay.APIKey,
 		Timeout: cfg.XRay.Timeout,
 	})
+
+	xrayProcess := xray.NewProcessManager(
+		cfg.XRay.BinaryPath,
+		cfg.XRay.ConfigPath,
+		cfg.XRay.WorkingDir,
+	)
+
+	xrayService := xray.NewService(
+		xrayProcess,
+	)
 
 	vpnSync := vpn.NewSyncService(xrayClient)
 
@@ -218,7 +229,8 @@ func New() (*App, error) {
 		Postgres: database,
 		Redis:    cache,
 
-		Xray: xrayClient,
+		XrayClient:  xrayClient,
+		XrayService: xrayService,
 
 		Users: userService,
 		Auth:  authService,

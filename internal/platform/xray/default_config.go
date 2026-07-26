@@ -1,18 +1,33 @@
 package xray
 
 import (
+	"github.com/X0JIO/nebula-api/internal/platform/xray/config"
 	"github.com/X0JIO/nebula-api/internal/platform/xray/config/inbounds"
 )
 
-func (b *Builder) AddDefaultInbounds() {
+func DefaultConfig() config.Config {
 
-	b.AddInbound(inbounds.VLESSInbound(443))
+	builder := config.NewBuilder()
 
-	b.AddInbound(inbounds.RealityInbound(8443))
+	builder.AddInbound(
+		inbounds.VLESSInbound(443),
+	)
 
-	b.AddInbound(inbounds.VMessInbound(10086))
+	builder.AddInbound(
+		inbounds.RealityInbound(8443),
+	)
 
-	b.AddInbound(inbounds.TrojanInbound(4433))
+	builder.AddInbound(
+		inbounds.VMessInbound(10086),
+	)
 
-	b.AddInbound(inbounds.ShadowsocksInbound(8388))
+	builder.AddInbound(
+		inbounds.Trojan(4433),
+	)
+
+	builder.AddInbound(
+		inbounds.Shadowsocks(8388),
+	)
+
+	return builder.Config()
 }

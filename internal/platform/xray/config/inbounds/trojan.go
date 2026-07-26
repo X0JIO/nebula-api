@@ -6,19 +6,14 @@ type TrojanSettings struct {
 	Clients []Client `json:"clients"`
 }
 
-func NewTrojanInbound(
-	port int,
-	client Client,
-) config.Inbound {
+func Trojan(port int) config.Inbound {
 
 	return BaseInbound(
 		"trojan",
 		"trojan",
 		port,
 		TrojanSettings{
-			Clients: []Client{
-				client,
-			},
+			Clients: []Client{},
 		},
 		nil,
 	)
