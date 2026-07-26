@@ -53,11 +53,14 @@ func (s *Service) Reload(
 	ctx context.Context,
 ) error {
 
-	if s.client == nil {
-		return nil
+	if s.client != nil {
+
+		if err := s.client.Reload(ctx); err == nil {
+			return nil
+		}
 	}
 
-	return s.client.Reload(ctx)
+	return s.process.Restart(ctx)
 }
 
 func (s *Service) Version(
