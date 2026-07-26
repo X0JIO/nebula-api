@@ -11,7 +11,8 @@ type RealitySettings struct {
 }
 
 type StreamSettings struct {
-	Network         string          `json:"network"`
-	Security        string          `json:"security"`
-	RealitySettings RealitySettings `json:"realitySettings"`
+	Network  string `json:"network"`
+	Security string `json:"security,omitempty"`
+
+	RealitySettings *RealitySettings `json:"realitySettings,omitempty"`
 }

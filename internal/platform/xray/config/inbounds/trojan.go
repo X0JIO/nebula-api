@@ -2,16 +2,20 @@ package inbounds
 
 import "github.com/X0JIO/nebula-api/internal/platform/xray/config"
 
-func NewVLESSInbound(
+type TrojanSettings struct {
+	Clients []Client `json:"clients"`
+}
+
+func NewTrojanInbound(
 	port int,
 	client Client,
 ) config.Inbound {
 
 	return BaseInbound(
-		"vless",
-		"vless",
+		"trojan",
+		"trojan",
 		port,
-		Settings{
+		TrojanSettings{
 			Clients: []Client{
 				client,
 			},

@@ -24,7 +24,7 @@ func (s *ConfigService) BuildVLESSReality(
 ) ([]byte, error) {
 
 	s.builder.AddInbound(
-		inbounds.NewVLESSReality(
+		inbounds.NewRealityInbound(
 			port,
 			privateKey,
 			shortID,
