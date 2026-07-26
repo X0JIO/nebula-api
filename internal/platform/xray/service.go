@@ -41,3 +41,23 @@ func (s *ConfigService) Generate(
 
 	return s.writer.Save(ctx, data)
 }
+
+func (s *Service) Health(
+	ctx context.Context,
+) HealthStatus {
+
+	status := s.process.Status()
+
+	result := HealthStatus{
+		Process: status.Running,
+		PID:     status.PID,
+	}
+
+	version, err := s.process.Version(ctx)
+
+	if err == nil {
+		result.Version = version
+	}
+
+	return result
+}

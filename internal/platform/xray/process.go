@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 type ProcessManager interface {
@@ -20,6 +21,8 @@ type ProcessManager interface {
 	PID() int
 
 	Status() Status
+
+	Version(ctx context.Context) (string, error)
 }
 
 func NewProcessManager(
@@ -156,4 +159,25 @@ func (p *WindowsProcessManager) Status() Status {
 	}
 
 	return p.detectExternalProcess()
+}
+
+func (p *WindowsProcessManager) Version(
+	ctx context.Context,
+) (string, error) {
+
+	cmd := exec.CommandContext(
+		ctx,
+		p.binaryPath,
+		"version",
+	)
+
+	output, err := cmd.Output()
+
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(
+		string(output),
+	), nil
 }

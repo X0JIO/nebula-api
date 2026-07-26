@@ -188,6 +188,11 @@ func NewRouter(
 				xrayHandler.Status,
 			)
 
+			r.Get(
+				"/health",
+				xrayHandler.Health,
+			)
+
 			r.Post(
 				"/start",
 				xrayHandler.Start,

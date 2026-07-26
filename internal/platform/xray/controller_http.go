@@ -137,3 +137,15 @@ func (h *HTTPController) Validate(
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func (h *HTTPController) Health(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	json.NewEncoder(w).Encode(
+		h.service.Health(
+			r.Context(),
+		),
+	)
+}
