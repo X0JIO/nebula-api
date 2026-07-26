@@ -40,3 +40,16 @@ func (s *Service) Running() bool {
 
 	return s.process.Running()
 }
+
+func (s *Service) PID() int {
+
+	return s.process.PID()
+}
+
+func (s *Service) Status() Status {
+
+	return Status{
+		Running: s.Running(),
+		PID:     s.PID(),
+	}
+}

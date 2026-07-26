@@ -2,48 +2,42 @@ package xray
 
 import (
 	"context"
+
+	"github.com/X0JIO/nebula-api/internal/platform/xray/config"
 )
 
-type Service struct {
-	process ProcessManager
+type ConfigService struct {
+	builder *config.Builder
+	writer  ConfigWriter
 }
 
-func NewService(
-	process ProcessManager,
-) *Service {
+func NewConfigService(
+	writer ConfigWriter,
+) *ConfigService {
 
-	return &Service{
-		process: process,
+	return &ConfigService{
+		builder: config.NewBuilder(),
+		writer:  writer,
 	}
 }
 
-func (s *Service) Start(
+func (s *ConfigService) Build() (config.Config, error) {
+	return s.builder.Build()
+}
+
+func (s *ConfigService) Generate(
 	ctx context.Context,
 ) error {
 
-	return s.process.Start(ctx)
-}
+	cfg, err := s.Build()
+	if err != nil {
+		return err
+	}
 
-func (s *Service) Stop(
-	ctx context.Context,
-) error {
+	data, err := config.Generate(cfg)
+	if err != nil {
+		return err
+	}
 
-	return s.process.Stop(ctx)
-}
-
-func (s *Service) Restart(
-	ctx context.Context,
-) error {
-
-	return s.process.Restart(ctx)
-}
-
-func (s *Service) Running() bool {
-
-	return s.process.Running()
-}
-
-func (s *Service) PID() int {
-
-	return s.process.PID()
+	return s.writer.Save(ctx, data)
 }

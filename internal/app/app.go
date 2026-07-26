@@ -89,6 +89,13 @@ func New() (*App, error) {
 	devicesRepository := devices.NewRepository(queries)
 	sessionsRepository := sessions.NewRepository(queries)
 
+	xrayClient := xray.NewClient(&xray.Config{
+		Enabled: cfg.Xray.Enabled,
+		BaseURL: cfg.Xray.BaseURL,
+		APIKey:  cfg.Xray.APIKey,
+		Timeout: cfg.Xray.Timeout,
+	})
+
 	vpnSync := vpn.NewSyncService(xrayClient)
 
 	provisionService := provision.NewService(xrayClient)
