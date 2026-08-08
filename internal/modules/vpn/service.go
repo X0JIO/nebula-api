@@ -41,6 +41,16 @@ type vpnRepository interface {
 		ctx context.Context,
 		vpnUserID pgtype.UUID,
 	) ([]db.VpnConfig, error)
+
+	DeleteVPNConfigsByUser(
+		ctx context.Context,
+		vpnUserID pgtype.UUID,
+	) error
+
+	DeleteVPNUser(
+		ctx context.Context,
+		userID pgtype.UUID,
+	) error
 }
 
 type vpnServerRepository interface {
@@ -375,6 +385,47 @@ func (s *Service) SubscriptionBase64(
 		trojan,
 		shadowsocks,
 	), nil
+}
+
+func (s *Service) DeleteAccount(
+	ctx context.Context,
+	userID string,
+) error {
+
+	vpnUser, err := s.repo.GetVPNUser(
+		ctx,
+		userID,
+	)
+
+	if err != nil {
+		return apperrors.ErrVPNUserNotFound
+	}
+
+	err = s.repo.DeleteVPNConfigsByUser(
+		ctx,
+		vpnUser.ID,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	userUUID, err := parseUUID(userID)
+
+	if err != nil {
+		return err
+	}
+
+	err = s.repo.DeleteVPNUser(
+		ctx,
+		userUUID,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *Service) GetAccount(

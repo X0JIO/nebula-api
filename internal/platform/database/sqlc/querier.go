@@ -33,7 +33,9 @@ type Querier interface {
 	DeleteUser(ctx context.Context, id pgtype.UUID) error
 	DeleteUserDevices(ctx context.Context, userID pgtype.UUID) error
 	DeleteVPNConfig(ctx context.Context, id pgtype.UUID) error
+	DeleteVPNConfigsByUser(ctx context.Context, vpnUserID pgtype.UUID) error
 	DeleteVPNServer(ctx context.Context, id pgtype.UUID) error
+	DeleteVPNUser(ctx context.Context, userID pgtype.UUID) error
 	GetActiveVPNServer(ctx context.Context) (VpnServer, error)
 	GetComment(ctx context.Context, id pgtype.UUID) (Comment, error)
 	GetDevice(ctx context.Context, id pgtype.UUID) (Device, error)

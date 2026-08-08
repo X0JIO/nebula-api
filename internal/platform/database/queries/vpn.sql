@@ -52,3 +52,13 @@ WHERE id=$1;
 SELECT *
 FROM vpn_configs
 WHERE id=$1;
+
+-- name: DeleteVPNUser :exec
+DELETE
+FROM vpn_users
+WHERE user_id = $1;
+
+-- name: DeleteVPNConfigsByUser :exec
+DELETE
+FROM vpn_configs
+WHERE vpn_user_id = $1;

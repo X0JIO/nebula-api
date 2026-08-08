@@ -70,6 +70,28 @@ func (q *Queries) DeleteVPNConfig(ctx context.Context, id pgtype.UUID) error {
 	return err
 }
 
+const deleteVPNConfigsByUser = `-- name: DeleteVPNConfigsByUser :exec
+DELETE
+FROM vpn_configs
+WHERE vpn_user_id = $1
+`
+
+func (q *Queries) DeleteVPNConfigsByUser(ctx context.Context, vpnUserID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteVPNConfigsByUser, vpnUserID)
+	return err
+}
+
+const deleteVPNUser = `-- name: DeleteVPNUser :exec
+DELETE
+FROM vpn_users
+WHERE user_id = $1
+`
+
+func (q *Queries) DeleteVPNUser(ctx context.Context, userID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteVPNUser, userID)
+	return err
+}
+
 const getVPNConfig = `-- name: GetVPNConfig :one
 
 SELECT id, vpn_user_id, protocol, config, created_at
@@ -176,7 +198,7 @@ VALUES(
     $1,$2,$3
 )
 ON CONFLICT(vpn_user_id,protocol)
-DO UPDATE
+DO UPDATE     
 SET config=EXCLUDED.config
 RETURNING id, vpn_user_id, protocol, config, created_at
 `

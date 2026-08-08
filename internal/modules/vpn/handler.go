@@ -243,3 +243,44 @@ func (h *Handler) SubscriptionBase64(
 	w.Header().Set("Content-Type", "text/plain")
 	_, _ = w.Write([]byte(sub))
 }
+
+func (h *Handler) DeleteAccount(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	v := r.Context().Value(
+		middleware.ContextUserID,
+	)
+
+	userID, ok := v.(string)
+
+	if !ok || userID == "" {
+		web.Error(
+			w,
+			http.StatusUnauthorized,
+			"unauthorized",
+		)
+		return
+	}
+
+	err := h.service.DeleteAccount(
+		r.Context(),
+		userID,
+	)
+
+	if err != nil {
+		web.WriteError(
+			w,
+			err,
+		)
+		return
+	}
+
+	web.OK(
+		w,
+		DeleteVPNResponse{
+			Status: "deleted",
+		},
+	)
+}

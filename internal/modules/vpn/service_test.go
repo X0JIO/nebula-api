@@ -46,6 +46,16 @@ type mockVPNRepository struct {
 	saveVPNConfigCalls int
 
 	lastSaveParams db.SaveVPNConfigParams
+
+	DeleteVPNConfigsByUserFunc func(
+		ctx context.Context,
+		vpnUserID pgtype.UUID,
+	) error
+
+	DeleteVPNUserFunc func(
+		ctx context.Context,
+		userID pgtype.UUID,
+	) error
 }
 
 type mockVPNUserProvider struct{}
@@ -135,6 +145,36 @@ func (m *mockVPNRepository) ListVPNConfigs(
 	vpnUserID pgtype.UUID,
 ) ([]db.VpnConfig, error) {
 	return nil, nil
+}
+
+func (m *mockVPNRepository) DeleteVPNConfigsByUser(
+	ctx context.Context,
+	vpnUserID pgtype.UUID,
+) error {
+
+	if m.DeleteVPNConfigsByUserFunc != nil {
+		return m.DeleteVPNConfigsByUserFunc(
+			ctx,
+			vpnUserID,
+		)
+	}
+
+	return nil
+}
+
+func (m *mockVPNRepository) DeleteVPNUser(
+	ctx context.Context,
+	userID pgtype.UUID,
+) error {
+
+	if m.DeleteVPNUserFunc != nil {
+		return m.DeleteVPNUserFunc(
+			ctx,
+			userID,
+		)
+	}
+
+	return nil
 }
 
 type mockVPNServerRepository struct {

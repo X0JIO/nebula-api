@@ -58,3 +58,7 @@ type VPNAccountResponse struct {
 	ShortID           string    `json:"short_id"`
 	CreatedAt         time.Time `json:"created_at"`
 }
+
+type DeleteVPNResponse struct {
+	Status string `json:"status"`
+}

@@ -181,6 +181,8 @@ func NewRouter(
 			r.Get("/subscription", vpnHandler.Subscription)
 
 			r.Get("/subscription/base64", vpnHandler.SubscriptionBase64)
+
+			r.Delete("/account", vpnHandler.DeleteAccount)
 		})
 
 		r.Route("/xray", func(r chi.Router) {

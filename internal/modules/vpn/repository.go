@@ -128,3 +128,25 @@ func (r *Repository) GetVPNUserBySubscription(
 		token,
 	)
 }
+
+func (r *Repository) DeleteVPNConfigsByUser(
+	ctx context.Context,
+	vpnUserID pgtype.UUID,
+) error {
+
+	return r.queries.DeleteVPNConfigsByUser(
+		ctx,
+		vpnUserID,
+	)
+}
+
+func (r *Repository) DeleteVPNUser(
+	ctx context.Context,
+	userID pgtype.UUID,
+) error {
+
+	return r.queries.DeleteVPNUser(
+		ctx,
+		userID,
+	)
+}
