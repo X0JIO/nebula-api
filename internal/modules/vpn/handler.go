@@ -125,6 +125,53 @@ func (h *Handler) ListConfigs(
 	)
 }
 
+// GetAccount godoc
+//
+//	@Summary		Get VPN account
+//	@Description	Get current user VPN account
+//	@Tags			VPN
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{object}	VPNAccountResponse
+//	@Failure		401	{string}	string
+//	@Router			/vpn/account [get]
+func (h *Handler) GetAccount(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	v := r.Context().Value(middleware.ContextUserID)
+
+	userID, ok := v.(string)
+
+	if !ok || userID == "" {
+		web.Error(
+			w,
+			http.StatusUnauthorized,
+			"unauthorized",
+		)
+		return
+	}
+
+	account, err := h.service.GetAccount(
+		r.Context(),
+		userID,
+	)
+
+	if err != nil {
+		web.WriteError(
+			w,
+			err,
+		)
+		return
+	}
+
+	web.OK(
+		w,
+		account,
+	)
+}
+
 // Subscription godoc
 //
 //	@Summary		Get subscription

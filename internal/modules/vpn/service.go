@@ -376,3 +376,27 @@ func (s *Service) SubscriptionBase64(
 		shadowsocks,
 	), nil
 }
+
+func (s *Service) GetAccount(
+	ctx context.Context,
+	userID string,
+) (*VPNAccountResponse, error) {
+
+	vpnUser, err := s.repo.GetVPNUser(
+		ctx,
+		userID,
+	)
+
+	if err != nil {
+		return nil, apperrors.ErrVPNUserNotFound
+	}
+
+	return &VPNAccountResponse{
+		ID:                vpnUser.ID.String(),
+		UUID:              vpnUser.Uuid,
+		SubscriptionToken: vpnUser.SubscriptionToken,
+		PublicKey:         vpnUser.PublicKey,
+		ShortID:           vpnUser.ShortID,
+		CreatedAt:         vpnUser.CreatedAt.Time,
+	}, nil
+}

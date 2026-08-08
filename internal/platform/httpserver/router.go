@@ -176,6 +176,8 @@ func NewRouter(
 
 			r.Get("/configs", vpnHandler.ListConfigs)
 
+			r.Get("/account", vpnHandler.GetAccount)
+
 			r.Get("/subscription", vpnHandler.Subscription)
 
 			r.Get("/subscription/base64", vpnHandler.SubscriptionBase64)

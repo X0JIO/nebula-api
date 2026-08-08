@@ -49,3 +49,12 @@ type VPN struct {
 
 	CreatedAt time.Time
 }
+
+type VPNAccountResponse struct {
+	ID                string    `json:"id"`
+	UUID              string    `json:"uuid"`
+	SubscriptionToken string    `json:"subscription_token"`
+	PublicKey         string    `json:"public_key"`
+	ShortID           string    `json:"short_id"`
+	CreatedAt         time.Time `json:"created_at"`
+}
