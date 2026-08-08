@@ -286,7 +286,9 @@ func NewRouter(
 					vpnServerHandler.DeactivateAll,
 				)
 
-				r.Get("/active", vpnServerHandler.Active)
+				r.Get(
+					"/active", vpnServerHandler.Active,
+				)
 
 				r.Get(
 					"/{id}",

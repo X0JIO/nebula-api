@@ -168,6 +168,7 @@ func New() (*App, error) {
 		vpnSync,
 		provisionService,
 		vpnServerRepository,
+		userRepository,
 	)
 
 	vpnHandler := vpn.NewHandler(

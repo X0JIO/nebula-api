@@ -1,0 +1,245 @@
+warning: in the working copy of 'internal/app/app.go', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'internal/modules/vpn/service.go', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'internal/modules/vpn/service_test.go', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'internal/platform/httpserver/router.go', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/internal/app/app.go b/internal/app/app.go[m
+[1mindex f22755c..d99d4ca 100644[m
+[1m--- a/internal/app/app.go[m
+[1m+++ b/internal/app/app.go[m
+[36m@@ -168,6 +168,7 @@[m [mfunc New() (*App, error) {[m
+ 		vpnSync,[m
+ 		provisionService,[m
+ 		vpnServerRepository,[m
+[32m+[m		[32muserRepository,[m
+ 	)[m
+ [m
+ 	vpnHandler := vpn.NewHandler([m
+[1mdiff --git a/internal/modules/vpn/service.go b/internal/modules/vpn/service.go[m
+[1mindex 029d1a3..661d77f 100644[m
+[1m--- a/internal/modules/vpn/service.go[m
+[1m+++ b/internal/modules/vpn/service.go[m
+[36m@@ -16,10 +16,12 @@[m [mtype Service struct {[m
+ 	sync       *SyncService[m
+ 	provision  vpnProvisioner[m
+ 	serverRepo vpnServerRepository[m
+[32m+[m	[32musers      vpnUserProvider[m
+ }[m
+ [m
+ type vpnRepository interface {[m
+ 	GetVPNUser(ctx context.Context, userID string) (db.VpnUser, error)[m
+[32m+[m
+ 	CreateVPNUser([m
+ 		ctx context.Context,[m
+ 		userID string,[m
+[36m@@ -29,10 +31,12 @@[m [mtype vpnRepository interface {[m
+ 		shortID string,[m
+ 		subscriptionToken string,[m
+ 	) (db.VpnUser, error)[m
+[32m+[m
+ 	SaveVPNConfig([m
+ 		ctx context.Context,[m
+ 		params db.SaveVPNConfigParams,[m
+ 	) (db.VpnConfig, error)[m
+[32m+[m
+ 	ListVPNConfigs([m
+ 		ctx context.Context,[m
+ 		vpnUserID pgtype.UUID,[m
+[36m@@ -43,6 +47,13 @@[m [mtype vpnServerRepository interface {[m
+ 	GetActive(ctx context.Context) (db.VpnServer, error)[m
+ }[m
+ [m
+[32m+[m[32mtype vpnUserProvider interface {[m
+[32m+[m	[32mGetByID([m
+[32m+[m		[32mctx context.Context,[m
+[32m+[m		[32mid string,[m
+[32m+[m	[32m) (db.User, error)[m
+[32m+[m[32m}[m
+[32m+[m
+ type vpnProvisioner interface {[m
+ 	Add([m
+ 		ctx context.Context,[m
+[36m@@ -57,12 +68,14 @@[m [mfunc NewService([m
+ 	sync *SyncService,[m
+ 	provision *provision.Service,[m
+ 	serverRepo *server.Repository,[m
+[32m+[m	[32musers vpnUserProvider,[m
+ ) *Service {[m
+ 	return &Service{[m
+ 		repo:       repo,[m
+ 		sync:       sync,[m
+ 		provision:  provision,[m
+ 		serverRepo: serverRepo,[m
+[32m+[m		[32musers:      users,[m
+ 	}[m
+ }[m
+ [m
+[36m@@ -82,6 +95,8 @@[m [mfunc (s *Service) CreateConfig([m
+ 		return nil, err[m
+ 	}[m
+ [m
+[32m+[m	[32mvar email string[m
+[32m+[m
+ 	vpnUser, err := s.repo.GetVPNUser(ctx, userID)[m
+ [m
+ 	if err != nil {[m
+[36m@@ -104,12 +119,24 @@[m [mfunc (s *Service) CreateConfig([m
+ 			return nil, err[m
+ 		}[m
+ [m
+[32m+[m		[32muser, err := s.users.GetByID([m
+[32m+[m			[32mctx,[m
+[32m+[m			[32muserID,[m
+[32m+[m		[32m)[m
+[32m+[m
+[32m+[m		[32mif err != nil {[m
+[32m+[m			[32mreturn nil, err[m
+[32m+[m		[32m}[m
+[32m+[m
+[32m+[m		[32memail = user.Email[m
+[32m+[m
+ 		err = s.provision.Add([m
+ 			ctx,[m
+ 			protocol,[m
+ 			identity.UserUUID,[m
+[31m-			userID,[m
+[32m+[m			[32memail,[m
+ 		)[m
+[32m+[m
+ 		if err != nil {[m
+ 			return nil, err[m
+ 		}[m
+[1mdiff --git a/internal/modules/vpn/service_test.go b/internal/modules/vpn/service_test.go[m
+[1mindex 85d6407..ccc945d 100644[m
+[1m--- a/internal/modules/vpn/service_test.go[m
+[1m+++ b/internal/modules/vpn/service_test.go[m
+[36m@@ -15,7 +15,16 @@[m [mimport ([m
+ )[m
+ [m
+ type mockVPNRepository struct {[m
+[31m-	getVPNUserFn    func(context.Context, string) (db.VpnUser, error)[m
+[32m+[m	[32mgetVPNUserFn func([m
+[32m+[m		[32mcontext.Context,[m
+[32m+[m		[32mstring,[m
+[32m+[m	[32m) (db.VpnUser, error)[m
+[32m+[m
+[32m+[m	[32mgetUserEmailFn func([m
+[32m+[m		[32mcontext.Context,[m
+[32m+[m		[32mstring,[m
+[32m+[m	[32m) (string, error)[m
+[32m+[m
+ 	createVPNUserFn func([m
+ 		context.Context,[m
+ 		string,[m
+[36m@@ -25,11 +34,13 @@[m [mtype mockVPNRepository struct {[m
+ 		string,[m
+ 		string,[m
+ 	) (db.VpnUser, error)[m
+[32m+[m
+ 	saveVPNConfigFn func([m
+ 		context.Context,[m
+ 		db.SaveVPNConfigParams,[m
+ 	) (db.VpnConfig, error)[m
+ [m
+[32m+[m	[32mgetUserEmailCalls  int[m
+ 	getVPNUserCalls    int[m
+ 	createVPNUserCalls int[m
+ 	saveVPNConfigCalls int[m
+[36m@@ -37,6 +48,35 @@[m [mtype mockVPNRepository struct {[m
+ 	lastSaveParams db.SaveVPNConfigParams[m
+ }[m
+ [m
+[32m+[m[32mtype mockVPNUserProvider struct{}[m
+[32m+[m
+[32m+[m[32mfunc (m *mockVPNUserProvider) GetByID([m
+[32m+[m	[32mctx context.Context,[m
+[32m+[m	[32mid string,[m
+[32m+[m[32m) (db.User, error) {[m
+[32m+[m
+[32m+[m	[32mreturn db.User{[m
+[32m+[m		[32mEmail: "test-user@nebula.local",[m
+[32m+[m	[32m}, nil[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mfunc (m *mockVPNRepository) GetUserEmail([m
+[32m+[m	[32mctx context.Context,[m
+[32m+[m	[32muserID string,[m
+[32m+[m[32m) (string, error) {[m
+[32m+[m
+[32m+[m	[32mm.getUserEmailCalls++[m
+[32m+[m
+[32m+[m	[32mif m.getUserEmailFn != nil {[m
+[32m+[m		[32mreturn m.getUserEmailFn([m
+[32m+[m			[32mctx,[m
+[32m+[m			[32muserID,[m
+[32m+[m		[32m)[m
+[32m+[m	[32m}[m
+[32m+[m
+[32m+[m	[32mreturn "test-user@nebula.local", nil[m
+[32m+[m[32m}[m
+[32m+[m
+ func (m *mockVPNRepository) GetVPNUser([m
+ 	ctx context.Context,[m
+ 	userID string,[m
+[36m@@ -223,6 +263,7 @@[m [mfunc TestCreateConfig(t *testing.T) {[m
+ 				repo:       repo,[m
+ 				serverRepo: serverRepo,[m
+ 				provision:  provisioner,[m
+[32m+[m				[32musers:      &mockVPNUserProvider{},[m
+ 			}[m
+ [m
+ 			resp, err := service.CreateConfig([m
+[36m@@ -533,6 +574,7 @@[m [mfunc TestCreateConfigExistingVPNUser(t *testing.T) {[m
+ 		repo:       repo,[m
+ 		serverRepo: serverRepo,[m
+ 		provision:  provisioner,[m
+[32m+[m		[32musers:      &mockVPNUserProvider{},[m
+ 	}[m
+ [m
+ 	resp, err := service.CreateConfig([m
+[36m@@ -593,6 +635,7 @@[m [mfunc TestCreateConfigGetActiveServerError(t *testing.T) {[m
+ 		repo:       repo,[m
+ 		serverRepo: serverRepo,[m
+ 		provision:  provisioner,[m
+[32m+[m		[32musers:      &mockVPNUserProvider{},[m
+ 	}[m
+ [m
+ 	_, err := service.CreateConfig([m
+[36m@@ -666,6 +709,7 @@[m [mfunc TestCreateConfigProvisionError(t *testing.T) {[m
+ 		repo:       repo,[m
+ 		serverRepo: serverRepo,[m
+ 		provision:  provisioner,[m
+[32m+[m		[32musers:      &mockVPNUserProvider{},[m
+ 	}[m
+ [m
+ 	_, err := service.CreateConfig([m
+[36m@@ -730,6 +774,7 @@[m [mfunc TestCreateConfigCreateVPNUserError(t *testing.T) {[m
+ 		repo:       repo,[m
+ 		serverRepo: serverRepo,[m
+ 		provision:  provisioner,[m
+[32m+[m		[32musers:      &mockVPNUserProvider{},[m
+ 	}[m
+ [m
+ 	_, err := service.CreateConfig([m
+[36m@@ -806,6 +851,7 @@[m [mfunc TestCreateConfigSaveVPNConfigError(t *testing.T) {[m
+ 		repo:       repo,[m
+ 		serverRepo: serverRepo,[m
+ 		provision:  provisioner,[m
+[32m+[m		[32musers:      &mockVPNUserProvider{},[m
+ 	}[m
+ [m
+ 	_, err := service.CreateConfig([m
+[1mdiff --git a/internal/platform/httpserver/router.go b/internal/platform/httpserver/router.go[m
+[1mindex 146ea86..6f61c44 100644[m
+[1m--- a/internal/platform/httpserver/router.go[m
+[1m+++ b/internal/platform/httpserver/router.go[m
+[36m@@ -286,7 +286,9 @@[m [mfunc NewRouter([m
+ 					vpnServerHandler.DeactivateAll,[m
+ 				)[m
+ [m
+[31m-				r.Get("/active", vpnServerHandler.Active)[m
+[32m+[m				[32mr.Get([m
+[32m+[m					[32m"/active", vpnServerHandler.Active,[m
+[32m+[m				[32m)[m
+ [m
+ 				r.Get([m
+ 					"/{id}",[m
