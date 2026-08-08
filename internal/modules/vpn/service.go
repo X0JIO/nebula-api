@@ -2,6 +2,7 @@ package vpn
 
 import (
 	"context"
+	"encoding/base64"
 
 	"github.com/X0JIO/nebula-api/internal/modules/vpn/generator"
 	"github.com/X0JIO/nebula-api/internal/modules/vpn/provision"
@@ -51,6 +52,11 @@ type vpnRepository interface {
 		ctx context.Context,
 		userID pgtype.UUID,
 	) error
+
+	GetVPNUserBySubscription(
+		ctx context.Context,
+		token string,
+	) (db.VpnUser, error)
 }
 
 type vpnServerRepository interface {
@@ -384,6 +390,86 @@ func (s *Service) SubscriptionBase64(
 		vmess,
 		trojan,
 		shadowsocks,
+	), nil
+}
+
+func (s *Service) PublicSubscription(
+	ctx context.Context,
+	token string,
+) (string, error) {
+
+	vpnUser, err := s.repo.GetVPNUserBySubscription(
+		ctx,
+		token,
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	configs, err := s.repo.ListVPNConfigs(
+		ctx,
+		vpnUser.ID,
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	var (
+		vless       string
+		reality     string
+		vmess       string
+		trojan      string
+		shadowsocks string
+	)
+
+	for _, cfg := range configs {
+
+		switch cfg.Protocol {
+
+		case "vless":
+			vless = cfg.Config
+
+		case "reality":
+			reality = cfg.Config
+
+		case "vmess":
+			vmess = cfg.Config
+
+		case "trojan":
+			trojan = cfg.Config
+
+		case "shadowsocks":
+			shadowsocks = cfg.Config
+		}
+	}
+
+	return generator.GenerateSubscription(
+		vless,
+		reality,
+		vmess,
+		trojan,
+		shadowsocks,
+	), nil
+}
+
+func (s *Service) PublicSubscriptionBase64(
+	ctx context.Context,
+	token string,
+) (string, error) {
+
+	sub, err := s.PublicSubscription(
+		ctx,
+		token,
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(
+		[]byte(sub),
 	), nil
 }
 

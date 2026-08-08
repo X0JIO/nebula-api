@@ -45,7 +45,8 @@ type mockVPNRepository struct {
 	createVPNUserCalls int
 	saveVPNConfigCalls int
 
-	lastSaveParams db.SaveVPNConfigParams
+	lastSaveParams   db.SaveVPNConfigParams
+	subscriptionUser db.VpnUser
 
 	DeleteVPNConfigsByUserFunc func(
 		ctx context.Context,
@@ -98,6 +99,18 @@ func (m *mockVPNRepository) GetVPNUser(
 	}
 
 	return db.VpnUser{}, errors.New("GetVPNUser mock not configured")
+}
+
+func (m *mockVPNRepository) GetVPNUserBySubscription(
+	ctx context.Context,
+	token string,
+) (db.VpnUser, error) {
+
+	if m.subscriptionUser.ID.Valid {
+		return m.subscriptionUser, nil
+	}
+
+	return db.VpnUser{}, errors.New("vpn user not found")
 }
 
 func (m *mockVPNRepository) CreateVPNUser(

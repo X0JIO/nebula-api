@@ -6,6 +6,7 @@ import (
 
 	"github.com/X0JIO/nebula-api/internal/platform/web"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
+	"github.com/go-chi/chi/v5"
 )
 
 type Handler struct {
@@ -283,4 +284,95 @@ func (h *Handler) DeleteAccount(
 			Status: "deleted",
 		},
 	)
+}
+
+// PublicSubscription godoc
+//
+//	@Summary		Get public VPN subscription
+//	@Description	Get subscription by token
+//	@Tags			VPN
+//	@Produce		plain
+//	@Param			token	path	string	true	"Subscription token"
+//	@Success		200		{string}	string
+//	@Router			/subscription/{token} [get]
+func (h *Handler) PublicSubscription(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	token := chi.URLParam(r, "token")
+
+	if token == "" {
+		web.Error(
+			w,
+			http.StatusBadRequest,
+			"token required",
+		)
+		return
+	}
+
+	sub, err := h.service.PublicSubscription(
+		r.Context(),
+		token,
+	)
+
+	if err != nil {
+		web.WriteError(
+			w,
+			err,
+		)
+		return
+	}
+
+	w.Header().Set(
+		"Content-Type",
+		"text/plain",
+	)
+
+	_, _ = w.Write([]byte(sub))
+}
+
+// PublicSubscriptionBase64 godoc
+//
+//	@Summary		Get public VPN subscription Base64
+//	@Tags			VPN
+//	@Produce		plain
+//	@Param			token	path	string	true	"Subscription token"
+//	@Success		200		{string}	string
+//	@Router			/subscription/{token}/base64 [get]
+func (h *Handler) PublicSubscriptionBase64(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	token := chi.URLParam(r, "token")
+
+	if token == "" {
+		web.Error(
+			w,
+			http.StatusBadRequest,
+			"token required",
+		)
+		return
+	}
+
+	sub, err := h.service.PublicSubscriptionBase64(
+		r.Context(),
+		token,
+	)
+
+	if err != nil {
+		web.WriteError(
+			w,
+			err,
+		)
+		return
+	}
+
+	w.Header().Set(
+		"Content-Type",
+		"text/plain",
+	)
+
+	_, _ = w.Write([]byte(sub))
 }

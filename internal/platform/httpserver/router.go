@@ -185,6 +185,28 @@ func NewRouter(
 			r.Delete("/account", vpnHandler.DeleteAccount)
 		})
 
+		// public routes
+
+		r.Get(
+			"/health",
+			health.Handler,
+		)
+
+		r.Get(
+			"/subscription/{token}",
+			vpnHandler.PublicSubscription,
+		)
+
+		r.Get(
+			"/subscription/{token}/base64",
+			vpnHandler.PublicSubscriptionBase64,
+		)
+
+		r.Post(
+			"/auth/register",
+			authHandler.Register,
+		)
+
 		r.Route("/xray", func(r chi.Router) {
 
 			r.Use(jwtMiddleware.Handler)
