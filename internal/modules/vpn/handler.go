@@ -7,6 +7,7 @@ import (
 	"github.com/X0JIO/nebula-api/internal/platform/web"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/render"
 )
 
 type Handler struct {
@@ -538,5 +539,42 @@ func (h *Handler) RevokeDevice(
 		map[string]string{
 			"status": "revoked",
 		},
+	)
+}
+
+func (h *Handler) GetDevice(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	userID := middleware.UserID(ctx)
+
+	if userID == "" {
+		render.Status(r, http.StatusUnauthorized)
+		render.JSON(w, r, map[string]string{
+			"error": "unauthorized",
+		})
+		return
+	}
+	deviceID := chi.URLParam(r, "id")
+
+	device, err := h.service.GetDevice(
+		ctx,
+		userID,
+		deviceID,
+	)
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusNotFound,
+		)
+		return
+	}
+
+	render.JSON(
+		w,
+		r,
+		device,
 	)
 }

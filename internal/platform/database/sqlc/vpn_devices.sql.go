@@ -68,8 +68,8 @@ func (q *Queries) DeleteVPNDevice(ctx context.Context, id pgtype.UUID) error {
 const getVPNDevice = `-- name: GetVPNDevice :one
 SELECT id, vpn_user_id, name, platform, device_token, last_seen_at, revoked, created_at
 FROM vpn_devices
-WHERE id=$1
-AND vpn_user_id=$2
+WHERE id = $1
+AND vpn_user_id = $2
 `
 
 type GetVPNDeviceParams struct {

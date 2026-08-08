@@ -564,3 +564,29 @@ func (s *Service) GetAccount(
 		CreatedAt:         vpnUser.CreatedAt.Time,
 	}, nil
 }
+
+func (s *Service) GetDevice(
+	ctx context.Context,
+	userID string,
+	deviceID string,
+) (db.VpnDevice, error) {
+
+	vpnUser, err := s.repo.GetVPNUser(
+		ctx,
+		userID,
+	)
+	if err != nil {
+		return db.VpnDevice{}, err
+	}
+
+	deviceUUID, err := parseUUID(deviceID)
+	if err != nil {
+		return db.VpnDevice{}, err
+	}
+
+	return s.repo.GetVPNDevice(
+		ctx,
+		deviceUUID,
+		vpnUser.ID,
+	)
+}
