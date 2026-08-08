@@ -35,7 +35,7 @@ VALUES(
     $3,
     $4
 )
-ON CONFLICT(device_id, protocol)
+ON CONFLICT(vpn_user_id, device_id, protocol)
 DO UPDATE
 SET config = EXCLUDED.config
 RETURNING id, vpn_user_id, device_id, protocol, config, created_at;
