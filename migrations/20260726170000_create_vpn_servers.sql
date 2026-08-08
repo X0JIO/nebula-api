@@ -1,3 +1,5 @@
+-- +goose Up
+
 CREATE TABLE vpn_servers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
@@ -22,6 +24,12 @@ CREATE TABLE vpn_servers (
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-
 CREATE INDEX idx_vpn_servers_status
 ON vpn_servers(status);
+
+
+-- +goose Down
+
+DROP INDEX IF EXISTS idx_vpn_servers_status;
+
+DROP TABLE IF EXISTS vpn_servers;

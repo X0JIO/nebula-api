@@ -134,6 +134,12 @@ func (m *JWTMiddleware) Handler(next http.Handler) http.Handler {
 			claims.SessionID,
 		)
 
+		ctx = context.WithValue(
+			ctx,
+			ContextRole,
+			claims.Role,
+		)
+
 		next.ServeHTTP(
 			w,
 			r.WithContext(ctx),
