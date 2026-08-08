@@ -57,6 +57,26 @@ type vpnRepository interface {
 		ctx context.Context,
 		token string,
 	) (db.VpnUser, error)
+
+	CreateVPNDevice(
+		ctx context.Context,
+		params db.CreateVPNDeviceParams,
+	) (db.VpnDevice, error)
+
+	ListVPNDevices(
+		ctx context.Context,
+		vpnUserID pgtype.UUID,
+	) ([]db.VpnDevice, error)
+
+	RevokeVPNDevice(
+		ctx context.Context,
+		id pgtype.UUID,
+	) error
+
+	DeleteVPNDevice(
+		ctx context.Context,
+		id pgtype.UUID,
+	) error
 }
 
 type vpnServerRepository interface {

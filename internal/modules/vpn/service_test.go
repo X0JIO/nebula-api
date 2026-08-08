@@ -57,6 +57,26 @@ type mockVPNRepository struct {
 		ctx context.Context,
 		userID pgtype.UUID,
 	) error
+
+	CreateVPNDeviceFunc func(
+		context.Context,
+		db.CreateVPNDeviceParams,
+	) (db.VpnDevice, error)
+
+	ListVPNDevicesFunc func(
+		context.Context,
+		pgtype.UUID,
+	) ([]db.VpnDevice, error)
+
+	RevokeVPNDeviceFunc func(
+		context.Context,
+		pgtype.UUID,
+	) error
+
+	DeleteVPNDeviceFunc func(
+		context.Context,
+		pgtype.UUID,
+	) error
 }
 
 type mockVPNUserProvider struct{}
@@ -225,6 +245,54 @@ func (m *mockVPNProvisioner) Add(
 	m.lastEmail = email
 
 	return m.err
+}
+
+func (m *mockVPNRepository) CreateVPNDevice(
+	ctx context.Context,
+	params db.CreateVPNDeviceParams,
+) (db.VpnDevice, error) {
+
+	if m.CreateVPNDeviceFunc != nil {
+		return m.CreateVPNDeviceFunc(ctx, params)
+	}
+
+	return db.VpnDevice{}, nil
+}
+
+func (m *mockVPNRepository) ListVPNDevices(
+	ctx context.Context,
+	id pgtype.UUID,
+) ([]db.VpnDevice, error) {
+
+	if m.ListVPNDevicesFunc != nil {
+		return m.ListVPNDevicesFunc(ctx, id)
+	}
+
+	return nil, nil
+}
+
+func (m *mockVPNRepository) RevokeVPNDevice(
+	ctx context.Context,
+	id pgtype.UUID,
+) error {
+
+	if m.RevokeVPNDeviceFunc != nil {
+		return m.RevokeVPNDeviceFunc(ctx, id)
+	}
+
+	return nil
+}
+
+func (m *mockVPNRepository) DeleteVPNDevice(
+	ctx context.Context,
+	id pgtype.UUID,
+) error {
+
+	if m.DeleteVPNDeviceFunc != nil {
+		return m.DeleteVPNDeviceFunc(ctx, id)
+	}
+
+	return nil
 }
 
 func testIdentity() *generator.Identity {

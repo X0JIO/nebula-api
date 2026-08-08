@@ -183,6 +183,14 @@ func NewRouter(
 			r.Get("/subscription/base64", vpnHandler.SubscriptionBase64)
 
 			r.Delete("/account", vpnHandler.DeleteAccount)
+
+			r.Post("/devices", vpnHandler.CreateDevice)
+
+			r.Get("/devices", vpnHandler.ListDevices)
+
+			r.Delete("/devices/{id}", vpnHandler.DeleteDevice)
+
+			r.Post("/devices/{id}/revoke", vpnHandler.RevokeDevice)
 		})
 
 		// public routes

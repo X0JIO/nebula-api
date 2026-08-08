@@ -150,3 +150,47 @@ func (r *Repository) DeleteVPNUser(
 		userID,
 	)
 }
+
+func (r *Repository) CreateVPNDevice(
+	ctx context.Context,
+	params db.CreateVPNDeviceParams,
+) (db.VpnDevice, error) {
+
+	return r.queries.CreateVPNDevice(
+		ctx,
+		params,
+	)
+}
+
+func (r *Repository) ListVPNDevices(
+	ctx context.Context,
+	vpnUserID pgtype.UUID,
+) ([]db.VpnDevice, error) {
+
+	return r.queries.ListVPNDevices(
+		ctx,
+		vpnUserID,
+	)
+}
+
+func (r *Repository) RevokeVPNDevice(
+	ctx context.Context,
+	id pgtype.UUID,
+) error {
+
+	return r.queries.RevokeVPNDevice(
+		ctx,
+		id,
+	)
+}
+
+func (r *Repository) DeleteVPNDevice(
+	ctx context.Context,
+	id pgtype.UUID,
+) error {
+
+	return r.queries.DeleteVPNDevice(
+		ctx,
+		id,
+	)
+}

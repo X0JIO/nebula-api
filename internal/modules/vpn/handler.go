@@ -376,3 +376,166 @@ func (h *Handler) PublicSubscriptionBase64(
 
 	_, _ = w.Write([]byte(sub))
 }
+
+func (h *Handler) CreateDevice(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	var req CreateDeviceRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		web.Error(
+			w,
+			http.StatusBadRequest,
+			"invalid request",
+		)
+		return
+	}
+
+	userID, ok := r.Context().Value(
+		middleware.ContextUserID,
+	).(string)
+
+	if !ok || userID == "" {
+		web.Error(
+			w,
+			http.StatusUnauthorized,
+			"unauthorized",
+		)
+		return
+	}
+
+	device, err := h.service.CreateDevice(
+		r.Context(),
+		userID,
+		req,
+	)
+
+	if err != nil {
+		web.WriteError(w, err)
+		return
+	}
+
+	web.OK(
+		w,
+		device,
+	)
+}
+
+func (h *Handler) ListDevices(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	userID, ok := r.Context().Value(
+		middleware.ContextUserID,
+	).(string)
+
+	if !ok || userID == "" {
+		web.Error(
+			w,
+			http.StatusUnauthorized,
+			"unauthorized",
+		)
+		return
+	}
+
+	devices, err := h.service.ListDevices(
+		r.Context(),
+		userID,
+	)
+
+	if err != nil {
+		web.WriteError(w, err)
+		return
+	}
+
+	web.OK(
+		w,
+		devices,
+	)
+}
+
+func (h *Handler) DeleteDevice(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	userID, ok := r.Context().Value(
+		middleware.ContextUserID,
+	).(string)
+
+	if !ok || userID == "" {
+		web.Error(
+			w,
+			http.StatusUnauthorized,
+			"unauthorized",
+		)
+		return
+	}
+
+	id := chi.URLParam(
+		r,
+		"id",
+	)
+
+	err := h.service.DeleteDevice(
+		r.Context(),
+		userID,
+		id,
+	)
+
+	if err != nil {
+		web.WriteError(w, err)
+		return
+	}
+
+	web.OK(
+		w,
+		map[string]string{
+			"status": "deleted",
+		},
+	)
+}
+
+func (h *Handler) RevokeDevice(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	userID, ok := r.Context().Value(
+		middleware.ContextUserID,
+	).(string)
+
+	if !ok || userID == "" {
+		web.Error(
+			w,
+			http.StatusUnauthorized,
+			"unauthorized",
+		)
+		return
+	}
+
+	id := chi.URLParam(
+		r,
+		"id",
+	)
+
+	err := h.service.RevokeDevice(
+		r.Context(),
+		userID,
+		id,
+	)
+
+	if err != nil {
+		web.WriteError(w, err)
+		return
+	}
+
+	web.OK(
+		w,
+		map[string]string{
+			"status": "revoked",
+		},
+	)
+}
