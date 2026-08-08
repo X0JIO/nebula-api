@@ -32,3 +32,8 @@ WHERE id=$1;
 DELETE
 FROM vpn_devices
 WHERE id=$1;
+
+-- name: GetVPNDevice :one
+SELECT *
+FROM vpn_devices
+WHERE id=$1;

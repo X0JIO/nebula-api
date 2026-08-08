@@ -65,6 +65,28 @@ func (q *Queries) DeleteVPNDevice(ctx context.Context, id pgtype.UUID) error {
 	return err
 }
 
+const getVPNDevice = `-- name: GetVPNDevice :one
+SELECT id, vpn_user_id, name, platform, device_token, last_seen_at, revoked, created_at
+FROM vpn_devices
+WHERE id=$1
+`
+
+func (q *Queries) GetVPNDevice(ctx context.Context, id pgtype.UUID) (VpnDevice, error) {
+	row := q.db.QueryRow(ctx, getVPNDevice, id)
+	var i VpnDevice
+	err := row.Scan(
+		&i.ID,
+		&i.VpnUserID,
+		&i.Name,
+		&i.Platform,
+		&i.DeviceToken,
+		&i.LastSeenAt,
+		&i.Revoked,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const listVPNDevices = `-- name: ListVPNDevices :many
 
 SELECT id, vpn_user_id, name, platform, device_token, last_seen_at, revoked, created_at

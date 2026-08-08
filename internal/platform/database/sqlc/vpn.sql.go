@@ -94,7 +94,7 @@ func (q *Queries) DeleteVPNUser(ctx context.Context, userID pgtype.UUID) error {
 
 const getVPNConfig = `-- name: GetVPNConfig :one
 
-SELECT id, vpn_user_id, protocol, config, created_at
+SELECT id, vpn_user_id, protocol, config, created_at, device_id
 FROM vpn_configs
 WHERE id=$1
 `
@@ -108,6 +108,7 @@ func (q *Queries) GetVPNConfig(ctx context.Context, id pgtype.UUID) (VpnConfig, 
 		&i.Protocol,
 		&i.Config,
 		&i.CreatedAt,
+		&i.DeviceID,
 	)
 	return i, err
 }
@@ -157,7 +158,7 @@ func (q *Queries) GetVPNUserByUserID(ctx context.Context, userID pgtype.UUID) (V
 }
 
 const listVPNConfigs = `-- name: ListVPNConfigs :many
-SELECT id, vpn_user_id, protocol, config, created_at
+SELECT id, vpn_user_id, protocol, config, created_at, device_id
 FROM vpn_configs
 WHERE vpn_user_id=$1
 `
@@ -177,6 +178,7 @@ func (q *Queries) ListVPNConfigs(ctx context.Context, vpnUserID pgtype.UUID) ([]
 			&i.Protocol,
 			&i.Config,
 			&i.CreatedAt,
+			&i.DeviceID,
 		); err != nil {
 			return nil, err
 		}
@@ -191,30 +193,47 @@ func (q *Queries) ListVPNConfigs(ctx context.Context, vpnUserID pgtype.UUID) ([]
 const saveVPNConfig = `-- name: SaveVPNConfig :one
 INSERT INTO vpn_configs(
     vpn_user_id,
+    device_id,
     protocol,
     config
 )
 VALUES(
-    $1,$2,$3
+    $1,$2,$3,$4
 )
-ON CONFLICT(vpn_user_id,protocol)
-DO UPDATE     
+ON CONFLICT(device_id,protocol)
+DO UPDATE
 SET config=EXCLUDED.config
-RETURNING id, vpn_user_id, protocol, config, created_at
+RETURNING id, vpn_user_id, device_id, protocol, config, created_at
 `
 
 type SaveVPNConfigParams struct {
 	VpnUserID pgtype.UUID `json:"vpn_user_id"`
+	DeviceID  pgtype.UUID `json:"device_id"`
 	Protocol  string      `json:"protocol"`
 	Config    string      `json:"config"`
 }
 
-func (q *Queries) SaveVPNConfig(ctx context.Context, arg SaveVPNConfigParams) (VpnConfig, error) {
-	row := q.db.QueryRow(ctx, saveVPNConfig, arg.VpnUserID, arg.Protocol, arg.Config)
-	var i VpnConfig
+type SaveVPNConfigRow struct {
+	ID        pgtype.UUID        `json:"id"`
+	VpnUserID pgtype.UUID        `json:"vpn_user_id"`
+	DeviceID  pgtype.UUID        `json:"device_id"`
+	Protocol  string             `json:"protocol"`
+	Config    string             `json:"config"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
+func (q *Queries) SaveVPNConfig(ctx context.Context, arg SaveVPNConfigParams) (SaveVPNConfigRow, error) {
+	row := q.db.QueryRow(ctx, saveVPNConfig,
+		arg.VpnUserID,
+		arg.DeviceID,
+		arg.Protocol,
+		arg.Config,
+	)
+	var i SaveVPNConfigRow
 	err := row.Scan(
 		&i.ID,
 		&i.VpnUserID,
+		&i.DeviceID,
 		&i.Protocol,
 		&i.Config,
 		&i.CreatedAt,

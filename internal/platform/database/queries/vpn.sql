@@ -25,16 +25,17 @@ WHERE subscription_token=$1;
 -- name: SaveVPNConfig :one
 INSERT INTO vpn_configs(
     vpn_user_id,
+    device_id,
     protocol,
     config
 )
 VALUES(
-    $1,$2,$3
+    $1,$2,$3,$4
 )
-ON CONFLICT(vpn_user_id,protocol)
-DO UPDATE     
+ON CONFLICT(device_id,protocol)
+DO UPDATE
 SET config=EXCLUDED.config
-RETURNING *;
+RETURNING id, vpn_user_id, device_id, protocol, config, created_at;
 
 -- name: ListVPNConfigs :many
 SELECT *

@@ -52,6 +52,7 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetVPNConfig(ctx context.Context, id pgtype.UUID) (VpnConfig, error)
+	GetVPNDevice(ctx context.Context, id pgtype.UUID) (VpnDevice, error)
 	GetVPNServer(ctx context.Context, id pgtype.UUID) (VpnServer, error)
 	GetVPNUserBySubscription(ctx context.Context, subscriptionToken string) (VpnUser, error)
 	GetVPNUserByUserID(ctx context.Context, userID pgtype.UUID) (VpnUser, error)
@@ -73,7 +74,7 @@ type Querier interface {
 	RevokeSession(ctx context.Context, id pgtype.UUID) error
 	RevokeUserSessions(ctx context.Context, userID pgtype.UUID) error
 	RevokeVPNDevice(ctx context.Context, id pgtype.UUID) error
-	SaveVPNConfig(ctx context.Context, arg SaveVPNConfigParams) (VpnConfig, error)
+	SaveVPNConfig(ctx context.Context, arg SaveVPNConfigParams) (SaveVPNConfigRow, error)
 	UpdateDeviceLastSeen(ctx context.Context, arg UpdateDeviceLastSeenParams) error
 	UpdateDeviceSession(ctx context.Context, arg UpdateDeviceSessionParams) error
 	UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error)

@@ -101,6 +101,7 @@ type VpnConfig struct {
 	Protocol  string             `json:"protocol"`
 	Config    string             `json:"config"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	DeviceID  pgtype.UUID        `json:"device_id"`
 }
 
 type VpnDevice struct {

@@ -23,6 +23,11 @@ type Service struct {
 type vpnRepository interface {
 	GetVPNUser(ctx context.Context, userID string) (db.VpnUser, error)
 
+	GetVPNDevice(
+		ctx context.Context,
+		id pgtype.UUID,
+	) (db.VpnDevice, error)
+
 	CreateVPNUser(
 		ctx context.Context,
 		userID string,

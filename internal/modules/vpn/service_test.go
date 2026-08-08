@@ -25,6 +25,11 @@ type mockVPNRepository struct {
 		string,
 	) (string, error)
 
+	getVPNDeviceFunc func(
+		ctx context.Context,
+		id pgtype.UUID,
+	) (db.VpnDevice, error)
+
 	createVPNUserFn func(
 		context.Context,
 		string,
@@ -119,6 +124,18 @@ func (m *mockVPNRepository) GetVPNUser(
 	}
 
 	return db.VpnUser{}, errors.New("GetVPNUser mock not configured")
+}
+
+func (m *mockVPNRepository) GetVPNDevice(
+	ctx context.Context,
+	id pgtype.UUID,
+) (db.VpnDevice, error) {
+
+	if m.getVPNDeviceFunc != nil {
+		return m.getVPNDeviceFunc(ctx, id)
+	}
+
+	return db.VpnDevice{}, nil
 }
 
 func (m *mockVPNRepository) GetVPNUserBySubscription(

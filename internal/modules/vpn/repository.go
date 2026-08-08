@@ -79,10 +79,23 @@ func (r *Repository) SaveVPNConfig(
 	params db.SaveVPNConfigParams,
 ) (db.VpnConfig, error) {
 
-	return r.queries.SaveVPNConfig(
+	row, err := r.queries.SaveVPNConfig(
 		ctx,
 		params,
 	)
+
+	if err != nil {
+		return db.VpnConfig{}, err
+	}
+
+	return db.VpnConfig{
+		ID:        row.ID,
+		VpnUserID: row.VpnUserID,
+		DeviceID:  row.DeviceID,
+		Protocol:  row.Protocol,
+		Config:    row.Config,
+		CreatedAt: row.CreatedAt,
+	}, nil
 }
 
 func (r *Repository) ListVPNConfigs(
@@ -190,6 +203,17 @@ func (r *Repository) DeleteVPNDevice(
 ) error {
 
 	return r.queries.DeleteVPNDevice(
+		ctx,
+		id,
+	)
+}
+
+func (r *Repository) GetVPNDevice(
+	ctx context.Context,
+	id pgtype.UUID,
+) (db.VpnDevice, error) {
+
+	return r.queries.GetVPNDevice(
 		ctx,
 		id,
 	)
