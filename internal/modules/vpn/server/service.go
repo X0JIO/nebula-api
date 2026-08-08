@@ -9,12 +9,56 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type serverRepository interface {
+	Create(
+		ctx context.Context,
+		params db.CreateVPNServerParams,
+	) (db.VpnServer, error)
+
+	List(
+		ctx context.Context,
+	) ([]db.VpnServer, error)
+
+	Get(
+		ctx context.Context,
+		id pgtype.UUID,
+	) (db.VpnServer, error)
+
+	GetActive(
+		ctx context.Context,
+	) (db.VpnServer, error)
+
+	Update(
+		ctx context.Context,
+		params db.UpdateVPNServerParams,
+	) (db.VpnServer, error)
+
+	Delete(
+		ctx context.Context,
+		id pgtype.UUID,
+	) error
+
+	Activate(
+		ctx context.Context,
+		id pgtype.UUID,
+	) (db.VpnServer, error)
+
+	Deactivate(
+		ctx context.Context,
+		id pgtype.UUID,
+	) (db.VpnServer, error)
+
+	DeactivateAll(
+		ctx context.Context,
+	) error
+}
+
 type Service struct {
-	repo *Repository
+	repo serverRepository
 }
 
 func NewService(
-	repo *Repository,
+	repo serverRepository,
 ) *Service {
 	return &Service{
 		repo: repo,
