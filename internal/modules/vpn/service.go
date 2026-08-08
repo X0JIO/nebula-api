@@ -244,10 +244,26 @@ func (s *Service) CreateConfig(
 		return nil, apperrors.ErrUnsupportedProtocol
 	}
 
+	deviceUUID, err := parseUUID(deviceID)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = s.repo.GetVPNDevice(
+		ctx,
+		deviceUUID,
+		vpnUser.ID,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
 	cfg, err := s.repo.SaveVPNConfig(
 		ctx,
 		db.SaveVPNConfigParams{
 			VpnUserID: vpnUser.ID,
+			DeviceID:  deviceUUID,
 			Protocol:  protocol,
 			Config:    config,
 		},
