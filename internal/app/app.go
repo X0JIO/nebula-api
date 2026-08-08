@@ -26,6 +26,7 @@ import (
 	"github.com/X0JIO/nebula-api/internal/platform/logger"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
 
+	vpnserver "github.com/X0JIO/nebula-api/internal/modules/vpn/server"
 	"github.com/X0JIO/nebula-api/internal/platform/xray"
 	xrayconfig "github.com/X0JIO/nebula-api/internal/platform/xray/config"
 	"github.com/X0JIO/nebula-api/internal/platform/xray/reality"
@@ -44,14 +45,15 @@ type App struct {
 
 	VPN *vpn.Service
 
-	UserHandler     *users.Handler
-	AdminHandler    *admin.Handler
-	ProjectsHandler *projects.Handler
-	TasksHandler    *tasks.Handler
-	CommentsHandler *comments.Handler
-	DevicesHandler  *devices.Handler
-	SessionsHandler *sessions.Handler
-	VPNHandler      *vpn.Handler
+	UserHandler      *users.Handler
+	AdminHandler     *admin.Handler
+	ProjectsHandler  *projects.Handler
+	TasksHandler     *tasks.Handler
+	CommentsHandler  *comments.Handler
+	DevicesHandler   *devices.Handler
+	SessionsHandler  *sessions.Handler
+	VPNHandler       *vpn.Handler
+	vpnServerHandler *vpnserver.Handler
 
 	Server *httpserver.Server
 }
@@ -141,6 +143,14 @@ func New() (*App, error) {
 
 	vpnServerRepository := server.NewRepository(
 		queries,
+	)
+
+	vpnServerService := server.NewService(
+		vpnServerRepository,
+	)
+
+	vpnServerHandler := server.NewHandler(
+		vpnServerService,
 	)
 
 	vpnSync := vpn.NewSyncService(
@@ -299,6 +309,7 @@ func New() (*App, error) {
 		devicesHandler,
 
 		vpnHandler,
+		vpnServerHandler,
 
 		xrayHandler,
 

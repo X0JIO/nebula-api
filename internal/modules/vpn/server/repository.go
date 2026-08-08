@@ -13,10 +13,27 @@ type Repository struct {
 func NewRepository(
 	q *db.Queries,
 ) *Repository {
-
 	return &Repository{
 		q: q,
 	}
+}
+
+func (r *Repository) Create(
+	ctx context.Context,
+	params db.CreateVPNServerParams,
+) (db.VpnServer, error) {
+
+	return r.q.CreateVPNServer(
+		ctx,
+		params,
+	)
+}
+
+func (r *Repository) List(
+	ctx context.Context,
+) ([]db.VpnServer, error) {
+
+	return r.q.ListVPNServers(ctx)
 }
 
 func (r *Repository) GetActive(
@@ -24,5 +41,4 @@ func (r *Repository) GetActive(
 ) (db.VpnServer, error) {
 
 	return r.q.GetActiveVPNServer(ctx)
-
 }

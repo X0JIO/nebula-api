@@ -15,6 +15,7 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/tasks"
 	"github.com/X0JIO/nebula-api/internal/modules/users"
 	"github.com/X0JIO/nebula-api/internal/modules/vpn"
+	vpnserver "github.com/X0JIO/nebula-api/internal/modules/vpn/server"
 	"github.com/X0JIO/nebula-api/internal/platform/web/middleware"
 	"github.com/X0JIO/nebula-api/internal/platform/xray"
 )
@@ -35,6 +36,7 @@ func New(
 	sessionsHandler *sessions.Handler,
 	devicesHandler *devices.Handler,
 	vpnHandler *vpn.Handler,
+	vpnServerHandler *vpnserver.Handler,
 	xrayHandler *xray.HTTPController,
 	jwtMiddleware *middleware.JWTMiddleware,
 ) *Server {
@@ -54,6 +56,7 @@ func New(
 				sessionsHandler,
 				devicesHandler,
 				vpnHandler,
+				vpnServerHandler,
 				xrayHandler,
 				jwtMiddleware,
 			),
