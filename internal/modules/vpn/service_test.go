@@ -15,7 +15,16 @@ import (
 )
 
 type mockVPNRepository struct {
-	getVPNUserFn    func(context.Context, string) (db.VpnUser, error)
+	getVPNUserFn func(
+		context.Context,
+		string,
+	) (db.VpnUser, error)
+
+	getUserEmailFn func(
+		context.Context,
+		string,
+	) (string, error)
+
 	createVPNUserFn func(
 		context.Context,
 		string,
@@ -25,16 +34,47 @@ type mockVPNRepository struct {
 		string,
 		string,
 	) (db.VpnUser, error)
+
 	saveVPNConfigFn func(
 		context.Context,
 		db.SaveVPNConfigParams,
 	) (db.VpnConfig, error)
 
+	getUserEmailCalls  int
 	getVPNUserCalls    int
 	createVPNUserCalls int
 	saveVPNConfigCalls int
 
 	lastSaveParams db.SaveVPNConfigParams
+}
+
+type mockVPNUserProvider struct{}
+
+func (m *mockVPNUserProvider) GetByID(
+	ctx context.Context,
+	id string,
+) (db.User, error) {
+
+	return db.User{
+		Email: "test-user@nebula.local",
+	}, nil
+}
+
+func (m *mockVPNRepository) GetUserEmail(
+	ctx context.Context,
+	userID string,
+) (string, error) {
+
+	m.getUserEmailCalls++
+
+	if m.getUserEmailFn != nil {
+		return m.getUserEmailFn(
+			ctx,
+			userID,
+		)
+	}
+
+	return "test-user@nebula.local", nil
 }
 
 func (m *mockVPNRepository) GetVPNUser(
@@ -223,6 +263,7 @@ func TestCreateConfig(t *testing.T) {
 				repo:       repo,
 				serverRepo: serverRepo,
 				provision:  provisioner,
+				users:      &mockVPNUserProvider{},
 			}
 
 			resp, err := service.CreateConfig(
@@ -533,6 +574,7 @@ func TestCreateConfigExistingVPNUser(t *testing.T) {
 		repo:       repo,
 		serverRepo: serverRepo,
 		provision:  provisioner,
+		users:      &mockVPNUserProvider{},
 	}
 
 	resp, err := service.CreateConfig(
@@ -593,6 +635,7 @@ func TestCreateConfigGetActiveServerError(t *testing.T) {
 		repo:       repo,
 		serverRepo: serverRepo,
 		provision:  provisioner,
+		users:      &mockVPNUserProvider{},
 	}
 
 	_, err := service.CreateConfig(
@@ -666,6 +709,7 @@ func TestCreateConfigProvisionError(t *testing.T) {
 		repo:       repo,
 		serverRepo: serverRepo,
 		provision:  provisioner,
+		users:      &mockVPNUserProvider{},
 	}
 
 	_, err := service.CreateConfig(
@@ -730,6 +774,7 @@ func TestCreateConfigCreateVPNUserError(t *testing.T) {
 		repo:       repo,
 		serverRepo: serverRepo,
 		provision:  provisioner,
+		users:      &mockVPNUserProvider{},
 	}
 
 	_, err := service.CreateConfig(
@@ -806,6 +851,7 @@ func TestCreateConfigSaveVPNConfigError(t *testing.T) {
 		repo:       repo,
 		serverRepo: serverRepo,
 		provision:  provisioner,
+		users:      &mockVPNUserProvider{},
 	}
 
 	_, err := service.CreateConfig(

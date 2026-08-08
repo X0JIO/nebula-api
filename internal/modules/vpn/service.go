@@ -16,10 +16,12 @@ type Service struct {
 	sync       *SyncService
 	provision  vpnProvisioner
 	serverRepo vpnServerRepository
+	users      vpnUserProvider
 }
 
 type vpnRepository interface {
 	GetVPNUser(ctx context.Context, userID string) (db.VpnUser, error)
+
 	CreateVPNUser(
 		ctx context.Context,
 		userID string,
@@ -29,10 +31,12 @@ type vpnRepository interface {
 		shortID string,
 		subscriptionToken string,
 	) (db.VpnUser, error)
+
 	SaveVPNConfig(
 		ctx context.Context,
 		params db.SaveVPNConfigParams,
 	) (db.VpnConfig, error)
+
 	ListVPNConfigs(
 		ctx context.Context,
 		vpnUserID pgtype.UUID,
@@ -41,6 +45,13 @@ type vpnRepository interface {
 
 type vpnServerRepository interface {
 	GetActive(ctx context.Context) (db.VpnServer, error)
+}
+
+type vpnUserProvider interface {
+	GetByID(
+		ctx context.Context,
+		id string,
+	) (db.User, error)
 }
 
 type vpnProvisioner interface {
@@ -57,12 +68,14 @@ func NewService(
 	sync *SyncService,
 	provision *provision.Service,
 	serverRepo *server.Repository,
+	users vpnUserProvider,
 ) *Service {
 	return &Service{
 		repo:       repo,
 		sync:       sync,
 		provision:  provision,
 		serverRepo: serverRepo,
+		users:      users,
 	}
 }
 
@@ -81,6 +94,8 @@ func (s *Service) CreateConfig(
 	if err != nil {
 		return nil, err
 	}
+
+	var email string
 
 	vpnUser, err := s.repo.GetVPNUser(ctx, userID)
 
@@ -104,12 +119,24 @@ func (s *Service) CreateConfig(
 			return nil, err
 		}
 
+		user, err := s.users.GetByID(
+			ctx,
+			userID,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		email = user.Email
+
 		err = s.provision.Add(
 			ctx,
 			protocol,
 			identity.UserUUID,
-			userID,
+			email,
 		)
+
 		if err != nil {
 			return nil, err
 		}
