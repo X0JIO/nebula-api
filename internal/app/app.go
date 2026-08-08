@@ -17,7 +17,6 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/users"
 	"github.com/X0JIO/nebula-api/internal/modules/vpn"
 	"github.com/X0JIO/nebula-api/internal/modules/vpn/provision"
-	"github.com/X0JIO/nebula-api/internal/modules/vpn/server"
 
 	"github.com/X0JIO/nebula-api/internal/platform/cache/redis"
 	"github.com/X0JIO/nebula-api/internal/platform/config"
@@ -141,15 +140,15 @@ func New() (*App, error) {
 
 	// VPN provisioning
 
-	vpnServerRepository := server.NewRepository(
+	vpnServerRepository := vpnserver.NewRepository(
 		queries,
 	)
 
-	vpnServerService := server.NewService(
+	vpnServerService := vpnserver.NewService(
 		vpnServerRepository,
 	)
 
-	vpnServerHandler := server.NewHandler(
+	vpnServerHandler := vpnserver.NewHandler(
 		vpnServerService,
 	)
 
