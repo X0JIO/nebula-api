@@ -103,6 +103,17 @@ type VpnConfig struct {
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
+type VpnDevice struct {
+	ID          pgtype.UUID        `json:"id"`
+	VpnUserID   pgtype.UUID        `json:"vpn_user_id"`
+	Name        string             `json:"name"`
+	Platform    string             `json:"platform"`
+	DeviceToken string             `json:"device_token"`
+	LastSeenAt  pgtype.Timestamptz `json:"last_seen_at"`
+	Revoked     bool               `json:"revoked"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+}
+
 type VpnServer struct {
 	ID         pgtype.UUID      `json:"id"`
 	Name       string           `json:"name"`

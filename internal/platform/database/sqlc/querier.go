@@ -20,6 +20,7 @@ type Querier interface {
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateTask(ctx context.Context, arg CreateTaskParams) (Task, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	CreateVPNDevice(ctx context.Context, arg CreateVPNDeviceParams) (VpnDevice, error)
 	CreateVPNServer(ctx context.Context, arg CreateVPNServerParams) (VpnServer, error)
 	CreateVPNUser(ctx context.Context, arg CreateVPNUserParams) (VpnUser, error)
 	DashboardStats(ctx context.Context) (DashboardStatsRow, error)
@@ -34,6 +35,7 @@ type Querier interface {
 	DeleteUserDevices(ctx context.Context, userID pgtype.UUID) error
 	DeleteVPNConfig(ctx context.Context, id pgtype.UUID) error
 	DeleteVPNConfigsByUser(ctx context.Context, vpnUserID pgtype.UUID) error
+	DeleteVPNDevice(ctx context.Context, id pgtype.UUID) error
 	DeleteVPNServer(ctx context.Context, id pgtype.UUID) error
 	DeleteVPNUser(ctx context.Context, userID pgtype.UUID) error
 	GetActiveVPNServer(ctx context.Context) (VpnServer, error)
@@ -62,6 +64,7 @@ type Querier interface {
 	ListTasksByStatus(ctx context.Context, arg ListTasksByStatusParams) ([]Task, error)
 	ListUsers(ctx context.Context) ([]User, error)
 	ListVPNConfigs(ctx context.Context, vpnUserID pgtype.UUID) ([]VpnConfig, error)
+	ListVPNDevices(ctx context.Context, vpnUserID pgtype.UUID) ([]VpnDevice, error)
 	ListVPNServers(ctx context.Context) ([]VpnServer, error)
 	ProjectExistsForUser(ctx context.Context, arg ProjectExistsForUserParams) (bool, error)
 	RemoveProjectMember(ctx context.Context, arg RemoveProjectMemberParams) error
@@ -69,6 +72,7 @@ type Querier interface {
 	RevokeRefreshToken(ctx context.Context, tokenHash string) error
 	RevokeSession(ctx context.Context, id pgtype.UUID) error
 	RevokeUserSessions(ctx context.Context, userID pgtype.UUID) error
+	RevokeVPNDevice(ctx context.Context, id pgtype.UUID) error
 	SaveVPNConfig(ctx context.Context, arg SaveVPNConfigParams) (VpnConfig, error)
 	UpdateDeviceLastSeen(ctx context.Context, arg UpdateDeviceLastSeenParams) error
 	UpdateDeviceSession(ctx context.Context, arg UpdateDeviceSessionParams) error
