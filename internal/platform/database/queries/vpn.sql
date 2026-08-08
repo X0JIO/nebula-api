@@ -32,7 +32,7 @@ VALUES(
     $1,$2,$3
 )
 ON CONFLICT(vpn_user_id,protocol)
-DO UPDATE
+DO UPDATE     
 SET config=EXCLUDED.config
 RETURNING *;
 
