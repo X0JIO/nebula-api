@@ -38,7 +38,11 @@ func GenerateVMess(
 		TLS:  "tls",
 	}
 
-	data, _ := json.Marshal(cfg)
+	data, err := json.Marshal(cfg)
+
+	if err != nil {
+		return ""
+	}
 
 	return "vmess://" + base64.StdEncoding.EncodeToString(data)
 }
