@@ -11,6 +11,7 @@ import (
 )
 
 type Querier interface {
+	ActivateVPNServer(ctx context.Context, id pgtype.UUID) (VpnServer, error)
 	AddProjectMember(ctx context.Context, arg AddProjectMemberParams) error
 	CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error)
 	CreateDevice(ctx context.Context, arg CreateDeviceParams) (Device, error)
@@ -22,6 +23,7 @@ type Querier interface {
 	CreateVPNServer(ctx context.Context, arg CreateVPNServerParams) (VpnServer, error)
 	CreateVPNUser(ctx context.Context, arg CreateVPNUserParams) (VpnUser, error)
 	DashboardStats(ctx context.Context) (DashboardStatsRow, error)
+	DeactivateAllVPNServers(ctx context.Context) error
 	DeleteComment(ctx context.Context, id pgtype.UUID) error
 	DeleteDevice(ctx context.Context, id pgtype.UUID) error
 	DeleteProject(ctx context.Context, id pgtype.UUID) error
@@ -30,6 +32,7 @@ type Querier interface {
 	DeleteUser(ctx context.Context, id pgtype.UUID) error
 	DeleteUserDevices(ctx context.Context, userID pgtype.UUID) error
 	DeleteVPNConfig(ctx context.Context, id pgtype.UUID) error
+	DeleteVPNServer(ctx context.Context, id pgtype.UUID) error
 	GetActiveVPNServer(ctx context.Context) (VpnServer, error)
 	GetComment(ctx context.Context, id pgtype.UUID) (Comment, error)
 	GetDevice(ctx context.Context, id pgtype.UUID) (Device, error)
@@ -44,6 +47,7 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetVPNConfig(ctx context.Context, id pgtype.UUID) (VpnConfig, error)
+	GetVPNServer(ctx context.Context, id pgtype.UUID) (VpnServer, error)
 	GetVPNUserBySubscription(ctx context.Context, subscriptionToken string) (VpnUser, error)
 	GetVPNUserByUserID(ctx context.Context, userID pgtype.UUID) (VpnUser, error)
 	ListDevices(ctx context.Context, userID pgtype.UUID) ([]Device, error)
@@ -71,6 +75,7 @@ type Querier interface {
 	UpdateTask(ctx context.Context, arg UpdateTaskParams) (Task, error)
 	UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) (User, error)
 	UpdateUserStatus(ctx context.Context, arg UpdateUserStatusParams) (User, error)
+	UpdateVPNServer(ctx context.Context, arg UpdateVPNServerParams) (VpnServer, error)
 }
 
 var _ Querier = (*Queries)(nil)

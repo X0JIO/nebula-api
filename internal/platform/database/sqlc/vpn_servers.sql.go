@@ -11,6 +11,32 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const activateVPNServer = `-- name: ActivateVPNServer :one
+UPDATE vpn_servers
+SET status = 'active'
+WHERE id = $1
+RETURNING id, name, host, port, country, public_key, private_key, short_id, status, capacity, created_at
+`
+
+func (q *Queries) ActivateVPNServer(ctx context.Context, id pgtype.UUID) (VpnServer, error) {
+	row := q.db.QueryRow(ctx, activateVPNServer, id)
+	var i VpnServer
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Host,
+		&i.Port,
+		&i.Country,
+		&i.PublicKey,
+		&i.PrivateKey,
+		&i.ShortID,
+		&i.Status,
+		&i.Capacity,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const createVPNServer = `-- name: CreateVPNServer :one
 INSERT INTO vpn_servers (
     name,
@@ -22,7 +48,7 @@ INSERT INTO vpn_servers (
     short_id
 )
 VALUES (
-    $1,$2,$3,$4,$5,$6,$7
+    $1, $2, $3, $4, $5, $6, $7
 )
 RETURNING id, name, host, port, country, public_key, private_key, short_id, status, capacity, created_at
 `
@@ -64,6 +90,27 @@ func (q *Queries) CreateVPNServer(ctx context.Context, arg CreateVPNServerParams
 	return i, err
 }
 
+const deactivateAllVPNServers = `-- name: DeactivateAllVPNServers :exec
+UPDATE vpn_servers
+SET status = 'inactive'
+WHERE status = 'active'
+`
+
+func (q *Queries) DeactivateAllVPNServers(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, deactivateAllVPNServers)
+	return err
+}
+
+const deleteVPNServer = `-- name: DeleteVPNServer :exec
+DELETE FROM vpn_servers
+WHERE id = $1
+`
+
+func (q *Queries) DeleteVPNServer(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteVPNServer, id)
+	return err
+}
+
 const getActiveVPNServer = `-- name: GetActiveVPNServer :one
 SELECT id, name, host, port, country, public_key, private_key, short_id, status, capacity, created_at
 FROM vpn_servers
@@ -74,6 +121,32 @@ LIMIT 1
 
 func (q *Queries) GetActiveVPNServer(ctx context.Context) (VpnServer, error) {
 	row := q.db.QueryRow(ctx, getActiveVPNServer)
+	var i VpnServer
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Host,
+		&i.Port,
+		&i.Country,
+		&i.PublicKey,
+		&i.PrivateKey,
+		&i.ShortID,
+		&i.Status,
+		&i.Capacity,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getVPNServer = `-- name: GetVPNServer :one
+SELECT id, name, host, port, country, public_key, private_key, short_id, status, capacity, created_at
+FROM vpn_servers
+WHERE id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetVPNServer(ctx context.Context, id pgtype.UUID) (VpnServer, error) {
+	row := q.db.QueryRow(ctx, getVPNServer, id)
 	var i VpnServer
 	err := row.Scan(
 		&i.ID,
@@ -127,4 +200,57 @@ func (q *Queries) ListVPNServers(ctx context.Context) ([]VpnServer, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateVPNServer = `-- name: UpdateVPNServer :one
+UPDATE vpn_servers
+SET
+    name = $2,
+    host = $3,
+    port = $4,
+    country = $5,
+    public_key = $6,
+    private_key = $7,
+    short_id = $8
+WHERE id = $1
+RETURNING id, name, host, port, country, public_key, private_key, short_id, status, capacity, created_at
+`
+
+type UpdateVPNServerParams struct {
+	ID         pgtype.UUID `json:"id"`
+	Name       string      `json:"name"`
+	Host       string      `json:"host"`
+	Port       int32       `json:"port"`
+	Country    string      `json:"country"`
+	PublicKey  pgtype.Text `json:"public_key"`
+	PrivateKey pgtype.Text `json:"private_key"`
+	ShortID    pgtype.Text `json:"short_id"`
+}
+
+func (q *Queries) UpdateVPNServer(ctx context.Context, arg UpdateVPNServerParams) (VpnServer, error) {
+	row := q.db.QueryRow(ctx, updateVPNServer,
+		arg.ID,
+		arg.Name,
+		arg.Host,
+		arg.Port,
+		arg.Country,
+		arg.PublicKey,
+		arg.PrivateKey,
+		arg.ShortID,
+	)
+	var i VpnServer
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Host,
+		&i.Port,
+		&i.Country,
+		&i.PublicKey,
+		&i.PrivateKey,
+		&i.ShortID,
+		&i.Status,
+		&i.Capacity,
+		&i.CreatedAt,
+	)
+	return i, err
 }
