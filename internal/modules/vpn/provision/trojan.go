@@ -12,7 +12,7 @@ func (s *Service) addTrojan(
 	email string,
 ) error {
 
-	inbound, err := s.xray.FindInboundByProtocol(ctx, "trojan.go")
+	inbound, err := s.xray.FindInboundByProtocol(ctx, "trojan")
 	if err != nil {
 		return err
 	}
@@ -21,5 +21,6 @@ func (s *Service) addTrojan(
 		InboundID: inbound.ID,
 		UUID:      uuid,
 		Email:     email,
+		Protocol:  "trojan",
 	})
 }

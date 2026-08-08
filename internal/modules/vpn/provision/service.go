@@ -18,7 +18,6 @@ func NewService(
 	generator *config.Generator,
 	writer xray.ConfigWriter,
 ) *Service {
-
 	return &Service{
 		xray:      client,
 		generator: generator,
@@ -32,9 +31,7 @@ func (s *Service) Add(
 	uuid string,
 	email string,
 ) error {
-
 	switch protocol {
-
 	case "vless":
 		return s.addVLESS(ctx, uuid, email)
 

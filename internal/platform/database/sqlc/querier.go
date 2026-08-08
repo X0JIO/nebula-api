@@ -24,6 +24,7 @@ type Querier interface {
 	CreateVPNUser(ctx context.Context, arg CreateVPNUserParams) (VpnUser, error)
 	DashboardStats(ctx context.Context) (DashboardStatsRow, error)
 	DeactivateAllVPNServers(ctx context.Context) error
+	DeactivateVPNServer(ctx context.Context, id pgtype.UUID) (VpnServer, error)
 	DeleteComment(ctx context.Context, id pgtype.UUID) error
 	DeleteDevice(ctx context.Context, id pgtype.UUID) error
 	DeleteProject(ctx context.Context, id pgtype.UUID) error

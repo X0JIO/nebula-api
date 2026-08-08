@@ -8,13 +8,48 @@ import (
 	"github.com/X0JIO/nebula-api/internal/modules/vpn/server"
 	db "github.com/X0JIO/nebula-api/internal/platform/database/sqlc"
 	"github.com/X0JIO/nebula-api/internal/shared/apperrors"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Service struct {
-	repo       *Repository
+	repo       vpnRepository
 	sync       *SyncService
-	provision  *provision.Service
-	serverRepo *server.Repository
+	provision  vpnProvisioner
+	serverRepo vpnServerRepository
+}
+
+type vpnRepository interface {
+	GetVPNUser(ctx context.Context, userID string) (db.VpnUser, error)
+	CreateVPNUser(
+		ctx context.Context,
+		userID string,
+		userUUID string,
+		privateKey string,
+		publicKey string,
+		shortID string,
+		subscriptionToken string,
+	) (db.VpnUser, error)
+	SaveVPNConfig(
+		ctx context.Context,
+		params db.SaveVPNConfigParams,
+	) (db.VpnConfig, error)
+	ListVPNConfigs(
+		ctx context.Context,
+		vpnUserID pgtype.UUID,
+	) ([]db.VpnConfig, error)
+}
+
+type vpnServerRepository interface {
+	GetActive(ctx context.Context) (db.VpnServer, error)
+}
+
+type vpnProvisioner interface {
+	Add(
+		ctx context.Context,
+		protocol string,
+		uuid string,
+		email string,
+	) error
 }
 
 func NewService(
@@ -22,9 +57,7 @@ func NewService(
 	sync *SyncService,
 	provision *provision.Service,
 	serverRepo *server.Repository,
-
 ) *Service {
-
 	return &Service{
 		repo:       repo,
 		sync:       sync,
@@ -92,38 +125,49 @@ func (s *Service) CreateConfig(
 
 	var config string
 
-	serverHost := vpnServer.Host
+	serverEndpoint := generator.ServerEndpoint{
+		Host: vpnServer.Host,
+		Port: int(vpnServer.Port),
+	}
+
+	if vpnServer.PublicKey.Valid {
+		serverEndpoint.PublicKey = vpnServer.PublicKey.String
+	}
+
+	if vpnServer.ShortID.Valid {
+		serverEndpoint.ShortID = vpnServer.ShortID.String
+	}
 
 	switch protocol {
 
 	case "vless":
 		config = generator.GenerateVLESS(
 			identity,
-			serverHost,
+			serverEndpoint,
 		)
 
 	case "reality":
 		config = generator.GenerateReality(
 			identity,
-			serverHost,
+			serverEndpoint,
 		)
 
 	case "vmess":
 		config = generator.GenerateVMess(
 			identity,
-			serverHost,
+			serverEndpoint,
 		)
 
 	case "trojan":
 		config = generator.GenerateTrojan(
 			identity,
-			serverHost,
+			serverEndpoint,
 		)
 
 	case "shadowsocks":
 		config = generator.GenerateShadowsocks(
 			identity,
-			serverHost,
+			serverEndpoint,
 		)
 
 	default:

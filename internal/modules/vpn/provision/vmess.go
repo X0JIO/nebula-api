@@ -21,5 +21,6 @@ func (s *Service) addVMess(
 		InboundID: inbound.ID,
 		UUID:      uuid,
 		Email:     email,
+		Protocol:  "vmess",
 	})
 }

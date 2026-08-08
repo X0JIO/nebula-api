@@ -5,13 +5,17 @@ import (
 	"net/url"
 )
 
-func GenerateVLESS(identity *Identity, host string) string {
+func GenerateVLESS(
+	identity *Identity,
+	server ServerEndpoint,
+) string {
 	return fmt.Sprintf(
-		"vless://%s@%s:443?encryption=none&security=reality&type=tcp&flow=xtls-rprx-vision&pbk=%s&sid=%s&sni=%s&fp=chrome#Nebula",
+		"vless://%s@%s:%d?encryption=none&security=reality&type=tcp&flow=xtls-rprx-vision&pbk=%s&sid=%s&sni=%s&fp=chrome#Nebula",
 		identity.UserUUID,
-		host,
-		url.QueryEscape(identity.RealityPublicKey),
-		identity.RealityShortID,
-		host,
+		server.Host,
+		server.Port,
+		url.QueryEscape(server.PublicKey),
+		server.ShortID,
+		server.Host,
 	)
 }

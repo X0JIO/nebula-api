@@ -41,6 +41,13 @@ func (r *Repository) GetActive(
 	return r.q.GetActiveVPNServer(ctx)
 }
 
+func (r *Repository) Deactivate(
+	ctx context.Context,
+	id pgtype.UUID,
+) (db.VpnServer, error) {
+	return r.q.DeactivateVPNServer(ctx, id)
+}
+
 func (r *Repository) Update(
 	ctx context.Context,
 	params db.UpdateVPNServerParams,

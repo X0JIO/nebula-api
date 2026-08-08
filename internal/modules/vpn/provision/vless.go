@@ -21,5 +21,6 @@ func (s *Service) addVLESS(
 		InboundID: inbound.ID,
 		UUID:      uuid,
 		Email:     email,
+		Protocol:  "vless",
 	})
 }

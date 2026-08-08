@@ -21,5 +21,6 @@ func (s *Service) addShadowsocks(
 		InboundID: inbound.ID,
 		UUID:      uuid,
 		Email:     email,
+		Protocol:  "shadowsocks",
 	})
 }

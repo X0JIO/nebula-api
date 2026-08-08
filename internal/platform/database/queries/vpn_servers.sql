@@ -65,3 +65,9 @@ UPDATE vpn_servers
 SET status = 'active'
 WHERE id = $1
 RETURNING *;
+
+-- name: DeactivateVPNServer :one
+UPDATE vpn_servers
+SET status = 'inactive'
+WHERE id = $1
+RETURNING *;

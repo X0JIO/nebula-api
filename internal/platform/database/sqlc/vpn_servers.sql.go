@@ -101,6 +101,32 @@ func (q *Queries) DeactivateAllVPNServers(ctx context.Context) error {
 	return err
 }
 
+const deactivateVPNServer = `-- name: DeactivateVPNServer :one
+UPDATE vpn_servers
+SET status = 'inactive'
+WHERE id = $1
+RETURNING id, name, host, port, country, public_key, private_key, short_id, status, capacity, created_at
+`
+
+func (q *Queries) DeactivateVPNServer(ctx context.Context, id pgtype.UUID) (VpnServer, error) {
+	row := q.db.QueryRow(ctx, deactivateVPNServer, id)
+	var i VpnServer
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Host,
+		&i.Port,
+		&i.Country,
+		&i.PublicKey,
+		&i.PrivateKey,
+		&i.ShortID,
+		&i.Status,
+		&i.Capacity,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const deleteVPNServer = `-- name: DeleteVPNServer :exec
 DELETE FROM vpn_servers
 WHERE id = $1

@@ -21,5 +21,6 @@ func (s *Service) addReality(
 		InboundID: inbound.ID,
 		UUID:      uuid,
 		Email:     email,
+		Protocol:  "reality",
 	})
 }

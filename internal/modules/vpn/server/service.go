@@ -31,6 +31,16 @@ type CreateRequest struct {
 	ShortID    string
 }
 
+type UpdateRequest struct {
+	Name       string
+	Host       string
+	Port       int
+	Country    string
+	PublicKey  string
+	PrivateKey string
+	ShortID    string
+}
+
 func (s *Service) Create(
 	ctx context.Context,
 	req CreateRequest,
@@ -43,20 +53,13 @@ func (s *Service) Create(
 	req.PrivateKey = strings.TrimSpace(req.PrivateKey)
 	req.ShortID = strings.TrimSpace(req.ShortID)
 
-	if req.Name == "" {
-		return db.VpnServer{}, fmt.Errorf("server name is required")
-	}
-
-	if req.Host == "" {
-		return db.VpnServer{}, fmt.Errorf("server host is required")
-	}
-
-	if req.Port <= 0 || req.Port > 65535 {
-		return db.VpnServer{}, fmt.Errorf("invalid server port")
-	}
-
-	if req.Country == "" {
-		return db.VpnServer{}, fmt.Errorf("server country is required")
+	if err := validateServer(
+		req.Name,
+		req.Host,
+		req.Port,
+		req.Country,
+	); err != nil {
+		return db.VpnServer{}, err
 	}
 
 	return s.repo.Create(
@@ -80,7 +83,150 @@ func (s *Service) List(
 	return s.repo.List(ctx)
 }
 
-func textValue(value string) pgtype.Text {
+func (s *Service) Get(
+	ctx context.Context,
+	id string,
+) (db.VpnServer, error) {
+
+	uuid, err := parseUUID(id)
+	if err != nil {
+		return db.VpnServer{}, err
+	}
+
+	return s.repo.Get(ctx, uuid)
+}
+
+func (s *Service) Update(
+	ctx context.Context,
+	id string,
+	req UpdateRequest,
+) (db.VpnServer, error) {
+
+	uuid, err := parseUUID(id)
+	if err != nil {
+		return db.VpnServer{}, err
+	}
+
+	req.Name = strings.TrimSpace(req.Name)
+	req.Host = strings.TrimSpace(req.Host)
+	req.Country = strings.TrimSpace(req.Country)
+	req.PublicKey = strings.TrimSpace(req.PublicKey)
+	req.PrivateKey = strings.TrimSpace(req.PrivateKey)
+	req.ShortID = strings.TrimSpace(req.ShortID)
+
+	if err := validateServer(
+		req.Name,
+		req.Host,
+		req.Port,
+		req.Country,
+	); err != nil {
+		return db.VpnServer{}, err
+	}
+
+	return s.repo.Update(
+		ctx,
+		db.UpdateVPNServerParams{
+			ID:         uuid,
+			Name:       req.Name,
+			Host:       req.Host,
+			Port:       int32(req.Port),
+			Country:    req.Country,
+			PublicKey:  textValue(req.PublicKey),
+			PrivateKey: textValue(req.PrivateKey),
+			ShortID:    textValue(req.ShortID),
+		},
+	)
+}
+
+func (s *Service) Delete(
+	ctx context.Context,
+	id string,
+) error {
+
+	uuid, err := parseUUID(id)
+	if err != nil {
+		return err
+	}
+
+	return s.repo.Delete(ctx, uuid)
+}
+
+func (s *Service) Activate(
+	ctx context.Context,
+	id string,
+) (db.VpnServer, error) {
+
+	uuid, err := parseUUID(id)
+	if err != nil {
+		return db.VpnServer{}, err
+	}
+
+	return s.repo.Activate(ctx, uuid)
+}
+
+func (s *Service) Deactivate(
+	ctx context.Context,
+	id string,
+) (db.VpnServer, error) {
+
+	uuid, err := parseUUID(id)
+	if err != nil {
+		return db.VpnServer{}, err
+	}
+
+	return s.repo.Deactivate(ctx, uuid)
+}
+
+func (s *Service) DeactivateAll(
+	ctx context.Context,
+) error {
+
+	return s.repo.DeactivateAll(ctx)
+}
+
+func validateServer(
+	name string,
+	host string,
+	port int,
+	country string,
+) error {
+
+	if name == "" {
+		return fmt.Errorf("server name is required")
+	}
+
+	if host == "" {
+		return fmt.Errorf("server host is required")
+	}
+
+	if port <= 0 || port > 65535 {
+		return fmt.Errorf("invalid server port")
+	}
+
+	if country == "" {
+		return fmt.Errorf("server country is required")
+	}
+
+	return nil
+}
+
+func parseUUID(
+	id string,
+) (pgtype.UUID, error) {
+
+	var uuid pgtype.UUID
+
+	if err := uuid.Scan(id); err != nil {
+		return pgtype.UUID{}, fmt.Errorf("invalid server id")
+	}
+
+	return uuid, nil
+}
+
+func textValue(
+	value string,
+) pgtype.Text {
+
 	if value == "" {
 		return pgtype.Text{}
 	}
@@ -89,4 +235,10 @@ func textValue(value string) pgtype.Text {
 		String: value,
 		Valid:  true,
 	}
+}
+
+func (s *Service) GetActive(
+	ctx context.Context,
+) (db.VpnServer, error) {
+	return s.repo.GetActive(ctx)
 }

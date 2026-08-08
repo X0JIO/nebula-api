@@ -280,6 +280,42 @@ func NewRouter(
 					"/",
 					vpnServerHandler.List,
 				)
+
+				r.Post(
+					"/deactivate-all",
+					vpnServerHandler.DeactivateAll,
+				)
+
+				r.Get("/active", vpnServerHandler.Active)
+
+				r.Post("/", vpnServerHandler.Create)
+
+				r.Get("/", vpnServerHandler.List)
+
+				r.Get(
+					"/{id}",
+					vpnServerHandler.Get,
+				)
+
+				r.Put(
+					"/{id}",
+					vpnServerHandler.Update,
+				)
+
+				r.Delete(
+					"/{id}",
+					vpnServerHandler.Delete,
+				)
+
+				r.Post(
+					"/{id}/activate",
+					vpnServerHandler.Activate,
+				)
+
+				r.Post(
+					"/{id}/deactivate",
+					vpnServerHandler.Deactivate,
+				)
 			})
 
 		})

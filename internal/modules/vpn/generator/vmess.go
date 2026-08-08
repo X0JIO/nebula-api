@@ -3,6 +3,7 @@ package generator
 import (
 	"encoding/base64"
 	"encoding/json"
+	"strconv"
 )
 
 type vmessConfig struct {
@@ -19,13 +20,15 @@ type vmessConfig struct {
 	TLS  string `json:"tls"`
 }
 
-func GenerateVMess(identity *Identity, host string) string {
-
+func GenerateVMess(
+	identity *Identity,
+	server ServerEndpoint,
+) string {
 	cfg := vmessConfig{
 		V:    "2",
 		Ps:   "Nebula",
-		Add:  host,
-		Port: "443",
+		Add:  server.Host,
+		Port: strconv.Itoa(server.Port),
 		ID:   identity.UserUUID,
 		Aid:  "0",
 		Net:  "tcp",
