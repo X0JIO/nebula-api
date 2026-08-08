@@ -288,10 +288,6 @@ func NewRouter(
 
 				r.Get("/active", vpnServerHandler.Active)
 
-				r.Post("/", vpnServerHandler.Create)
-
-				r.Get("/", vpnServerHandler.List)
-
 				r.Get(
 					"/{id}",
 					vpnServerHandler.Get,
