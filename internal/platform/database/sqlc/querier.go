@@ -52,7 +52,7 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetVPNConfig(ctx context.Context, id pgtype.UUID) (VpnConfig, error)
-	GetVPNDevice(ctx context.Context, id pgtype.UUID) (VpnDevice, error)
+	GetVPNDevice(ctx context.Context, arg GetVPNDeviceParams) (VpnDevice, error)
 	GetVPNServer(ctx context.Context, id pgtype.UUID) (VpnServer, error)
 	GetVPNUserBySubscription(ctx context.Context, subscriptionToken string) (VpnUser, error)
 	GetVPNUserByUserID(ctx context.Context, userID pgtype.UUID) (VpnUser, error)

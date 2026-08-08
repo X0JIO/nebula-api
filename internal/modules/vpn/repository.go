@@ -211,10 +211,14 @@ func (r *Repository) DeleteVPNDevice(
 func (r *Repository) GetVPNDevice(
 	ctx context.Context,
 	id pgtype.UUID,
+	vpnUserID pgtype.UUID,
 ) (db.VpnDevice, error) {
 
 	return r.queries.GetVPNDevice(
 		ctx,
-		id,
+		db.GetVPNDeviceParams{
+			ID:        id,
+			VpnUserID: vpnUserID,
+		},
 	)
 }

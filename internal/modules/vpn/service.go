@@ -26,6 +26,7 @@ type vpnRepository interface {
 	GetVPNDevice(
 		ctx context.Context,
 		id pgtype.UUID,
+		vpnUserID pgtype.UUID,
 	) (db.VpnDevice, error)
 
 	CreateVPNUser(
@@ -123,6 +124,7 @@ func NewService(
 func (s *Service) CreateConfig(
 	ctx context.Context,
 	userID string,
+	deviceID string,
 	protocol string,
 ) (*CreateConfigResponse, error) {
 

@@ -26,6 +26,7 @@ type SubscriptionResponse struct {
 }
 
 type CreateConfigRequest struct {
+	DeviceID string `json:"device_id"`
 	Protocol string `json:"protocol"`
 }
 

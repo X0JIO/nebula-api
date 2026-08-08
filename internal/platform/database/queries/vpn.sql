@@ -30,11 +30,14 @@ INSERT INTO vpn_configs(
     config
 )
 VALUES(
-    $1,$2,$3,$4
+    $1,
+    $2,
+    $3,
+    $4
 )
-ON CONFLICT(device_id,protocol)
+ON CONFLICT(device_id, protocol)
 DO UPDATE
-SET config=EXCLUDED.config
+SET config = EXCLUDED.config
 RETURNING id, vpn_user_id, device_id, protocol, config, created_at;
 
 -- name: ListVPNConfigs :many

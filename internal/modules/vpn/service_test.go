@@ -129,15 +129,15 @@ func (m *mockVPNRepository) GetVPNUser(
 func (m *mockVPNRepository) GetVPNDevice(
 	ctx context.Context,
 	id pgtype.UUID,
+	vpnUserID pgtype.UUID,
 ) (db.VpnDevice, error) {
-
-	if m.getVPNDeviceFunc != nil {
-		return m.getVPNDeviceFunc(ctx, id)
-	}
-
-	return db.VpnDevice{}, nil
+	return db.VpnDevice{
+		ID:        id,
+		VpnUserID: vpnUserID,
+		Name:      "Test Device",
+		Platform:  "test",
+	}, nil
 }
-
 func (m *mockVPNRepository) GetVPNUserBySubscription(
 	ctx context.Context,
 	token string,
@@ -407,6 +407,7 @@ func TestCreateConfig(t *testing.T) {
 			resp, err := service.CreateConfig(
 				context.Background(),
 				"user-id",
+				"device-id",
 				protocol,
 			)
 
@@ -718,6 +719,7 @@ func TestCreateConfigExistingVPNUser(t *testing.T) {
 	resp, err := service.CreateConfig(
 		context.Background(),
 		"user-id",
+		"device-id",
 		"vless",
 	)
 
@@ -779,6 +781,7 @@ func TestCreateConfigGetActiveServerError(t *testing.T) {
 	_, err := service.CreateConfig(
 		context.Background(),
 		"user-id",
+		"device-id",
 		"vless",
 	)
 
@@ -853,6 +856,7 @@ func TestCreateConfigProvisionError(t *testing.T) {
 	_, err := service.CreateConfig(
 		context.Background(),
 		"user-id",
+		"device-id",
 		"vless",
 	)
 
@@ -918,6 +922,7 @@ func TestCreateConfigCreateVPNUserError(t *testing.T) {
 	_, err := service.CreateConfig(
 		context.Background(),
 		"user-id",
+		"device-id",
 		"vless",
 	)
 
@@ -995,6 +1000,7 @@ func TestCreateConfigSaveVPNConfigError(t *testing.T) {
 	_, err := service.CreateConfig(
 		context.Background(),
 		"user-id",
+		"device-id",
 		"vless",
 	)
 

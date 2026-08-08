@@ -69,10 +69,16 @@ const getVPNDevice = `-- name: GetVPNDevice :one
 SELECT id, vpn_user_id, name, platform, device_token, last_seen_at, revoked, created_at
 FROM vpn_devices
 WHERE id=$1
+AND vpn_user_id=$2
 `
 
-func (q *Queries) GetVPNDevice(ctx context.Context, id pgtype.UUID) (VpnDevice, error) {
-	row := q.db.QueryRow(ctx, getVPNDevice, id)
+type GetVPNDeviceParams struct {
+	ID        pgtype.UUID `json:"id"`
+	VpnUserID pgtype.UUID `json:"vpn_user_id"`
+}
+
+func (q *Queries) GetVPNDevice(ctx context.Context, arg GetVPNDeviceParams) (VpnDevice, error) {
+	row := q.db.QueryRow(ctx, getVPNDevice, arg.ID, arg.VpnUserID)
 	var i VpnDevice
 	err := row.Scan(
 		&i.ID,

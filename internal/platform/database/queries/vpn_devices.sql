@@ -36,4 +36,5 @@ WHERE id=$1;
 -- name: GetVPNDevice :one
 SELECT *
 FROM vpn_devices
-WHERE id=$1;
+WHERE id=$1
+AND vpn_user_id=$2;

@@ -63,6 +63,7 @@ func (h *Handler) CreateConfig(
 	cfg, err := h.service.CreateConfig(
 		r.Context(),
 		userID,
+		req.DeviceID,
 		req.Protocol,
 	)
 
