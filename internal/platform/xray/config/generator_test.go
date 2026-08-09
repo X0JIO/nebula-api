@@ -27,8 +27,10 @@ func TestGenerateConfig(t *testing.T) {
 
 	var result map[string]any
 
+	dataBytes := data
+
 	if err := json.Unmarshal(
-		data,
+		dataBytes,
 		&result,
 	); err != nil {
 		t.Fatal(err)

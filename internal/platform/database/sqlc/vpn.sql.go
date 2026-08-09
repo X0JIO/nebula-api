@@ -201,6 +201,40 @@ func (q *Queries) ListVPNConfigs(ctx context.Context, vpnUserID pgtype.UUID) ([]
 	return items, nil
 }
 
+const listVPNUsers = `-- name: ListVPNUsers :many
+SELECT id, user_id, uuid, private_key, public_key, short_id, subscription_token, created_at
+FROM vpn_users
+`
+
+func (q *Queries) ListVPNUsers(ctx context.Context) ([]VpnUser, error) {
+	rows, err := q.db.Query(ctx, listVPNUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []VpnUser
+	for rows.Next() {
+		var i VpnUser
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Uuid,
+			&i.PrivateKey,
+			&i.PublicKey,
+			&i.ShortID,
+			&i.SubscriptionToken,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const saveVPNConfig = `-- name: SaveVPNConfig :one
 INSERT INTO vpn_configs(
     vpn_user_id,

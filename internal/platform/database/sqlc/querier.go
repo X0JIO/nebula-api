@@ -68,6 +68,7 @@ type Querier interface {
 	ListVPNConfigs(ctx context.Context, vpnUserID pgtype.UUID) ([]VpnConfig, error)
 	ListVPNDevices(ctx context.Context, vpnUserID pgtype.UUID) ([]VpnDevice, error)
 	ListVPNServers(ctx context.Context) ([]VpnServer, error)
+	ListVPNUsers(ctx context.Context) ([]VpnUser, error)
 	ProjectExistsForUser(ctx context.Context, arg ProjectExistsForUserParams) (bool, error)
 	RemoveProjectMember(ctx context.Context, arg RemoveProjectMemberParams) error
 	RevokeAllRefreshTokens(ctx context.Context, userID pgtype.UUID) error

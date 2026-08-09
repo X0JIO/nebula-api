@@ -31,7 +31,9 @@ func (s *Service) Add(
 	uuid string,
 	email string,
 ) error {
+
 	switch protocol {
+
 	case "vless":
 		return s.addVLESS(ctx, uuid, email)
 

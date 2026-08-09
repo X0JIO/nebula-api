@@ -10,6 +10,17 @@ type Generator struct {
 	Reality *reality.Credentials
 }
 
+func (g *Generator) GenerateConfig(
+	client Client,
+) ([]byte, error) {
+
+	return g.Generate(
+		[]Client{
+			client,
+		},
+	)
+}
+
 func NewGenerator(
 	credentials *reality.Credentials,
 ) *Generator {
@@ -27,9 +38,22 @@ func (g *Generator) GenerateClient() Client {
 	}
 }
 
-func (g *Generator) GenerateConfig(
-	client Client,
+func (g *Generator) Generate(
+	clients []Client,
 ) ([]byte, error) {
+
+	xrayClients := make([]any, 0, len(clients))
+
+	for _, client := range clients {
+
+		xrayClients = append(
+			xrayClients,
+			map[string]any{
+				"id":    client.ID,
+				"email": client.Email,
+			},
+		)
+	}
 
 	cfg := map[string]any{
 
@@ -38,6 +62,7 @@ func (g *Generator) GenerateConfig(
 		},
 
 		"inbounds": []any{
+
 			map[string]any{
 
 				"port": 443,
@@ -46,14 +71,7 @@ func (g *Generator) GenerateConfig(
 
 				"settings": map[string]any{
 
-					"clients": []any{
-						map[string]any{
-
-							"id": client.ID,
-
-							"email": client.ID,
-						},
-					},
+					"clients": xrayClients,
 
 					"decryption": "none",
 				},
@@ -63,13 +81,12 @@ func (g *Generator) GenerateConfig(
 					"network": "tcp",
 
 					"security": "reality",
+
 					"realitySettings": map[string]any{
 
 						"show": false,
 
 						"dest": "www.cloudflare.com:443",
-
-						"xver": 0,
 
 						"serverNames": []string{
 							"www.cloudflare.com",
@@ -83,13 +100,6 @@ func (g *Generator) GenerateConfig(
 					},
 				},
 			},
-		},
-
-		"nebula": map[string]any{
-
-			"publicKey": g.Reality.PublicKey,
-
-			"shortId": g.Reality.ShortID,
 		},
 
 		"outbounds": []any{

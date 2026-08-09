@@ -71,3 +71,7 @@ WHERE vpn_user_id = $1;
 DELETE
 FROM vpn_configs
 WHERE device_id = $1;
+
+-- name: ListVPNUsers :many
+SELECT *
+FROM vpn_users;
