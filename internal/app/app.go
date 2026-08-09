@@ -44,6 +44,8 @@ type App struct {
 
 	VPN *vpn.Service
 
+	XrayDeployer *xrayconfig.Deployer
+
 	UserHandler      *users.Handler
 	AdminHandler     *admin.Handler
 	ProjectsHandler  *projects.Handler
@@ -128,6 +130,16 @@ func New() (*App, error) {
 		cfg.Xray.ConfigPath,
 	)
 
+	clientProvider := provision.NewDBClientProvider(
+		queries,
+	)
+
+	xrayDeployer := xrayconfig.NewDeployer(
+		xrayGenerator,
+		writer,
+		clientProvider,
+	)
+
 	xrayService := xray.NewService(
 		xrayProcess,
 		xrayClient,
@@ -186,6 +198,16 @@ func New() (*App, error) {
 
 		log.Warn(
 			"failed to ensure default xray inbounds",
+			zap.Error(err),
+		)
+	}
+
+	if err := xrayDeployer.Deploy(
+		context.Background(),
+	); err != nil {
+
+		log.Warn(
+			"failed to deploy xray config",
 			zap.Error(err),
 		)
 	}
@@ -325,6 +347,8 @@ func New() (*App, error) {
 		Users: userService,
 		Auth:  authService,
 		VPN:   vpnService,
+
+		XrayDeployer: xrayDeployer,
 
 		UserHandler:  userHandler,
 		AdminHandler: adminHandler,

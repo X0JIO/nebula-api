@@ -54,8 +54,12 @@ func (d *Deployer) Deploy(
 		return err
 	}
 
-	return d.writer.Save(
+	if err := d.writer.Save(
 		ctx,
 		data,
-	)
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
