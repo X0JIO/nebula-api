@@ -66,3 +66,8 @@ WHERE user_id = $1;
 DELETE
 FROM vpn_configs
 WHERE vpn_user_id = $1;
+
+-- name: DeleteVPNConfigsByDevice :exec
+DELETE
+FROM vpn_configs
+WHERE device_id = $1;

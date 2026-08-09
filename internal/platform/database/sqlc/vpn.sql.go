@@ -70,6 +70,17 @@ func (q *Queries) DeleteVPNConfig(ctx context.Context, id pgtype.UUID) error {
 	return err
 }
 
+const deleteVPNConfigsByDevice = `-- name: DeleteVPNConfigsByDevice :exec
+DELETE
+FROM vpn_configs
+WHERE device_id = $1
+`
+
+func (q *Queries) DeleteVPNConfigsByDevice(ctx context.Context, deviceID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteVPNConfigsByDevice, deviceID)
+	return err
+}
+
 const deleteVPNConfigsByUser = `-- name: DeleteVPNConfigsByUser :exec
 DELETE
 FROM vpn_configs

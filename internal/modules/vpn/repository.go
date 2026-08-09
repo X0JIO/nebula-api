@@ -153,6 +153,17 @@ func (r *Repository) DeleteVPNConfigsByUser(
 	)
 }
 
+func (r *Repository) DeleteVPNConfigsByDevice(
+	ctx context.Context,
+	deviceID pgtype.UUID,
+) error {
+
+	return r.queries.DeleteVPNConfigsByDevice(
+		ctx,
+		deviceID,
+	)
+}
+
 func (r *Repository) DeleteVPNUser(
 	ctx context.Context,
 	userID pgtype.UUID,

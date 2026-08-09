@@ -233,6 +233,19 @@ func (h *Handler) SubscriptionBase64(
 
 	userID := r.Context().Value(middleware.ContextUserID).(string)
 
+	userID, ok := r.Context().Value(
+		middleware.ContextUserID,
+	).(string)
+
+	if !ok || userID == "" {
+		web.Error(
+			w,
+			http.StatusUnauthorized,
+			"unauthorized",
+		)
+		return
+	}
+
 	sub, err := h.service.SubscriptionBase64(
 		r.Context(),
 		userID,

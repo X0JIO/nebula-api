@@ -98,6 +98,16 @@ func (s *Service) DeleteDevice(
 
 	for _, device := range devices {
 		if device.ID == id {
+
+			err = s.repo.DeleteVPNConfigsByDevice(
+				ctx,
+				id,
+			)
+
+			if err != nil {
+				return err
+			}
+
 			return s.repo.DeleteVPNDevice(
 				ctx,
 				id,
@@ -114,7 +124,7 @@ func (s *Service) RevokeDevice(
 	deviceID string,
 ) error {
 
-	_, err := s.repo.GetVPNUser(
+	vpnUser, err := s.repo.GetVPNUser(
 		ctx,
 		userID,
 	)
@@ -129,8 +139,18 @@ func (s *Service) RevokeDevice(
 		return err
 	}
 
-	return s.repo.RevokeVPNDevice(
+	device, err := s.repo.GetVPNDevice(
 		ctx,
 		id,
+		vpnUser.ID,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return s.repo.RevokeVPNDevice(
+		ctx,
+		device.ID,
 	)
 }

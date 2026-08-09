@@ -66,6 +66,11 @@ type mockVPNRepository struct {
 		vpnUserID pgtype.UUID,
 	) error
 
+	DeleteVPNConfigsByDeviceFunc func(
+		ctx context.Context,
+		deviceID pgtype.UUID,
+	) error
+
 	DeleteVPNUserFunc func(
 		ctx context.Context,
 		userID pgtype.UUID,
@@ -165,6 +170,21 @@ func (m *mockVPNRepository) GetVPNUserBySubscription(
 	}
 
 	return db.VpnUser{}, errors.New("vpn user not found")
+}
+
+func (m *mockVPNRepository) DeleteVPNConfigsByDevice(
+	ctx context.Context,
+	deviceID pgtype.UUID,
+) error {
+
+	if m.DeleteVPNConfigsByDeviceFunc != nil {
+		return m.DeleteVPNConfigsByDeviceFunc(
+			ctx,
+			deviceID,
+		)
+	}
+
+	return nil
 }
 
 func (m *mockVPNRepository) CreateVPNUser(
@@ -1067,5 +1087,131 @@ func TestCreateConfigSaveVPNConfigError(t *testing.T) {
 			"SaveVPNConfig() calls: want 1, got %d",
 			repo.saveVPNConfigCalls,
 		)
+	}
+}
+
+func TestRevokeDevice(t *testing.T) {
+
+	called := false
+
+	repo := &mockVPNRepository{
+		getVPNUserFn: func(
+			ctx context.Context,
+			userID string,
+		) (db.VpnUser, error) {
+			return testVPNUser(), nil
+		},
+
+		getVPNDeviceFn: func(
+			ctx context.Context,
+			id pgtype.UUID,
+			vpnUserID pgtype.UUID,
+		) (db.VpnDevice, error) {
+
+			return db.VpnDevice{
+				ID:        id,
+				VpnUserID: vpnUserID,
+			}, nil
+		},
+
+		RevokeVPNDeviceFunc: func(
+			ctx context.Context,
+			id pgtype.UUID,
+		) error {
+			called = true
+			return nil
+		},
+	}
+
+	service := &Service{
+		repo: repo,
+	}
+
+	err := service.RevokeDevice(
+		context.Background(),
+		"11111111-1111-1111-1111-111111111111",
+		testDeviceID,
+	)
+
+	if err != nil {
+		t.Fatalf(
+			"RevokeDevice() error = %v",
+			err,
+		)
+	}
+
+	if !called {
+		t.Fatal(
+			"RevokeVPNDevice() was not called",
+		)
+	}
+}
+
+func TestDeleteDeviceRemovesConfigs(t *testing.T) {
+
+	configDeleted := false
+	deviceDeleted := false
+
+	repo := &mockVPNRepository{
+
+		getVPNUserFn: func(
+			ctx context.Context,
+			userID string,
+		) (db.VpnUser, error) {
+			return testVPNUser(), nil
+		},
+
+		ListVPNDevicesFunc: func(
+			ctx context.Context,
+			id pgtype.UUID,
+		) ([]db.VpnDevice, error) {
+
+			return []db.VpnDevice{
+				{
+					ID: pgtype.UUID{
+						Bytes: [16]byte{3},
+						Valid: true,
+					},
+				},
+			}, nil
+		},
+
+		DeleteVPNConfigsByDeviceFunc: func(
+			ctx context.Context,
+			id pgtype.UUID,
+		) error {
+
+			configDeleted = true
+			return nil
+		},
+
+		DeleteVPNDeviceFunc: func(
+			ctx context.Context,
+			id pgtype.UUID,
+		) error {
+
+			deviceDeleted = true
+			return nil
+		},
+	}
+
+	service := &Service{
+		repo: repo,
+	}
+
+	err := service.DeleteDevice(
+		context.Background(),
+		"11111111-1111-1111-1111-111111111111",
+		"03000000-0000-0000-0000-000000000000",
+	)
+
+	_ = err
+
+	if !configDeleted {
+		t.Fatal("vpn configs were not deleted")
+	}
+
+	if !deviceDeleted {
+		t.Fatal("device was not deleted")
 	}
 }

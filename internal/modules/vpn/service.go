@@ -54,6 +54,11 @@ type vpnRepository interface {
 		vpnUserID pgtype.UUID,
 	) error
 
+	DeleteVPNConfigsByDevice(
+		ctx context.Context,
+		deviceID pgtype.UUID,
+	) error
+
 	DeleteVPNUser(
 		ctx context.Context,
 		userID pgtype.UUID,
