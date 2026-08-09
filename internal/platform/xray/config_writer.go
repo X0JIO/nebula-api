@@ -31,13 +31,37 @@ func (w *FileWriter) Save(
 
 	dir := filepath.Dir(w.path)
 
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(
+		dir,
+		0755,
+	); err != nil {
 		return err
 	}
 
-	return os.WriteFile(
+	tmp := w.path + ".tmp"
+
+	file, err := os.Create(tmp)
+
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	if _, err := file.Write(data); err != nil {
+		return err
+	}
+
+	if err := file.Sync(); err != nil {
+		return err
+	}
+
+	if err := file.Close(); err != nil {
+		return err
+	}
+
+	return os.Rename(
+		tmp,
 		w.path,
-		data,
-		0644,
 	)
 }

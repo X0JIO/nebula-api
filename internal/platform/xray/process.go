@@ -100,17 +100,36 @@ func (p *WindowsProcessManager) Stop(
 ) error {
 
 	p.mu.Lock()
-	defer p.mu.Unlock()
 
 	if p.cmd == nil {
+		p.mu.Unlock()
 		return nil
 	}
 
-	err := p.cmd.Process.Kill()
-
+	cmd := p.cmd
 	p.cmd = nil
 
-	return err
+	p.mu.Unlock()
+
+	if err := cmd.Process.Signal(os.Interrupt); err != nil {
+
+		return cmd.Process.Kill()
+	}
+
+	done := make(chan error, 1)
+
+	go func() {
+		done <- cmd.Wait()
+	}()
+
+	select {
+
+	case <-ctx.Done():
+		return cmd.Process.Kill()
+
+	case err := <-done:
+		return err
+	}
 }
 
 func (p *WindowsProcessManager) Restart(

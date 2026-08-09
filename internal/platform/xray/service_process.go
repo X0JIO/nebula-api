@@ -21,15 +21,36 @@ func NewService(
 	}
 }
 
+// Deploy generates and writes Xray configuration.
+func (s *Service) Deploy(
+	ctx context.Context,
+) error {
+
+	if s.config == nil {
+		return nil
+	}
+
+	return s.config.Generate(ctx)
+}
+
+// DeployAndRestart applies new config and restarts Xray.
+func (s *Service) DeployAndRestart(
+	ctx context.Context,
+) error {
+
+	if err := s.Deploy(ctx); err != nil {
+		return err
+	}
+
+	return s.Restart(ctx)
+}
+
 func (s *Service) Start(
 	ctx context.Context,
 ) error {
 
-	if s.config != nil {
-
-		if err := s.config.Generate(ctx); err != nil {
-			return err
-		}
+	if err := s.Validate(ctx); err != nil {
+		return err
 	}
 
 	return s.process.Start(ctx)
